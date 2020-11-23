@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<ItemGroup Label="Runtime Dependencies">
+		<PackageReference Update="Funcky" Version="[2.2.0, 3.0.0)" />
+	</ItemGroup>
+	<ItemGroup Label="Build Dependencies">
+		<PackageReference Update="Messerli.CodeStyle" Version="2.0.0-rc.2 " />
+	</ItemGroup>
+	<ItemGroup Label="Test Dependencies">
+		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+		<PackageReference Update="xunit" Version="2.4.0" />
+		<PackageReference Update="xunit.runner.visualstudio" Version="2.4.0" />
+		<PackageReference Update="coverlet.collector" Version="1.0.0" />
+	</ItemGroup>
+</Project>
