@@ -11,12 +11,11 @@ namespace Funcky
 
         public Currency(string currency)
         {
-            _currency = currency;
+            // Load Data from XML Resource
+            _currency = currency; 
         }
 
         public static Currency CHF()
-        {
-            return new Currency(nameof(CHF));
-        }
+            => new Currency(nameof(CHF));
     }
 }

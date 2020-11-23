@@ -15,6 +15,14 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\list_one.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\list_one.xml" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Funcky" PrivateAssets="all" />
   </ItemGroup>

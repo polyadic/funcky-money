@@ -5,10 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace Funcky
 {
     [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201", Justification = "Records are not yet supported by StyleCop")]
-    public record Money
+    public record Money : IMoneyExpression
     {
-        public Money(double amount)
+        public Money(decimal amount)
         {
+            Amount = amount;
             Currency = Currency.CHF();
         }
 
