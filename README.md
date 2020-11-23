@@ -15,7 +15,7 @@ TDD
 * Distribute Money equally into n slices (1CHF into 3 slices: [0.33, 0.33, 0.34])
 * Distribute Money proportionally (1 CHF in 1:5 -> [0.17, 0.83]
 * Support different distribution strategies?
-* Support [SO 4217](https://en.wikipedia.org/wiki/ISO_4217) Currencies
+* Support [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) Currencies
 * Support Minor unit
 * Support calculations smaller than the minor unit? (on Money and Evaluation)
 * ToString supports correct Cultural formatting and Units.
