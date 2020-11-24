@@ -1,18 +1,43 @@
-using System.Diagnostics.CodeAnalysis;
-
-#pragma warning disable SA1649 // SA1649FileNameMustMatchTypeName : Records are not yet supported by StyleCop
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
+using Funcky.Extensions;
 
 namespace Funcky
 {
-    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201", Justification = "Records are not yet supported by StyleCop")]
     public record Currency
     {
-        private string _currency;
-
         public Currency(string currency)
         {
+            using var currencyInformation = IsoCurrencyInformation(currency);
+
+            var first = currencyInformation.Cast<XmlNode>().First();
+
             // Load Data from XML Resource
-            _currency = currency; 
+            CurrencyName = first.SelectSingleNode("CcyNm").InnerText;
+            AlphabeticCurrencyCode = first.SelectSingleNode("Ccy").InnerText;
+            NumericCurrencyCode = first.SelectSingleNode("CcyNbr").InnerText.TryParseInt().GetOrElse(() => throw new NotImplementedException());
+            MinorUnitWidth = first.SelectSingleNode("CcyMnrUnts").InnerText.TryParseInt().GetOrElse(() => throw new NotImplementedException());
+        }
+
+        public string CurrencyName { get; }
+
+        public string AlphabeticCurrencyCode { get; }
+
+        public int NumericCurrencyCode { get; }
+
+        private int MinorUnitWidth { get; }
+
+        public static XmlNodeList IsoCurrencyInformation(string currency)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            using var resource = assembly.GetManifestResourceStream("Funcky.Resources.list_one.xml");
+
+            var xml = new XmlDocument();
+            xml.Load(resource);
+
+            return xml.SelectNodes($"//CcyNtry/Ccy[.='{currency}']/..");
         }
 
         public static Currency CHF()
