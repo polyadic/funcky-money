@@ -39,11 +39,20 @@ namespace Funcky.Test
         [Fact]
         public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAEvaluationContext()
         {
-            var fiveDollars = new Money(5, Option.Some(Currency.CHF()));
+            var fiveFrancs = new Money(5, Option.Some(Currency.CHF()));
             var tenDollars = new Money(10, Option.Some(Currency.USD()));
-            var sum = fiveDollars.Add(tenDollars);
+            var sum = fiveFrancs.Add(tenDollars);
 
             Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
+        }
+
+        [Fact]
+        public void FiveDollarsAreNotFiveFrancs()
+        {
+            var fiveFrancs = new Money(5, Option.Some(Currency.CHF()));
+            var fiveDollars = new Money(5, Option.Some(Currency.USD()));
+
+            Assert.NotEqual(fiveFrancs, fiveDollars);
         }
     }
 }
