@@ -9,7 +9,7 @@ namespace Funcky
             {
                 Money money => money,
                 MoneySum sum => Evaluate(sum),
-                MoneyProduct product => new Money(product.Expression.Evaluate().Amount * product.Factor),
+                MoneyProduct product => Evaluate(product),
                 _ => throw new NotImplementedException(),
             };
 
@@ -22,6 +22,9 @@ namespace Funcky
                 ? new Money(left.Amount + right.Amount)
                 : throw new MissingEvaluationContextException();
         }
+
+        private static Money Evaluate(MoneyProduct product)
+            => new Money(product.Expression.Evaluate().Amount * product.Factor);
 
         private static bool SameEvaluationTarget(Money left, Money right)
             => left.Currency == right.Currency;
