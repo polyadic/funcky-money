@@ -2,13 +2,14 @@ namespace Funcky
 {
     internal record MoneyProduct : IMoneyExpression
     {
-        public MoneyProduct(IMoneyExpression leftMoneyExpression, decimal factor)
+        public MoneyProduct(IMoneyExpression moneyExpression, decimal factor)
         {
-            Left = leftMoneyExpression;
+            Expression = moneyExpression;
             Factor = factor;
         }
 
-        public IMoneyExpression Left { get; }
+        public IMoneyExpression Expression { get; }
+
         public decimal Factor { get; }
     }
 }

@@ -5,7 +5,7 @@ namespace Funcky.Test
     public class MoneyTest
     {
         [Fact]
-        public void YouCanCreateAMoneyObject()
+        public void YouCanCreateAMoneyObjectAndTheAmountIsADecimal()
         {
             var fiveDollars = new Money(5);
 

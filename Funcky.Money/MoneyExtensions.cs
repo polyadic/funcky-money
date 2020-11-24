@@ -9,7 +9,7 @@ namespace Funcky
             {
                 Money money => money,
                 MoneySum sum => new Money(sum.Left.Evaluate().Amount + sum.Right.Evaluate().Amount),
-                MoneyProduct product => new Money(product.Left.Evaluate().Amount * product.Factor),
+                MoneyProduct product => new Money(product.Expression.Evaluate().Amount * product.Factor),
                 _ => throw new NotImplementedException(),
             };
 

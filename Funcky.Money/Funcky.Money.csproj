@@ -24,6 +24,6 @@
     <EmbeddedResource Include="Resources\list_one.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Funcky" PrivateAssets="all" />
+    <PackageReference Include="Funcky" />
   </ItemGroup>
 </Project>
