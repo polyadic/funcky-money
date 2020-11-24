@@ -11,6 +11,16 @@ namespace Funcky
             Currency = currency.GetOrElse(() => FromCurrentCulture());
         }
 
+        public Money(int amount, Option<Currency> currency = default)
+            : this((decimal)amount, currency)
+        {
+        }
+
+        public Money(double amount, Option<Currency> currency = default)
+            : this((decimal)amount, currency)
+        {
+        }
+
         private static Currency FromCurrentCulture()
             => new Currency(RegionFromCurrentCulture().ISOCurrencySymbol);
 

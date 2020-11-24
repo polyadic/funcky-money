@@ -8,11 +8,13 @@ Why not a [money bag](https://deque.blog/2017/08/17/a-study-of-4-money-class-des
 
 While the Money as an expression tree holds structural information which is ultimatly rarely necessary, the equality on a Money expression ultimatly needs a in almost all cases an exchange rate if more than one currency is involved. Therefore I do not accept [this argument](https://deque.blog/2017/08/17/a-study-of-4-money-class-designs-featuring-martin-fowler-kent-beck-and-ward-cunningham-implementations/) as an improvement. Especially if we support more than just sums (multiply, distribute) the money bag is very limited.
 
-TDD
+Requirements
+
 ☑ Use `decimal` `Amount`
 ☑ Support multiple currencies
 ☑ Add two `Money`s in the same `Currency` (5USD + 9USD)
-☐ It should be possible to construct a `Money` from `double`.
+☑ It should be possible to construct a `Money` from  a `double`.
+☐ Constructing A Money from float should give the expceted value (5.7f => 5.70m) 
 ☐ Cleanup `Currency`. (XML handling should be extracted)
 ☐ Add two `Money`s with a different `Currency` (5USD + 10CHF)
 ☐ Two moneys are equal if they have the same `Currency` and the same `Amount`
