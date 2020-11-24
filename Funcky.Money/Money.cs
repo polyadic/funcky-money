@@ -28,6 +28,7 @@ namespace Funcky
             => new RegionInfo(CultureInfo.CurrentCulture.LCID);
 
         public decimal Amount { get; }
+
         public Currency Currency { get; }
     }
 }

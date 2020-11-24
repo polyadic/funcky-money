@@ -11,5 +11,15 @@ namespace Funcky
         {
             return new MoneyProduct(leftMoneyExpression, factor);
         }
+
+        public static IMoneyExpression Multiply(this IMoneyExpression leftMoneyExpression, int factor)
+        {
+            return new MoneyProduct(leftMoneyExpression, factor);
+        }
+
+        public static IMoneyExpression Multiply(this IMoneyExpression leftMoneyExpression, double factor)
+        {
+            return new MoneyProduct(leftMoneyExpression, (decimal)factor);
+        }
     }
 }

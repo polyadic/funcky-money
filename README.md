@@ -22,7 +22,7 @@ Requirements
 * [ ] Support different Exchange rates (evaluation)
 * [ ] Evaluating arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`)
 * [ ] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`)
-* [ ] Multiply a `Money` with a real number (`int`, `double`, `float` and `decimal`)
+* [X] Multiply a `Money` with a real number (`int`, `double`, `float` and `decimal`)
 * [ ] There is a neutral `Money` element (`Zero`)
 * [ ] Respect the  [Monadic Laws](https://blog.ploeh.dk/2017/10/16/money-monoid/)?
 * [ ] Distribute `Money` equally into n slices (1CHF into 3 slices: [0.33, 0.33, 0.34])

@@ -54,5 +54,16 @@ namespace Funcky.Test
 
             Assert.NotEqual(fiveFrancs, fiveDollars);
         }
+
+        [Fact]
+        public void MoneyCanBeMultipliedByConstantsFactors()
+        {
+            var fiveFrancs = new Money(5);
+
+            Assert.Equal(15.00m, fiveFrancs.Multiply(3).Evaluate().Amount);
+            Assert.Equal(16.00m, fiveFrancs.Multiply(3.2).Evaluate().Amount);
+            Assert.Equal(17.50m, fiveFrancs.Multiply(3.5f).Evaluate().Amount);
+            Assert.Equal(19.00m, fiveFrancs.Multiply(3.8m).Evaluate().Amount);
+        }
     }
 }
