@@ -42,5 +42,8 @@ namespace Funcky
 
         public static Currency CHF()
             => new Currency(nameof(CHF));
+
+        public static Currency USD()
+            => new Currency(nameof(USD));
     }
 }

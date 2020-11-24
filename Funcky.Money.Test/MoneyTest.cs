@@ -1,3 +1,4 @@
+using Funcky.Monads;
 using Xunit;
 
 namespace Funcky.Test
@@ -5,7 +6,7 @@ namespace Funcky.Test
     public class MoneyTest
     {
         [Fact]
-        public void YouCanCreateAMoneyFromDifferentTypesAndTheAmountIsADecimal()
+        public void WeCanCreateAMoneyFromDifferentTypesAndTheAmountIsADecimal()
         {
             var fiveDollars = new Money(5);
             var fiveDollarsFifty = new Money(5.5f);
@@ -33,6 +34,16 @@ namespace Funcky.Test
             var tenDollars = new Money(10);
 
             Assert.Equal(15.00m, fiveDollars.Add(tenDollars).Evaluate().Amount);
+        }
+
+        [Fact]
+        public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAEvaluationContext()
+        {
+            var fiveDollars = new Money(5, Option.Some(Currency.CHF()));
+            var tenDollars = new Money(10, Option.Some(Currency.USD()));
+            var sum = fiveDollars.Add(tenDollars);
+
+            Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
         }
     }
 }

@@ -16,7 +16,8 @@ Requirements
 * [x] It should be possible to construct a `Money` from  a `double`.
 * [ ] Constructing A Money from float should give the expceted value (5.7f => 5.70m) 
 * [ ] Cleanup `Currency`. (XML handling should be extracted)
-* [ ] Add two `Money`s with a different `Currency` (5USD + 10CHF)
+* [x] Add two `Money`s with a different `Currency` (5USD + 10CHF)
+* [x] Two moneys without Exchange rates should not Evaluate to a result
 * [ ] Two moneys are equal if they have the same `Currency` and the same `Amount`
 * [ ] Support different Exchange rates (evaluation)
 * [ ] Evaluating arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`)
