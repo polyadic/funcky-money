@@ -20,7 +20,8 @@ Requirements
 * [x] Two moneys without Exchange rates should not Evaluate to a result.
 * [x] Two moneys are equal if they have the same `Currency` and the same `Amount`.
 * [ ] Ability to Rounding to 0.05 / distribute 1CHF as (0.35, 0.35, 0.30)
-* [ ] Support different Exchange rates (evaluation).
+* [x] Support different Exchange rates (evaluation).
+* [ ] Every construction of `Money` currently rounds to two digits, while this is interesting for 5.7f, it has bad effects in evaluation. We should remove the rounding again, and should only round non-decimals.
 * [ ] Evaluating arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
 * [ ] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`).
 * [X] Multiply a `Money` with a real number (`int`, `double`, `float` and `decimal`).

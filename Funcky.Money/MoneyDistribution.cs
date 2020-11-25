@@ -5,15 +5,15 @@ using Funcky.Extensions;
 
 namespace Funcky
 {
-    internal class MoneyDistribution : IEnumerable<IMoneyExpression>
+    internal class MoneyDistribution : IEnumerable<IMoneyExpression>, IMoneyExpression
     {
         public MoneyDistribution(IMoneyExpression moneyExpression, IEnumerable<int> factors)
         {
-            MoneyExpression = moneyExpression;
+            Expression = moneyExpression;
             Factors = factors.ToList();
         }
 
-        public IMoneyExpression MoneyExpression { get; }
+        public IMoneyExpression Expression { get; }
 
         public List<int> Factors { get; }
 
@@ -22,6 +22,9 @@ namespace Funcky
                 .WithIndex()
                 .Select(f => (IMoneyExpression)new MoneyDistributionPart(this, f.Index))
                 .GetEnumerator();
+
+        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
+            => visitor.Visit(this);
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();

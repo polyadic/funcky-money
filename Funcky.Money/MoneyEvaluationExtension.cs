@@ -6,7 +6,7 @@ namespace Funcky
     {
         public static Money Evaluate(this IMoneyExpression moneyExpression, Option<MoneyEvaluationContext> context = default)
         {
-            var visitor = new EvaluationVisitor();
+            var visitor = new EvaluationVisitor(context);
 
             moneyExpression.Accept(visitor);
 

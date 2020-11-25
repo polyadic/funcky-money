@@ -118,7 +118,9 @@ namespace Funcky.Test
         {
             var fiveFrancs = new Money(5, Option.Some(Currency.CHF()));
             var tenDollars = new Money(10, Option.Some(Currency.USD()));
-            var sum = fiveFrancs.Add(tenDollars);
+            var fiveEuros = new Money(5, Option.Some(Currency.EUR()));
+
+            var sum = fiveFrancs.Add(tenDollars).Add(fiveEuros).Multiply(2);
 
             var context = MoneyEvaluationContext
                 .Builder
@@ -128,7 +130,7 @@ namespace Funcky.Test
                 .WithExchangeRate(Currency.EUR(), 1.0715m)
                 .Build();
 
-            Assert.Equal(10.00m, sum.Evaluate(Option.Some(context)).Amount);
+            Assert.Equal(38.72m, sum.Evaluate(Option.Some(context)).Amount);
         }
     }
 }

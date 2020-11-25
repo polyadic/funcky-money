@@ -9,16 +9,24 @@ namespace Funcky
     internal class EvaluationVisitor : IMoneyExpressionVisitor
     {
         private readonly Stack<Money> _stack = new();
+        private readonly Option<MoneyEvaluationContext> _context;
 
-        public EvaluationVisitor()
+        public EvaluationVisitor(Option<MoneyEvaluationContext> context)
         {
+            _context = context;
         }
 
         public Money Result => _stack.Peek();
 
         public void Visit(Money money)
         {
-            _stack.Push(money);
+            var targetCurrency = _context.AndThen(c => c.TargetCurrency);
+
+            var result = _context.Match(
+                none: money,
+                some: c => ExchangeToTargetCurrency(money, c.TargetCurrency));
+
+            _stack.Push(result);
         }
 
         public void Visit(MoneySum sum)
@@ -45,43 +53,54 @@ namespace Funcky
 
         public void Visit(MoneyDistributionPart part)
         {
-            _stack.Push(new Money(SliceAmount(part), Option.Some(Total(part.Distribution).Currency)));
+            ((IMoneyExpression)part.Distribution).Accept(this);
+
+            var partAmount = SliceAmount(part);
+            var expression = _stack.Pop();
+
+            _stack.Push(new Money(partAmount, Option.Some(expression.Currency)));
         }
 
-        public void Visit(MoneyDistribution money)
-        {
-            throw new System.NotImplementedException();
-        }
+        public void Visit(MoneyDistribution distribution)
+            => distribution.Expression.Accept(this);
 
         private static bool SameEvaluationTarget(Money left, Money right)
             => left.Currency == right.Currency;
 
-        private static decimal SliceAmount(MoneyDistributionPart part)
+        private decimal SliceAmount(MoneyDistributionPart part)
             => Ɛ(part) * part.Index < DistributionRest(part)
                 ? Slice(part.Distribution, part.Index) + Ɛ(part)
                 : Slice(part.Distribution, part.Index);
 
-        private static decimal Ɛ(MoneyDistributionPart part)
-            => PowerOfTen(-Total(part.Distribution).Currency.MinorUnitDigits);
+        private decimal Ɛ(MoneyDistributionPart part)
+            => PowerOfTen(-_stack.Peek().Currency.MinorUnitDigits);
 
-        private static Money Total(MoneyDistribution distribution)
-            => distribution.MoneyExpression.Evaluate();
+        private decimal DistributionRest(MoneyDistributionPart part)
+            => _stack.Peek().Amount - DistributedTotal(part);
 
-        private static decimal DistributionRest(MoneyDistributionPart part)
-            => Total(part.Distribution).Amount - DistributedTotal(part);
-
-        private static decimal DistributedTotal(MoneyDistributionPart part)
+        private decimal DistributedTotal(MoneyDistributionPart part)
             => part
                 .Distribution
                 .Factors
                 .WithIndex()
                 .Sum(f => Slice(part.Distribution, f.Index));
 
-        private static decimal Slice(MoneyDistribution distribution, int index)
-            => Truncate(ExactSlice(distribution, index), Total(distribution).Currency.MinorUnitDigits);
+        private decimal Slice(MoneyDistribution distribution, int index)
+            => Truncate(ExactSlice(distribution, index), _stack.Peek().Currency.MinorUnitDigits);
 
-        private static decimal ExactSlice(MoneyDistribution distribution, int index)
-            => Total(distribution).Amount / DistributionTotal(distribution) * distribution.Factors[index];
+        private decimal ExactSlice(MoneyDistribution distribution, int index)
+            => _stack.Peek().Amount / DistributionTotal(distribution) * distribution.Factors[index];
+
+        private Money ExchangeToTargetCurrency(Money money, Currency targetCurrency)
+        {
+            return money.Currency == targetCurrency
+                ? money
+                : _context.Match(
+                    none: () => throw new MissingEvaluationContextException("No context"),
+                    some: c => c.ExchangeRates.TryGetValue(money.Currency).Match(
+                        none: () => throw new MissingEvaluationContextException($"No exchange rate from: {money.Currency.CurrencyName} to: TARGET"),
+                        some: e => new Money(money.Amount * e, Option.Some(c.TargetCurrency))));
+        }
 
         private static decimal Truncate(decimal amount, int digits)
             => decimal.Truncate(amount * PowerOfTen(digits)) / PowerOfTen(digits);
