@@ -9,6 +9,7 @@ namespace Funcky
         }
 
         public IMoneyExpression Left { get; }
+
         public IMoneyExpression Right { get; }
     }
 }

@@ -1,3 +1,4 @@
+using System.Linq;
 using Funcky.Monads;
 using Xunit;
 
@@ -64,6 +65,37 @@ namespace Funcky.Test
             Assert.Equal(16.00m, fiveFrancs.Multiply(3.2).Evaluate().Amount);
             Assert.Equal(17.50m, fiveFrancs.Multiply(3.5f).Evaluate().Amount);
             Assert.Equal(19.00m, fiveFrancs.Multiply(3.8m).Evaluate().Amount);
+        }
+
+        [Fact]
+        public void DistributeMoneyEqually()
+        {
+            var fiveFrancs = new Money(5);
+            var sum = fiveFrancs.Add(fiveFrancs);
+            var distribution = sum.Distribute(3);
+
+            Assert.Equal(sum.Evaluate().Amount, distribution.Select(e => e.Evaluate().Amount).Sum());
+
+            Assert.Collection(
+                distribution.Select(e => e.Evaluate().Amount),
+                item => Assert.Equal(3.34m, item),
+                item => Assert.Equal(3.33m, item),
+                item => Assert.Equal(3.33m, item));
+        }
+
+        [Fact]
+        public void DistributeMoneyProportionally()
+        {
+            var fiftyCents = new Money(0.5);
+            var sum = fiftyCents.Add(fiftyCents);
+            var distribution = sum.Distribute(new[] { 5, 1 });
+
+            Assert.Equal(sum.Evaluate().Amount, distribution.Select(e => e.Evaluate().Amount).Sum());
+
+            Assert.Collection(
+                distribution.Select(e => e.Evaluate().Amount),
+                item => Assert.Equal(0.84m, item),
+                item => Assert.Equal(0.16m, item));
         }
     }
 }

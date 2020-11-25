@@ -18,7 +18,7 @@ namespace Funcky
             CurrencyName = first.SelectSingleNode("CcyNm").InnerText;
             AlphabeticCurrencyCode = first.SelectSingleNode("Ccy").InnerText;
             NumericCurrencyCode = first.SelectSingleNode("CcyNbr").InnerText.TryParseInt().GetOrElse(() => throw new NotImplementedException());
-            MinorUnitWidth = first.SelectSingleNode("CcyMnrUnts").InnerText.TryParseInt().GetOrElse(() => throw new NotImplementedException());
+            MinorUnitDigits = first.SelectSingleNode("CcyMnrUnts").InnerText.TryParseInt().GetOrElse(() => throw new NotImplementedException());
         }
 
         public string CurrencyName { get; }
@@ -27,7 +27,7 @@ namespace Funcky
 
         public int NumericCurrencyCode { get; }
 
-        private int MinorUnitWidth { get; }
+        public int MinorUnitDigits { get; }
 
         public static XmlNodeList IsoCurrencyInformation(string currency)
         {

@@ -11,7 +11,7 @@
     <Product>Funcky.Money</Product>
     <Description>Funcky.Money is the Money-Class you want to have.</Description>
     <PackageTags>Functional Money</PackageTags>
-    <Version>0.1.0</Version>
+    <Version>1.0.0-pre</Version>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
