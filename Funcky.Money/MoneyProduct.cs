@@ -11,5 +11,8 @@ namespace Funcky
         public IMoneyExpression Expression { get; }
 
         public decimal Factor { get; }
+
+        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
+            => visitor.Visit(this);
     }
 }

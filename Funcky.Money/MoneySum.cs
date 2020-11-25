@@ -11,5 +11,8 @@ namespace Funcky
         public IMoneyExpression Left { get; }
 
         public IMoneyExpression Right { get; }
+
+        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
+            => visitor.Visit(this);
     }
 }

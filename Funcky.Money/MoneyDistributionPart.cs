@@ -11,5 +11,8 @@ namespace Funcky
         public MoneyDistribution Distribution { get; }
 
         public int Index { get; }
+
+        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
+            => visitor.Visit(this);
     }
 }

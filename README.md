@@ -19,6 +19,7 @@ Requirements
 * [x] Add two `Money`s with a different `Currency` (5USD + 10CHF).
 * [x] Two moneys without Exchange rates should not Evaluate to a result.
 * [x] Two moneys are equal if they have the same `Currency` and the same `Amount`.
+* [ ] Ability to Rounding to 0.05 / distribute 1CHF as (0.35, 0.35, 0.30)
 * [ ] Support different Exchange rates (evaluation).
 * [ ] Evaluating arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
 * [ ] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`).

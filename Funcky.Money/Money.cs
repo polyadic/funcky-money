@@ -28,6 +28,9 @@ namespace Funcky
         private static RegionInfo RegionFromCurrentCulture()
             => new RegionInfo(CultureInfo.CurrentCulture.LCID);
 
+        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
+            => visitor.Visit(this);
+
         public decimal Amount { get; }
 
         public Currency Currency { get; }
