@@ -1,49 +1,34 @@
 using System;
-using System.Linq;
-using System.Reflection;
-using System.Xml;
-using Funcky.Extensions;
 
 namespace Funcky
 {
     public record Currency
     {
+        private Iso4217Record _currencyInformation;
+        private static readonly Lazy<Currency> _chf = new Lazy<Currency>(() => new(nameof(CHF)));
+        private static readonly Lazy<Currency> _eur = new Lazy<Currency>(() => new(nameof(EUR)));
+        private static readonly Lazy<Currency> _usd = new Lazy<Currency>(() => new(nameof(USD)));
+
         public Currency(string currency)
         {
-            using var currencyInformation = IsoCurrencyInformation(currency);
-
-            var first = currencyInformation.Cast<XmlNode>().First();
-
-            // Load Data from XML Resource
-            CurrencyName = first.SelectSingleNode("CcyNm").InnerText;
-            AlphabeticCurrencyCode = first.SelectSingleNode("Ccy").InnerText;
-            NumericCurrencyCode = first.SelectSingleNode("CcyNbr").InnerText.TryParseInt().GetOrElse(() => throw new NotImplementedException());
-            MinorUnitDigits = first.SelectSingleNode("CcyMnrUnts").InnerText.TryParseInt().GetOrElse(() => throw new NotImplementedException());
+            _currencyInformation = CurrencyInformationIso4217.Instance[currency];
         }
 
-        public string CurrencyName { get; }
+        public string CurrencyName => _currencyInformation.CurrencyName;
 
-        public string AlphabeticCurrencyCode { get; }
+        public string AlphabeticCurrencyCode => _currencyInformation.AlphabeticCurrencyCode;
 
-        public int NumericCurrencyCode { get; }
+        public int NumericCurrencyCode => _currencyInformation.NumericCurrencyCode;
 
-        public int MinorUnitDigits { get; }
-
-        public static XmlNodeList IsoCurrencyInformation(string currency)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            using var resource = assembly.GetManifestResourceStream("Funcky.Resources.list_one.xml");
-
-            var xml = new XmlDocument();
-            xml.Load(resource);
-
-            return xml.SelectNodes($"//CcyNtry/Ccy[.='{currency}']/..");
-        }
+        public int MinorUnitDigits => _currencyInformation.MinorUnitDigits;
 
         public static Currency CHF()
-            => new Currency(nameof(CHF));
+            => _chf.Value;
+
+        public static Currency EUR()
+            => _eur.Value;
 
         public static Currency USD()
-            => new Currency(nameof(USD));
+            => _usd.Value;
     }
 }
