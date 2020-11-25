@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using Funcky.Monads;
 
@@ -7,8 +8,8 @@ namespace Funcky
     {
         public Money(decimal amount, Option<Currency> currency = default)
         {
-            Amount = amount;
             Currency = currency.GetOrElse(() => FromCurrentCulture());
+            Amount = Math.Round(amount, Currency.MinorUnitDigits, MidpointRounding.ToEven);
         }
 
         public Money(int amount, Option<Currency> currency = default)

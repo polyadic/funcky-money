@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Funcky.Monads;
 using Xunit;
@@ -96,6 +97,20 @@ namespace Funcky.Test
                 distribution.Select(e => e.Evaluate().Amount),
                 item => Assert.Equal(0.84m, item),
                 item => Assert.Equal(0.16m, item));
+        }
+
+        [Fact]
+        public void InputValuesGetRoundedToTheGivenPrecision()
+        {
+            var fiveDollarsSeventy = new Money(5.7f);
+            var midpoint1 = new Money(5.715m);
+            var midpoint2 = new Money(5.725m);
+            var pi = new Money(Math.PI);
+
+            Assert.Equal(5.70m, fiveDollarsSeventy.Amount);
+            Assert.Equal(5.72m, midpoint1.Amount);
+            Assert.Equal(5.72m, midpoint2.Amount);
+            Assert.Equal(3.14m, pi.Amount);
         }
     }
 }
