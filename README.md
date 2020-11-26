@@ -38,3 +38,4 @@ Requirements
 * [ ] Should A `Money` be constructible implicitly?
 * [ ] Should we have a substract and divide? We have negative numbers and fractions anyway.
 * [ ] Support operators on the IMoneyExpression interface.
+* [ ] Convert currencies as late as possible (keep Moneybags per currency in the vistor).

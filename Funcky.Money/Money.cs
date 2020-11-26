@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using Funcky.Monads;
 
 namespace Funcky
@@ -8,7 +7,7 @@ namespace Funcky
     {
         public Money(decimal amount, Option<Currency> currency = default)
         {
-            Currency = currency.GetOrElse(() => FromCurrentCulture());
+            Currency = currency.GetOrElse(() => CurrencyCulture.CurrentCurrency());
             Amount = Math.Round(amount, Currency.MinorUnitDigits, MidpointRounding.ToEven);
         }
 
@@ -22,17 +21,11 @@ namespace Funcky
         {
         }
 
-        private static Currency FromCurrentCulture()
-            => new Currency(RegionFromCurrentCulture().ISOCurrencySymbol);
-
-        private static RegionInfo RegionFromCurrentCulture()
-            => new RegionInfo(CultureInfo.CurrentCulture.LCID);
-
-        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
-            => visitor.Visit(this);
-
         public decimal Amount { get; }
 
         public Currency Currency { get; }
+
+        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
+            => visitor.Visit(this);
     }
 }
