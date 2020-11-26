@@ -132,5 +132,18 @@ namespace Funcky.Test
 
             Assert.Equal(38.72m, sum.Evaluate(Option.Some(context)).Amount);
         }
+
+        [Fact]
+        public void WeCanDefineMoneyExpressionesWithOperators()
+        {
+            var fiveDollars = new Money(5);
+            var tenDollars = new Money(10);
+
+            var sum = fiveDollars + tenDollars + fiveDollars;
+            var product = 3.00m * tenDollars;
+
+            Assert.Equal(new Money(20), sum.Evaluate());
+            Assert.Equal(new Money(30), product.Evaluate());
+        }
     }
 }

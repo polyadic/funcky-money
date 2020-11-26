@@ -27,5 +27,15 @@ namespace Funcky
 
         void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
             => visitor.Visit(this);
+
+        // These operators supports the operators on IMoneyExpression, because Money + Money or Money * factor does not work otherwise without a cast.
+        public static IMoneyExpression operator *(Money moneyExpression, decimal factor)
+            => new MoneyProduct(moneyExpression, factor);
+
+        public static IMoneyExpression operator *(decimal factor, Money moneyExpression)
+            => new MoneyProduct(moneyExpression, factor);
+
+        public static IMoneyExpression operator +(Money leftMoneyExpression, IMoneyExpression rightMoneyExpression)
+            => new MoneySum(leftMoneyExpression, rightMoneyExpression);
     }
 }

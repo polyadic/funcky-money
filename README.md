@@ -37,5 +37,7 @@ Requirements
 * [ ] Parse `Money` from string considering cultural formatting and units.
 * [ ] Should A `Money` be constructible implicitly?
 * [ ] Should we have a substract and divide? We have negative numbers and fractions anyway.
-* [ ] Support operators on the IMoneyExpression interface.
+* [x] Support operators on the IMoneyExpression interface.
 * [ ] Convert currencies as late as possible (keep Moneybags per currency in the `EvaluationVisitor`).
+* [ ] Should adding a number to a money be possible (fiveDollars + 2.00m)?
+* [ ] Do we need Add, Multiply etc. if we have operators?
