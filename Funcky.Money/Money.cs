@@ -29,6 +29,8 @@ namespace Funcky
 
         public Currency Currency { get; }
 
+        public decimal Precision { get; set; }
+
         public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
         {
             var selectedCurrency = SelectCurrency(currency);

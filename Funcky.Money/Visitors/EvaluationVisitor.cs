@@ -80,12 +80,12 @@ namespace Funcky
             => left.Currency == right.Currency;
 
         private decimal SliceAmount(MoneyDistributionPart part)
-            => Ɛ(part) * part.Index < DistributionRest(part)
-                ? Slice(part.Distribution, part.Index) + Ɛ(part)
+            => Ɛ() * part.Index < DistributionRest(part)
+                ? Slice(part.Distribution, part.Index) + Ɛ()
                 : Slice(part.Distribution, part.Index);
 
-        private decimal Ɛ(MoneyDistributionPart part)
-            => PowerOfTen(-_stack.Peek().Currency.MinorUnitDigits);
+        private decimal Ɛ()
+            => Power.OfTen(-_stack.Peek().Currency.MinorUnitDigits);
 
         private decimal DistributionRest(MoneyDistributionPart part)
             => _stack.Peek().Amount - DistributedTotal(part);
@@ -103,22 +103,16 @@ namespace Funcky
         private decimal ExactSlice(MoneyDistribution distribution, int index)
             => _stack.Peek().Amount / DistributionTotal(distribution) * distribution.Factors[index];
 
-        private Money ExchangeToTargetCurrency(Money money, Currency targetCurrency)
-        {
-            return money.Currency == targetCurrency
+        private Money ExchangeToTargetCurrency(Money money, Currency targetCurrency) => money.Currency == targetCurrency
                 ? money
                 : _context.Match(
                     none: () => throw new MissingEvaluationContextException("No context"),
                     some: c => c.ExchangeRates.TryGetValue(money.Currency).Match(
                         none: () => throw new MissingEvaluationContextException($"No exchange rate from: {money.Currency.CurrencyName} to: TARGET"),
                         some: e => new Money(money.Amount * e, Option.Some(c.TargetCurrency))));
-        }
 
         private static decimal Truncate(decimal amount, int digits)
-            => decimal.Truncate(amount * PowerOfTen(digits)) / PowerOfTen(digits);
-
-        private static decimal PowerOfTen(int exponent)
-            => Enumerable.Repeat(exponent > 0 ? 10m : 0.1m, Math.Abs(exponent)).Aggregate(1m, (p, b) => b * p);
+            => decimal.Truncate(amount * Power.OfTen(digits)) / Power.OfTen(digits);
 
         private static int DistributionTotal(MoneyDistribution distribution)
             => distribution.Factors.Sum();

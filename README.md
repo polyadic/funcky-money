@@ -52,3 +52,4 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [ ] Do we need Add, Multiply etc. if we have operators?
 * [ ] Serialize unevaluated IExpressions?
 * [ ] Deserialze unevaluated IExpressions?
+* [ ] Static constructor for most used Currencies, this could inject rules like precision: Money.CHF(2.00m)
