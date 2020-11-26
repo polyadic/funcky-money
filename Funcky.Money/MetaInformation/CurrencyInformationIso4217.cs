@@ -30,24 +30,33 @@ namespace Funcky
             => _instance.Value;
 
         public Iso4217Record this[string currencyCode] =>
-            _records.TryGetValue(currencyCode).Match(
-                    none: () => LoadFromXml(currencyCode),
-                    some: Functional.Identity);
+            _records
+            .TryGetValue(currencyCode)
+            .GetOrElse(() => StoreRecord(LoadFromXml(currencyCode)));
+
+        private Iso4217Record StoreRecord(Iso4217Record iso4217Record)
+        {
+            _records.Add(iso4217Record.AlphabeticCurrencyCode, iso4217Record);
+
+            return iso4217Record;
+        }
 
         private Iso4217Record LoadFromXml(string currencyCode)
         {
             using var currencyInformation = IsoCurrencyInformation(currencyCode);
 
-            var result = new Iso4217Record(
+            return Option
+                .FromNullable(currencyInformation)
+                .AndThen(FillIso4217Record)
+                .GetOrElse(() => throw new Exception("Missing currency information"));
+        }
+
+        private Iso4217Record FillIso4217Record(XmlNodeList currencyInformation)
+            => new Iso4217Record(
                 CurrencyName(currencyInformation),
                 AlphabeticCurrencyCode(currencyInformation),
                 NumericCurrencyCode(currencyInformation),
                 MinorUnitDigits(currencyInformation));
-
-            _records.Add(result.AlphabeticCurrencyCode, result);
-
-            return result;
-        }
 
         private static string CurrencyName(XmlNodeList currencyInformation)
             => ExtractNodeText(currencyInformation, CurrencyNameNode);
@@ -62,21 +71,25 @@ namespace Funcky
             => ExtractNodeText(currencyInformation, MinorUnitNode).TryParseInt().GetOrElse(() => throw new NotImplementedException());
 
         private static string ExtractNodeText(XmlNodeList currencyInformation, string nodeName)
-            => currencyInformation
-                .Cast<XmlNode>()
-                .First()
-                .SelectSingleNode(nodeName)
-                .InnerText;
+            => Option.FromNullable(currencyInformation
+                            .Cast<XmlNode>()
+                            .First()
+                            .SelectSingleNode(nodeName))
+                            .AndThen(n => n.InnerText)
+                            .GetOrElse(() => throw new Exception("Missing currency information"));
 
         private void ParseIsoXml()
         {
             var assembly = Assembly.GetExecutingAssembly();
             using var resource = assembly.GetManifestResourceStream(Iso4217Resource);
 
-            _xml.Load(resource);
+            if (resource != null)
+            {
+                _xml.Load(resource);
+            }
         }
 
-        private XmlNodeList IsoCurrencyInformation(string currency)
+        private XmlNodeList? IsoCurrencyInformation(string currency)
         {
             return _xml.SelectNodes($"//CcyNtry/Ccy[.='{currency}']/..");
         }

@@ -32,10 +32,10 @@ Requirements
 * [ ] Support different distribution strategies?
 * [x] Support [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) Currencies.
 * [ ] Support Minor unit.
-* [ ] Support calculations smaller than the minor unit? (on `Money` and Evaluation)
+* [ ] Support calculations smaller than the minor unit? (on `Money` and `EvaluationVisitor`)
 * [ ] ToString supports correct cultural formatting and units.
 * [ ] Parse `Money` from string considering cultural formatting and units.
 * [ ] Should A `Money` be constructible implicitly?
 * [ ] Should we have a substract and divide? We have negative numbers and fractions anyway.
 * [ ] Support operators on the IMoneyExpression interface.
-* [ ] Convert currencies as late as possible (keep Moneybags per currency in the vistor).
+* [ ] Convert currencies as late as possible (keep Moneybags per currency in the `EvaluationVisitor`).
