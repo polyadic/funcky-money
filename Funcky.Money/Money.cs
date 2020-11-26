@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using Funcky.Extensions;
 using Funcky.Monads;
 
 namespace Funcky
@@ -9,7 +11,7 @@ namespace Funcky
 
         public Money(decimal amount, Option<Currency> currency = default)
         {
-            Currency = currency.GetOrElse(() => CurrencyCulture.CurrentCurrency());
+            Currency = SelectCurrency(currency);
             Amount = Math.Round(amount, Currency.MinorUnitDigits, MidpointRounding.ToEven);
         }
 
@@ -27,6 +29,15 @@ namespace Funcky
 
         public Currency Currency { get; }
 
+        public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
+        {
+            var selectedCurrency = SelectCurrency(currency);
+
+            return money
+                .TryParseDecimal(NumberStyles.Currency, CurrencyCulture.CultureInfoFromCurrency(selectedCurrency))
+                .AndThen(m => new Money(m, Option.Some(selectedCurrency)));
+        }
+
         public override string ToString()
             => string.Format(CurrencyCulture.CultureInfoFromCurrency(Currency), "{0:C}", Amount);
 
@@ -42,5 +53,8 @@ namespace Funcky
 
         public static IMoneyExpression operator +(Money leftMoneyExpression, IMoneyExpression rightMoneyExpression)
             => new MoneySum(leftMoneyExpression, rightMoneyExpression);
+
+        private static Currency SelectCurrency(Option<Currency> currency)
+            => currency.GetOrElse(() => CurrencyCulture.CurrentCurrency());
     }
 }

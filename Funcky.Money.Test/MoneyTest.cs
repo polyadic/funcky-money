@@ -1,7 +1,7 @@
 using System;
-using System.Globalization;
 using System.Linq;
 using Funcky.Monads;
+using Funcky.Xunit;
 using Xunit;
 
 namespace Funcky.Test
@@ -160,11 +160,24 @@ namespace Funcky.Test
         [Fact]
         public void MoneyFormatsCorrectlyAccordingToTheCurrency()
         {
-            var fiveFrancs = new Money(5, Option.Some(Currency.CHF()));
-            var fiveDollars = new Money(5, Option.Some(Currency.USD()));
+            var thousandFrancs = new Money(-1000, Option.Some(Currency.CHF()));
+            var thousandDollars = new Money(-1000, Option.Some(Currency.USD()));
 
-            Assert.Equal("CHF 5.00", fiveFrancs.ToString());
-            Assert.Equal("$5.00", fiveDollars.ToString());
+            Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
+            Assert.Equal("-$1,000.00", thousandDollars.ToString());
+        }
+
+        [Fact]
+        public void MoneyParsesCorrectlyFromString()
+        {
+            var r1 = FunctionalAssert.IsSome(Money.ParseOrNone("CHF-1’000.00", Option.Some(Currency.CHF())));
+            Assert.Equal(new Money(-1000, Option.Some(Currency.CHF())), r1);
+
+            var r2 = FunctionalAssert.IsSome(Money.ParseOrNone("-$1,000.00", Option.Some(Currency.USD())));
+            Assert.Equal(new Money(-1000, Option.Some(Currency.USD())), r2);
+
+            var r3 = FunctionalAssert.IsSome(Money.ParseOrNone("1000", Option.Some(Currency.CHF())));
+            Assert.Equal(new Money(1000, Option.Some(Currency.CHF())), r3);
         }
     }
 }

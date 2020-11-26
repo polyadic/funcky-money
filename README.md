@@ -44,7 +44,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [ ] Support Minor unit.
 * [ ] Support calculations smaller than the minor unit? (on `Money` and `EvaluationVisitor`)
 * [x] `ToString` supports correct cultural formatting and units.
-* [ ] Parse `Money` from string considering cultural formatting and units.
+* [x] Parse `Money` from string considering cultural formatting and units.
 * [ ] Should A `Money` be constructible implicitly?
 * [ ] Should we have a substract and divide? We have negative numbers and fractions anyway.
 * [x] Support operators on the IMoneyExpression interface.

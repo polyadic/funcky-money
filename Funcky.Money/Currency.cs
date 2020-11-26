@@ -14,13 +14,17 @@ namespace Funcky
             _currencyInformation = CurrencyInformationIso4217.Instance[currency];
         }
 
-        public string CurrencyName => _currencyInformation.CurrencyName;
+        public string CurrencyName
+            => _currencyInformation.CurrencyName;
 
-        public string AlphabeticCurrencyCode => _currencyInformation.AlphabeticCurrencyCode;
+        public string AlphabeticCurrencyCode
+            => _currencyInformation.AlphabeticCurrencyCode;
 
-        public int NumericCurrencyCode => _currencyInformation.NumericCurrencyCode;
+        public int NumericCurrencyCode
+            => _currencyInformation.NumericCurrencyCode;
 
-        public int MinorUnitDigits => _currencyInformation.MinorUnitDigits;
+        public int MinorUnitDigits
+            => _currencyInformation.MinorUnitDigits;
 
         public static Currency CHF()
             => _chf.Value;
