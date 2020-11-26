@@ -41,7 +41,6 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Distribute `Money` proportionally (1 CHF in 1:5 -> [0.17, 0.83]).
 * [ ] Support different distribution strategies?
 * [x] Support [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) Currencies.
-* [ ] Support Minor unit.
 * [ ] Support calculations smaller than the minor unit? (on `Money` and `EvaluationVisitor`)
 * [x] `ToString` supports correct cultural formatting and units.
 * [x] Parse `Money` from string considering cultural formatting and units.
