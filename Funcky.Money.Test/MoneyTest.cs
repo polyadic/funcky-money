@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using Funcky.Monads;
 using Xunit;
@@ -154,6 +155,16 @@ namespace Funcky.Test
 
             Assert.Equal(fiveFrancs, (fiveFrancs + Money.Zero).Evaluate());
             Assert.Equal(fiveDollars, (fiveDollars + Money.Zero).Evaluate());
+        }
+
+        [Fact]
+        public void MoneyFormatsCorrectlyAccordingToTheCurrency()
+        {
+            var fiveFrancs = new Money(5, Option.Some(Currency.CHF()));
+            var fiveDollars = new Money(5, Option.Some(Currency.USD()));
+
+            Assert.Equal("CHF 5.00", fiveFrancs.ToString());
+            Assert.Equal("$5.00", fiveDollars.ToString());
         }
     }
 }

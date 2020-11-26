@@ -27,6 +27,9 @@ namespace Funcky
 
         public Currency Currency { get; }
 
+        public override string ToString()
+            => string.Format(CurrencyCulture.CultureInfoFromCurrency(Currency), "{0:C}", Amount);
+
         void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
             => visitor.Visit(this);
 
