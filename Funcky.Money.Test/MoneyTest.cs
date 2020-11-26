@@ -145,5 +145,15 @@ namespace Funcky.Test
             Assert.Equal(new Money(20), sum.Evaluate());
             Assert.Equal(new Money(30), product.Evaluate());
         }
+
+        [Fact]
+        public void TheMoneyNeutralElementIsWorkingWithAnyCurrency()
+        {
+            var fiveFrancs = new Money(5, Option.Some(Currency.CHF()));
+            var fiveDollars = new Money(5, Option.Some(Currency.USD()));
+
+            Assert.Equal(fiveFrancs, (fiveFrancs + Money.Zero).Evaluate());
+            Assert.Equal(fiveDollars, (fiveDollars + Money.Zero).Evaluate());
+        }
     }
 }

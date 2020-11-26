@@ -37,10 +37,22 @@ namespace Funcky
             var left = _stack.Pop();
             var right = _stack.Pop();
 
-            _stack.Push(
-             SameEvaluationTarget(left, right)
-                ? new Money(left.Amount + right.Amount)
-                : throw new MissingEvaluationContextException());
+            if (right.Amount == 0m)
+            {
+                _stack.Push(left);
+            }
+            else if (left.Amount == 0m)
+            {
+                _stack.Push(right);
+            }
+            else if (SameEvaluationTarget(left, right))
+            {
+                _stack.Push(new Money(left.Amount + right.Amount));
+            }
+            else
+            {
+                throw new MissingEvaluationContextException();
+            }
         }
 
         public void Visit(MoneyProduct product)

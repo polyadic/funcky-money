@@ -5,6 +5,8 @@ namespace Funcky
 {
     public record Money : IMoneyExpression
     {
+        public static readonly Money Zero = new Money(0m);
+
         public Money(decimal amount, Option<Currency> currency = default)
         {
             Currency = currency.GetOrElse(() => CurrencyCulture.CurrentCurrency());
