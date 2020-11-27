@@ -19,7 +19,7 @@ namespace Funcky
 
         public class Builder
         {
-            public static readonly Builder Default = new Builder();
+            public static readonly Builder Default = new();
 
             private readonly Option<Currency> _targetCurrency;
             private readonly ImmutableDictionary<Currency, decimal> _exchangeRates;
@@ -37,15 +37,15 @@ namespace Funcky
             }
 
             public MoneyEvaluationContext Build()
-                => new MoneyEvaluationContext(
+                => new(
                     _targetCurrency.GetOrElse(() => throw new NotImplementedException()),
                     _exchangeRates);
 
             public Builder WithTargetCurrency(Currency currency)
-                => new Builder(Option.Some(currency), _exchangeRates);
+                => new(currency, _exchangeRates);
 
             public Builder WithExchangeRate(Currency currency, decimal sellRate)
-                => new Builder(_targetCurrency, _exchangeRates.Add(currency, sellRate));
+                => new(_targetCurrency, _exchangeRates.Add(currency, sellRate));
         }
     }
 }

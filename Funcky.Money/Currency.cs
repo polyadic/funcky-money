@@ -4,10 +4,10 @@ namespace Funcky
 {
     public record Currency
     {
-        private Iso4217Record _currencyInformation;
-        private static readonly Lazy<Currency> _chf = new Lazy<Currency>(() => new(nameof(CHF)));
-        private static readonly Lazy<Currency> _eur = new Lazy<Currency>(() => new(nameof(EUR)));
-        private static readonly Lazy<Currency> _usd = new Lazy<Currency>(() => new(nameof(USD)));
+        private readonly Iso4217Record _currencyInformation;
+        private static readonly Lazy<Currency> Chf = new(() => new(nameof(CHF)));
+        private static readonly Lazy<Currency> Eur = new(() => new(nameof(EUR)));
+        private static readonly Lazy<Currency> Usd = new(() => new(nameof(USD)));
 
         public Currency(string currency)
         {
@@ -27,12 +27,12 @@ namespace Funcky
             => _currencyInformation.MinorUnitDigits;
 
         public static Currency CHF()
-            => _chf.Value;
+            => Chf.Value;
 
         public static Currency EUR()
-            => _eur.Value;
+            => Eur.Value;
 
         public static Currency USD()
-            => _usd.Value;
+            => Usd.Value;
     }
 }

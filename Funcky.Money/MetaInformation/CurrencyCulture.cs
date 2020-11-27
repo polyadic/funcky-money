@@ -8,10 +8,10 @@ namespace Funcky
     internal static class CurrencyCulture
     {
         public static Currency CurrentCurrency()
-            => new Currency(CurrentRegion().ISOCurrencySymbol);
+            => new(CurrentRegion().ISOCurrencySymbol);
 
         public static RegionInfo CurrentRegion()
-            => new RegionInfo(CultureInfo.CurrentCulture.LCID);
+            => new(CultureInfo.CurrentCulture.LCID);
 
         internal static IFormatProvider CultureInfoFromCurrency(Currency currency)
         {

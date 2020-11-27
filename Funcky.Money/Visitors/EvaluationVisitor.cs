@@ -20,8 +20,6 @@ namespace Funcky
 
         public void Visit(Money money)
         {
-            var targetCurrency = _context.AndThen(c => c.TargetCurrency);
-
             var result = _context.Match(
                 none: money,
                 some: c => ExchangeToTargetCurrency(money, c.TargetCurrency));

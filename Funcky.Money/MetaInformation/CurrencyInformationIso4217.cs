@@ -16,10 +16,10 @@ namespace Funcky
         private const string NumericCurrencyCodeNode = "CcyNbr";
         private const string MinorUnitNode = "CcyMnrUnts";
 
-        private XmlDocument _xml = new();
-        private IDictionary<string, Iso4217Record> _records = new Dictionary<string, Iso4217Record>();
+        private readonly XmlDocument _xml = new();
+        private readonly IDictionary<string, Iso4217Record> _records = new Dictionary<string, Iso4217Record>();
 
-        private static readonly Lazy<CurrencyInformationIso4217> _instance = new Lazy<CurrencyInformationIso4217>(() => new());
+        private static readonly Lazy<CurrencyInformationIso4217> LazyInstance = new(() => new());
 
         public CurrencyInformationIso4217()
         {
@@ -27,7 +27,7 @@ namespace Funcky
         }
 
         public static CurrencyInformationIso4217 Instance
-            => _instance.Value;
+            => LazyInstance.Value;
 
         public Iso4217Record this[string currencyCode] =>
             _records
@@ -52,7 +52,7 @@ namespace Funcky
         }
 
         private Iso4217Record FillIso4217Record(XmlNodeList currencyInformation)
-            => new Iso4217Record(
+            => new(
                 CurrencyName(currencyInformation),
                 AlphabeticCurrencyCode(currencyInformation),
                 NumericCurrencyCode(currencyInformation),

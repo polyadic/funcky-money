@@ -7,7 +7,7 @@ namespace Funcky
 {
     public record Money : IMoneyExpression
     {
-        public static readonly Money Zero = new Money(0m);
+        public static readonly Money Zero = new(0m);
 
         public Money(decimal amount, Option<Currency> currency = default)
         {
@@ -40,7 +40,7 @@ namespace Funcky
 
             return money
                 .TryParseDecimal(NumberStyles.Currency, CurrencyCulture.CultureInfoFromCurrency(selectedCurrency))
-                .AndThen(m => new Money(m, Option.Some(selectedCurrency)));
+                .AndThen(m => new Money(m, selectedCurrency));
         }
 
         public override string ToString()
@@ -60,12 +60,9 @@ namespace Funcky
             => new MoneySum(leftMoneyExpression, rightMoneyExpression);
 
         private static Currency SelectCurrency(Option<Currency> currency)
-            => currency.GetOrElse(() => CurrencyCulture.CurrentCurrency());
+            => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
 
         public static Money CHF(decimal amount)
-            => new Money(amount, Option.Some(Currency.CHF()))
-            {
-                Precision = 0.05m,
-            };
+            => new(amount, Currency.CHF()) { Precision = 0.05m, MidpointRounding = MidpointRounding.ToEven };
     }
 }
