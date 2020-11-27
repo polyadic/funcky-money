@@ -24,8 +24,6 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Use `decimal` `Amount`.
 * [x] Support multiple currencies.
 * [x] Add two `Money`s in the same `Currency` (5USD + 9USD).
-* [x] It should be possible to construct a `Money` from  a `double`.
-* [x] Constructing A Money from float should give the expceted value (5.7f => 5.70m) .
 * [x] Cleanup `Currency` (XML handling should be extracted).
 * [x] Add two `Money`s with a different `Currency` (5USD + 10CHF).
 * [x] Two moneys without Exchange rates should not Evaluate to a result.
@@ -37,7 +35,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [ ] Every construction of `Money` currently rounds to two digits, while this is interesting for 5.7f, it has bad effects in evaluation. We should remove the rounding again, and should only round non-decimals.
 * [ ] Evaluation arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
 * [ ] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`).
-* [x] Multiply a `Money` with a real number (`int`, `double`, `float` and `decimal`).
+* [x] Multiply a `Money` with a real number (`int`, and `decimal`).
 * [x] There is a neutral `Money` element (`Zero`).
 * [x] Distribute `Money` equally into n slices (1CHF into 3 slices: [0.33, 0.33, 0.34]).
 * [x] Distribute `Money` proportionally (1 CHF in 1:5 -> [0.17, 0.83]).
@@ -54,4 +52,5 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [ ] Do we need Add, Multiply etc. if we have operators?
 * [ ] Serialize unevaluated IExpressions?
 * [ ] Deserialze unevaluated IExpressions?
-* [ ] Static constructor for most used Currencies, this could inject rules like precision: Money.CHF(2.00m)
+* [x] Static constructor for most used Currencies, this could inject rules like precision: Money.CHF(2.00m)
+* [x] To avoid rounding problems on construction, Money can only be constructed from decimal and int.

@@ -11,8 +11,8 @@ namespace Funcky.Test
         public void WeCanCreateAMoneyFromDifferentTypesAndTheAmountIsADecimal()
         {
             var fiveDollars = new Money(5);
-            var fiveDollarsFifty = new Money(5.5f);
-            var fiveDollarsSeventy = new Money(5.7);
+            var fiveDollarsFifty = new Money(5.5m);
+            var fiveDollarsSeventy = new Money(5.7m);
             var fiveDollarsNinety = new Money(5.90m);
 
             Assert.Equal(5.00m, fiveDollars.Amount);
@@ -87,7 +87,7 @@ namespace Funcky.Test
         [Fact]
         public void DistributeMoneyProportionally()
         {
-            var fiftyCents = new Money(0.5);
+            var fiftyCents = new Money(0.5m);
             var sum = fiftyCents.Add(fiftyCents);
             var distribution = sum.Distribute(new[] { 5, 1 });
 
@@ -100,17 +100,17 @@ namespace Funcky.Test
         }
 
         [Fact]
-        public void InputValuesGetRoundedToTheGivenPrecision()
+        public void InputValuesGetRoundedUntilEvaluation()
         {
-            var fiveDollarsSeventy = new Money(5.7f);
+            var fiveDollarsSeventy = new Money(5.7m);
             var midpoint1 = new Money(5.715m);
             var midpoint2 = new Money(5.725m);
-            var pi = new Money(Math.PI);
+            var pi = new Money((decimal)Math.PI);
 
             Assert.Equal(5.70m, fiveDollarsSeventy.Amount);
-            ////Assert.Equal(5.72m, midpoint1.Amount);
-            ////Assert.Equal(5.72m, midpoint2.Amount);
-            Assert.Equal(3.14m, pi.Amount);
+            Assert.Equal(5.715m, midpoint1.Amount);
+            Assert.Equal(5.725m, midpoint2.Amount);
+            Assert.Equal(3.14159265358979m, pi.Amount);
         }
 
         [Fact]
@@ -218,14 +218,14 @@ namespace Funcky.Test
         }
 
         [Fact]
-        public void ThisShallNotPass()
+        public void DistributionMustDistributeExactlyTheGivenAmount()
         {
             var francs = Money.CHF(0.08m);
 
             Assert.Collection(
                 francs.Distribute(3).Select(e => e.Evaluate().Amount),
                 item => Assert.Equal(0.05m, item),
-                item => Assert.Equal(0.05m, item),
+                item => Assert.Equal(0.03m, item),
                 item => Assert.Equal(0m, item));
         }
     }

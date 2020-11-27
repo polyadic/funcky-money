@@ -7,15 +7,18 @@ namespace Funcky
 {
     public class MoneyEvaluationContext
     {
-        private MoneyEvaluationContext(Currency targetCurrency, IDictionary<Currency, decimal> exchangeRates)
+        private MoneyEvaluationContext(Currency targetCurrency, Option<decimal> precision, IDictionary<Currency, decimal> exchangeRates)
         {
             TargetCurrency = targetCurrency;
             ExchangeRates = exchangeRates;
+            Precision = precision.GetOrElse(() => Power.OfATenth(targetCurrency.MinorUnitDigits));
         }
 
         public Currency TargetCurrency { get; }
 
         public IDictionary<Currency, decimal> ExchangeRates { get; }
+
+        public decimal Precision { get; }
 
         public class Builder
         {
@@ -23,6 +26,7 @@ namespace Funcky
 
             private readonly Option<Currency> _targetCurrency;
             private readonly ImmutableDictionary<Currency, decimal> _exchangeRates;
+            private readonly Option<decimal> _precision;
 
             private Builder()
             {
@@ -30,22 +34,27 @@ namespace Funcky
                 _exchangeRates = ImmutableDictionary<Currency, decimal>.Empty;
             }
 
-            private Builder(Option<Currency> currency, ImmutableDictionary<Currency, decimal> exchangeRates)
+            private Builder(Option<Currency> currency, Option<decimal> precision, ImmutableDictionary<Currency, decimal> exchangeRates)
             {
                 _targetCurrency = currency;
+                _precision = precision;
                 _exchangeRates = exchangeRates;
             }
 
             public MoneyEvaluationContext Build()
                 => new(
                     _targetCurrency.GetOrElse(() => throw new NotImplementedException()),
+                    _precision,
                     _exchangeRates);
 
             public Builder WithTargetCurrency(Currency currency)
-                => new(currency, _exchangeRates);
+                => new(currency, _precision, _exchangeRates);
 
             public Builder WithExchangeRate(Currency currency, decimal sellRate)
-                => new(_targetCurrency, _exchangeRates.Add(currency, sellRate));
+                => new(_targetCurrency, _precision, _exchangeRates.Add(currency, sellRate));
+
+            public Builder WithPrecisionRate(decimal precision)
+                => new(_targetCurrency, precision, _exchangeRates);
         }
     }
 }

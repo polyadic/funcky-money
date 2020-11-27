@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Funcky.Extensions;
@@ -75,17 +74,27 @@ namespace Funcky
             => distribution.Expression.Accept(this);
 
         private static bool SameEvaluationTarget(Money left, Money right)
-            => left.Currency == right.Currency;
+            => left.Currency == right.Currency
+                && left.Precision == right.Precision
+                && left.MidpointRounding == right.MidpointRounding;
 
         private decimal SliceAmount(MoneyDistributionPart part)
-            => Ɛ() * part.Index < DistributionRest(part)
-                ? Slice(part.Distribution, part.Index) + Ɛ()
-                : Slice(part.Distribution, part.Index);
+            => part.Index switch
+            {
+                _ when Ɛ() * (part.Index + 1) < ToDistribute(part) => Slice(part.Distribution, part.Index) + Ɛ(),
+                _ when Ɛ() * part.Index < ToDistribute(part) => Slice(part.Distribution, part.Index) + ToDistribute(part) - AlreadyDistributed(part),
+                _ => Slice(part.Distribution, part.Index),
+            };
+
+        private decimal AlreadyDistributed(MoneyDistributionPart part)
+        {
+            return Ɛ() * part.Index;
+        }
 
         private decimal Ɛ()
-            => _stack.Peek().Precision;
+            => _context.AndThen(c => c.Precision).GetOrElse(_stack.Peek().Precision);
 
-        private decimal DistributionRest(MoneyDistributionPart part)
+        private decimal ToDistribute(MoneyDistributionPart part)
             => _stack.Peek().Amount - DistributedTotal(part);
 
         private decimal DistributedTotal(MoneyDistributionPart part)

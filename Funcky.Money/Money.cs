@@ -7,6 +7,8 @@ namespace Funcky
 {
     public record Money : IMoneyExpression
     {
+        public delegate decimal RoundingFunc(decimal amount);
+
         public static readonly Money Zero = new(0m);
 
         public Money(decimal amount, Option<Currency> currency = default)
@@ -21,16 +23,13 @@ namespace Funcky
         {
         }
 
-        public Money(double amount, Option<Currency> currency = default)
-            : this(Math.Round((decimal)amount, SelectCurrency(currency).MinorUnitDigits, MidpointRounding.ToEven), currency)
-        {
-        }
-
         public decimal Amount { get; init; }
 
         public Currency Currency { get; init; }
 
         public decimal Precision { get; set; }
+
+        public RoundingFunc Rounding { get; set; } = Math.Round;
 
         public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
 
@@ -64,5 +63,11 @@ namespace Funcky
 
         public static Money CHF(decimal amount)
             => new(amount, Currency.CHF()) { Precision = 0.05m, MidpointRounding = MidpointRounding.ToEven };
+
+        public static Money EUR(decimal amount)
+            => new(amount, Currency.CHF()) { Precision = 0.01m, MidpointRounding = MidpointRounding.ToEven };
+
+        public static Money USD(decimal amount)
+            => new(amount, Currency.CHF()) { Precision = 0.01m, MidpointRounding = MidpointRounding.ToEven };
     }
 }
