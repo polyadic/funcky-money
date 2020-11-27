@@ -10,10 +10,10 @@ namespace Funcky.Test
         [Fact]
         public void WeCanCreateAMoneyFromDifferentTypesAndTheAmountIsADecimal()
         {
-            var fiveDollars = new Money(5);
-            var fiveDollarsFifty = new Money(5.5m);
-            var fiveDollarsSeventy = new Money(5.7m);
-            var fiveDollarsNinety = new Money(5.90m);
+            var fiveDollars = Money.USD(5);
+            var fiveDollarsFifty = Money.USD(5.5m);
+            var fiveDollarsSeventy = Money.USD(5.7m);
+            var fiveDollarsNinety = Money.USD(5.90m);
 
             Assert.Equal(5.00m, fiveDollars.Amount);
             Assert.Equal(5.50m, fiveDollarsFifty.Amount);
@@ -24,7 +24,7 @@ namespace Funcky.Test
         [Fact]
         public void EvaluatingAMoneyInTheSameCurrencyDoesReturnTheSameAmount()
         {
-            IMoneyExpression fiveDollars = new Money(5);
+            IMoneyExpression fiveDollars = Money.USD(5);
 
             Assert.Equal(fiveDollars, fiveDollars.Evaluate());
         }
@@ -32,8 +32,8 @@ namespace Funcky.Test
         [Fact]
         public void TheSumOfTwoMoneysEvaluatesCorrectly()
         {
-            var fiveDollars = new Money(5);
-            var tenDollars = new Money(10);
+            var fiveDollars = Money.USD(5);
+            var tenDollars = Money.USD(10);
 
             Assert.Equal(15.00m, fiveDollars.Add(tenDollars).Evaluate().Amount);
         }
@@ -149,8 +149,8 @@ namespace Funcky.Test
         [Fact]
         public void TheMoneyNeutralElementIsWorkingWithAnyCurrency()
         {
-            var fiveFrancs = new Money(5, Currency.CHF());
-            var fiveDollars = new Money(5, Currency.USD());
+            var fiveFrancs = Money.CHF(5);
+            var fiveDollars = Money.USD(5);
 
             Assert.Equal(fiveFrancs, (fiveFrancs + Money.Zero).Evaluate());
             Assert.Equal(fiveDollars, (fiveDollars + Money.Zero).Evaluate());
@@ -159,8 +159,8 @@ namespace Funcky.Test
         [Fact]
         public void MoneyFormatsCorrectlyAccordingToTheCurrency()
         {
-            var thousandFrancs = new Money(-1000, Currency.CHF());
-            var thousandDollars = new Money(-1000, Currency.USD());
+            var thousandFrancs = Money.CHF(-1000);
+            var thousandDollars = Money.USD(-1000);
 
             Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
             Assert.Equal("-$1,000.00", thousandDollars.ToString());

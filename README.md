@@ -46,17 +46,16 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Parse `Money` from string considering cultural formatting and units.
 * [x] Support operators on the IMoneyExpression interface.
 * [ ] Convert currencies as late as possible (keep Moneybags per currency in the `EvaluationVisitor`).
-* [ ] Serialize unevaluated IExpressions?
-* [ ] Deserialze unevaluated IExpressions?
 * [x] Static constructor for most used Currencies, this could inject rules like precision: Money.CHF(2.00m)
 * [x] To avoid rounding problems on construction, Money can only be constructed from decimal and int.
+* [ ] Add possibility to simply add multiple exchange Rates.
 
-Decisions
+### Decisions
 
 * We construct `Money` objects only from `decimal` and `int`. The decision how to handle external rounding problems should be done before construction of a `Money` object.
 * We keep Add, Multiply,etc because no all supported frameworks allow default implementations on the interface.
 
-Open Decisions
+### Open Decisions
 
 * Implicit type conversion
   * Should A `Money` be constructible implicitly from a `decimal`?
