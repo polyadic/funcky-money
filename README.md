@@ -32,7 +32,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Evaluation passes through precision to result.
 * [ ] Override Precision on evaluation.
 * [x] Support different Exchange rates (evaluation).
-* [ ] Every construction of `Money` currently rounds to two digits, while this is interesting for 5.7f, it has bad effects in evaluation. We should remove the rounding again, and should only round non-decimals.
+* [x] Every construction of `Money` currently rounds to two digits, while this is interesting for 5.7f, it has bad effects in evaluation. We should remove the rounding again.
 * [ ] Evaluation arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
 * [ ] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`).
 * [x] Multiply a `Money` with a real number (`int`, and `decimal`).
@@ -41,16 +41,29 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Distribute `Money` proportionally (1 CHF in 1:5 -> [0.17, 0.83]).
 * [ ] Support different distribution strategies?
 * [x] Support [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) Currencies.
-* [ ] Support calculations smaller than the minor unit? (on `Money` and `EvaluationVisitor`)
+* [x] Support calculations smaller than the minor unit? (on `Money` and `EvaluationVisitor`)
 * [x] `ToString` supports correct cultural formatting and units.
 * [x] Parse `Money` from string considering cultural formatting and units.
-* [ ] Should A `Money` be constructible implicitly?
-* [ ] Should we have a substract and divide? We have negative numbers and fractions anyway.
 * [x] Support operators on the IMoneyExpression interface.
 * [ ] Convert currencies as late as possible (keep Moneybags per currency in the `EvaluationVisitor`).
-* [ ] Should adding a number to a money be possible (fiveDollars + 2.00m)?
-* [ ] Do we need Add, Multiply etc. if we have operators?
 * [ ] Serialize unevaluated IExpressions?
 * [ ] Deserialze unevaluated IExpressions?
 * [x] Static constructor for most used Currencies, this could inject rules like precision: Money.CHF(2.00m)
 * [x] To avoid rounding problems on construction, Money can only be constructed from decimal and int.
+
+Decisions
+
+* We construct `Money` objects only from `decimal` and `int`. The decision how to handle external rounding problems should be done before construction of a `Money` object.
+* We keep Add, Multiply,etc because no all supported frameworks allow default implementations on the interface.
+
+Open Decisions
+
+* Implicit type conversion
+  * Should A `Money` be constructible implicitly from a `decimal`?
+  * Should adding a number to a money be possible (fiveDollars + 2.00m)?
+* Rounding
+  * Should we round at the end of an evaluation?
+  * Should we allow to inject arbitray Rounding Functions a => a?
+  * Should a user be able to construct a `Money` which does not conform to the Precision?
+* Should we have a substract and divide? We have negative numbers and fractions anyway.
+
