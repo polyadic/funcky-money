@@ -12,7 +12,8 @@ namespace Funcky
         public Money(decimal amount, Option<Currency> currency = default)
         {
             Currency = SelectCurrency(currency);
-            Amount = Math.Round(amount, Currency.MinorUnitDigits, MidpointRounding.ToEven);
+            Amount = amount;
+            Precision = Power.OfATenth(Currency.MinorUnitDigits);
         }
 
         public Money(int amount, Option<Currency> currency = default)
@@ -21,15 +22,17 @@ namespace Funcky
         }
 
         public Money(double amount, Option<Currency> currency = default)
-            : this((decimal)amount, currency)
+            : this(Math.Round((decimal)amount, SelectCurrency(currency).MinorUnitDigits, MidpointRounding.ToEven), currency)
         {
         }
 
-        public decimal Amount { get; }
+        public decimal Amount { get; init; }
 
-        public Currency Currency { get; }
+        public Currency Currency { get; init; }
 
         public decimal Precision { get; set; }
+
+        public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
 
         public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
         {
@@ -58,5 +61,11 @@ namespace Funcky
 
         private static Currency SelectCurrency(Option<Currency> currency)
             => currency.GetOrElse(() => CurrencyCulture.CurrentCurrency());
+
+        public static Money CHF(decimal amount)
+            => new Money(amount, Option.Some(Currency.CHF()))
+            {
+                Precision = 0.05m,
+            };
     }
 }

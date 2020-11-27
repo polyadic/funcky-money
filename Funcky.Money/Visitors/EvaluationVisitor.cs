@@ -47,7 +47,7 @@ namespace Funcky
             }
             else if (SameEvaluationTarget(left, right))
             {
-                _stack.Push(new Money(left.Amount + right.Amount));
+                _stack.Push(left with { Amount = left.Amount + right.Amount });
             }
             else
             {
@@ -60,7 +60,7 @@ namespace Funcky
             product.Expression.Accept(this);
             var expression = _stack.Pop();
 
-            _stack.Push(new Money(expression.Amount * product.Factor));
+            _stack.Push(expression with { Amount = expression.Amount * product.Factor });
         }
 
         public void Visit(MoneyDistributionPart part)
@@ -70,7 +70,7 @@ namespace Funcky
             var partAmount = SliceAmount(part);
             var expression = _stack.Pop();
 
-            _stack.Push(new Money(partAmount, Option.Some(expression.Currency)));
+            _stack.Push(expression with { Amount = partAmount, Currency = expression.Currency });
         }
 
         public void Visit(MoneyDistribution distribution)
@@ -85,7 +85,7 @@ namespace Funcky
                 : Slice(part.Distribution, part.Index);
 
         private decimal Ɛ()
-            => Power.OfTen(-_stack.Peek().Currency.MinorUnitDigits);
+            => _stack.Peek().Precision;
 
         private decimal DistributionRest(MoneyDistributionPart part)
             => _stack.Peek().Amount - DistributedTotal(part);
@@ -98,7 +98,7 @@ namespace Funcky
                 .Sum(f => Slice(part.Distribution, f.Index));
 
         private decimal Slice(MoneyDistribution distribution, int index)
-            => Truncate(ExactSlice(distribution, index), _stack.Peek().Currency.MinorUnitDigits);
+            => Truncate(ExactSlice(distribution, index), _stack.Peek().Precision);
 
         private decimal ExactSlice(MoneyDistribution distribution, int index)
             => _stack.Peek().Amount / DistributionTotal(distribution) * distribution.Factors[index];
@@ -109,10 +109,10 @@ namespace Funcky
                     none: () => throw new MissingEvaluationContextException("No context"),
                     some: c => c.ExchangeRates.TryGetValue(money.Currency).Match(
                         none: () => throw new MissingEvaluationContextException($"No exchange rate from: {money.Currency.CurrencyName} to: TARGET"),
-                        some: e => new Money(money.Amount * e, Option.Some(c.TargetCurrency))));
+                        some: e => money with { Amount = money.Amount * e, Currency = c.TargetCurrency }));
 
-        private static decimal Truncate(decimal amount, int digits)
-            => decimal.Truncate(amount * Power.OfTen(digits)) / Power.OfTen(digits);
+        private static decimal Truncate(decimal amount, decimal precision)
+            => decimal.Truncate(amount / precision) * precision;
 
         private static int DistributionTotal(MoneyDistribution distribution)
             => distribution.Factors.Sum();

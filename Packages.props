@@ -5,6 +5,7 @@
 	</ItemGroup>
 	<ItemGroup Label="Build Dependencies">
 		<PackageReference Update="Messerli.CodeStyle" Version="2.0.0-rc.2 " />
+		<PackageReference Update="IsExternalInit" Version="[1.0.0, 2.0.0)" />
 	</ItemGroup>
 	<ItemGroup Label="Test Dependencies">
 		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="[15.9.0, 16.0.0)" />

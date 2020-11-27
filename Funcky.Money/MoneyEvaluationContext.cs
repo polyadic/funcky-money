@@ -37,21 +37,15 @@ namespace Funcky
             }
 
             public MoneyEvaluationContext Build()
-            {
-                return new MoneyEvaluationContext(
+                => new MoneyEvaluationContext(
                     _targetCurrency.GetOrElse(() => throw new NotImplementedException()),
                     _exchangeRates);
-            }
 
             public Builder WithTargetCurrency(Currency currency)
-            {
-                return new Builder(Option.Some(currency), _exchangeRates);
-            }
+                => new Builder(Option.Some(currency), _exchangeRates);
 
             public Builder WithExchangeRate(Currency currency, decimal sellRate)
-            {
-                return new Builder(_targetCurrency, _exchangeRates.Add(currency, sellRate));
-            }
+                => new Builder(_targetCurrency, _exchangeRates.Add(currency, sellRate));
         }
     }
 }
