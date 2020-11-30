@@ -182,8 +182,8 @@ namespace Funcky.Test
         [Fact]
         public void ThePrecisionCanBeSetToSomethingOtherThanAPowerOfTen()
         {
-            var precision05 = new Money(1m, Currency.CHF()) { Precision = 0.05m };
-            var precision002 = new Money(1m, Currency.CHF()) { Precision = 0.002m };
+            var precision05 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.05m).Build());
+            var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.002m).Build());
 
             Assert.Collection(
                 precision05.Distribute(3).Select(e => e.Evaluate().Amount),
@@ -208,8 +208,8 @@ namespace Funcky.Test
         [Fact]
         public void ThePrecisionIsCorrectlyPassedThrough()
         {
-            var precision05 = new Money(1m, Currency.CHF()) { Precision = 0.05m };
-            var precision002 = new Money(1m, Currency.CHF()) { Precision = 0.002m };
+            var precision05 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.05m).Build());
+            var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.002m).Build());
 
             var x = precision05 with { Amount = 0m };
 
@@ -227,6 +227,17 @@ namespace Funcky.Test
                 item => Assert.Equal(0.05m, item),
                 item => Assert.Equal(0.03m, item),
                 item => Assert.Equal(0m, item));
+        }
+
+        [Fact]
+        public void DefaultRoundingStrategyIsBankersRounding()
+        {
+            var francs = Money.CHF(1);
+            var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF());
+
+            Assert.Equal(MidpointRounding.ToEven, francs.MidpointRounding);
+            Assert.Equal(MidpointRounding.ToEven, francs.MidpointRounding);
+            Assert.Equal(MidpointRounding.ToEven, RoundingStrategy.BankersRounding);
         }
     }
 }

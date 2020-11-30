@@ -7,15 +7,22 @@ namespace Funcky
 {
     public record Money : IMoneyExpression
     {
-        public delegate decimal RoundingFunc(decimal amount);
-
         public static readonly Money Zero = new(0m);
 
         public Money(decimal amount, Option<Currency> currency = default)
         {
-            Currency = SelectCurrency(currency);
             Amount = amount;
+            Currency = SelectCurrency(currency);
             Precision = Power.OfATenth(Currency.MinorUnitDigits);
+            MidpointRounding = RoundingStrategy.DefaultRoundingStrategy;
+        }
+
+        public Money(decimal amount, MoneyEvaluationContext context)
+        {
+            Amount = amount;
+            Currency = context.TargetCurrency;
+            Precision = context.Precision;
+            MidpointRounding = context.MidpointRounding;
         }
 
         public Money(int amount, Option<Currency> currency = default)
@@ -27,11 +34,9 @@ namespace Funcky
 
         public Currency Currency { get; init; }
 
-        public decimal Precision { get; set; }
+        public decimal Precision { get; }
 
-        public RoundingFunc Rounding { get; set; } = Math.Round;
-
-        public MidpointRounding MidpointRounding { get; set; } = MidpointRounding.ToEven;
+        public MidpointRounding MidpointRounding { get; }
 
         public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
         {
@@ -62,12 +67,12 @@ namespace Funcky
             => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
 
         public static Money CHF(decimal amount)
-            => new(amount, Currency.CHF()) { Precision = 0.05m, MidpointRounding = MidpointRounding.ToEven };
+            => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.05m).Build());
 
         public static Money EUR(decimal amount)
-            => new(amount, Currency.CHF()) { Precision = 0.01m, MidpointRounding = MidpointRounding.ToEven };
+            => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.EUR()).Build());
 
         public static Money USD(decimal amount)
-            => new(amount, Currency.CHF()) { Precision = 0.01m, MidpointRounding = MidpointRounding.ToEven };
+            => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.USD()).Build());
     }
 }

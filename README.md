@@ -34,7 +34,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Support different Exchange rates (evaluation).
 * [x] Every construction of `Money` currently rounds to two digits, while this is interesting for 5.7f, it has bad effects in evaluation. We should remove the rounding again.
 * [ ] Evaluation arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
-* [ ] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`).
+* [x] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`).
 * [x] Multiply a `Money` with a real number (`int`, and `decimal`).
 * [x] There is a neutral `Money` element (`Zero`).
 * [x] Distribute `Money` equally into n slices (1CHF into 3 slices: [0.33, 0.33, 0.34]).
