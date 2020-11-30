@@ -87,9 +87,7 @@ namespace Funcky
             };
 
         private decimal AlreadyDistributed(MoneyDistributionPart part)
-        {
-            return Ɛ() * part.Index;
-        }
+            => Ɛ() * part.Index;
 
         private decimal Ɛ()
             => _context.AndThen(c => c.Precision).GetOrElse(_stack.Peek().Precision);

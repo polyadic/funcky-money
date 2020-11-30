@@ -28,9 +28,9 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Add two `Money`s with a different `Currency` (5USD + 10CHF).
 * [x] Two moneys without Exchange rates should not Evaluate to a result.
 * [x] Two moneys are equal if they have the same `Currency` and the same `Amount`.
-* [x] Ability to Rounding to 0.05 / distribute 1CHF as [0.35, 0.35, 0.30]
+* [x] Ability to round to 0.05 / distribute 1CHF as [0.35, 0.35, 0.30]
 * [x] Evaluation passes through precision to result.
-* [ ] Override Precision on evaluation.
+* [ ] Override precision on evaluation.
 * [x] Support different Exchange rates (evaluation).
 * [x] Every construction of `Money` currently rounds to two digits, while this is interesting for 5.7f, it has bad effects in evaluation. We should remove the rounding again.
 * [ ] Evaluation arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
