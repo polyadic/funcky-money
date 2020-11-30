@@ -114,9 +114,7 @@ namespace Funcky
                 ? money
                 : _context.Match(
                     none: () => throw new MissingEvaluationContextException("No context"),
-                    some: c => c.ExchangeRates.TryGetValue(money.Currency).Match(
-                        none: () => throw new MissingEvaluationContextException($"No exchange rate from: {money.Currency.CurrencyName} to: TARGET"),
-                        some: e => money with { Amount = money.Amount * e, Currency = c.TargetCurrency }));
+                    some: c => money with { Amount = money.Amount * c.Bank.ExchangeRate(money.Currency, targetCurrency), Currency = c.TargetCurrency });
 
         private static decimal Truncate(decimal amount, decimal precision)
             => decimal.Truncate(amount / precision) * precision;

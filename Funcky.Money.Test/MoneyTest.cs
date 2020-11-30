@@ -239,5 +239,24 @@ namespace Funcky.Test
             Assert.Equal(MidpointRounding.ToEven, francs.MidpointRounding);
             Assert.Equal(MidpointRounding.ToEven, RoundingStrategy.BankersRounding);
         }
+
+        [Fact]
+        public void WeCanDelegateTheExchangeRatesToABank()
+        {
+            var fiveFrancs = new Money(5, Currency.CHF());
+            var tenDollars = new Money(10, Currency.USD());
+            var fiveEuros = new Money(5, Currency.EUR());
+
+            var sum = (fiveFrancs + tenDollars + fiveEuros) * 1.5m;
+
+            var context = MoneyEvaluationContext
+                .Builder
+                .Default
+                .WithTargetCurrency(Currency.CHF())
+                .WithBank(OneToOneBank.Instance)
+                .Build();
+
+            Assert.Equal(30m, sum.Evaluate(context).Amount);
+        }
     }
 }

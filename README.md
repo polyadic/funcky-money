@@ -48,7 +48,8 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [ ] Convert currencies as late as possible (keep Moneybags per currency in the `EvaluationVisitor`).
 * [x] Static constructor for most used Currencies, this could inject rules like precision: Money.CHF(2.00m)
 * [x] To avoid rounding problems on construction, Money can only be constructed from decimal and int.
-* [ ] Add possibility to simply add multiple exchange Rates.
+* [x] Add possibility to delegate the acquisition of exchange rates. (`IBank` interface)
+* [ ] There are few throw `Exception` calls in the code which should be refined to specific exceptions.
 
 ### Decisions
 

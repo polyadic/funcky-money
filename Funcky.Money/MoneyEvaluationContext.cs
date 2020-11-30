@@ -1,18 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Funcky.Monads;
 
 namespace Funcky
 {
     public class MoneyEvaluationContext
     {
-        private MoneyEvaluationContext(Currency targetCurrency, Option<decimal> precision, Option<MidpointRounding> midpointRounding, IDictionary<Currency, decimal> exchangeRates)
+        private MoneyEvaluationContext(Currency targetCurrency, Option<decimal> precision, Option<MidpointRounding> midpointRounding, IBank bank)
         {
             TargetCurrency = targetCurrency;
             Precision = precision.GetOrElse(() => Power.OfATenth(targetCurrency.MinorUnitDigits));
             MidpointRounding = midpointRounding.GetOrElse(RoundingStrategy.DefaultRoundingStrategy);
-            ExchangeRates = exchangeRates;
+            Bank = bank;
         }
 
         public Currency TargetCurrency { get; }
@@ -21,7 +19,7 @@ namespace Funcky
 
         public MidpointRounding MidpointRounding { get; }
 
-        public IDictionary<Currency, decimal> ExchangeRates { get; }
+        public IBank Bank { get; }
 
         public class Builder
         {
@@ -30,21 +28,22 @@ namespace Funcky
             private readonly Option<Currency> _targetCurrency;
             private readonly Option<decimal> _precision;
             private readonly Option<MidpointRounding> _midpointRounding;
-            private readonly ImmutableDictionary<Currency, decimal> _exchangeRates;
+            private readonly IBank _bank;
 
             private Builder()
             {
                 _targetCurrency = default;
                 _precision = default;
                 _midpointRounding = default;
-                _exchangeRates = ImmutableDictionary<Currency, decimal>.Empty;
+                _bank = DefaultBank.Empty;
             }
 
-            private Builder(Option<Currency> currency, Option<decimal> precision, ImmutableDictionary<Currency, decimal> exchangeRates)
+            private Builder(Option<Currency> currency, Option<decimal> precision, Option<MidpointRounding> midpointRounding, IBank bank)
             {
                 _targetCurrency = currency;
                 _precision = precision;
-                _exchangeRates = exchangeRates;
+                _midpointRounding = midpointRounding;
+                _bank = bank;
             }
 
             public MoneyEvaluationContext Build()
@@ -52,19 +51,28 @@ namespace Funcky
                     _targetCurrency.GetOrElse(() => throw new Exception("Money evaluation context has no target currency set.")),
                     _precision,
                     _midpointRounding,
-                    _exchangeRates);
+                    _bank);
 
             public Builder WithTargetCurrency(Currency currency)
-                => new(currency, _precision, _exchangeRates);
+                => new(currency, _precision, _midpointRounding, _bank);
 
             public Builder WithPrecision(decimal precision)
-                => new(_targetCurrency, precision, _exchangeRates);
+                => new(_targetCurrency, precision, _midpointRounding, _bank);
 
             public Builder WithMidpointRounding(decimal precision)
-                => new(_targetCurrency, precision, _exchangeRates);
+                => new(_targetCurrency, precision, _midpointRounding, _bank);
 
             public Builder WithExchangeRate(Currency currency, decimal sellRate)
-                => new(_targetCurrency, _precision, _exchangeRates.Add(currency, sellRate));
+                => _bank is DefaultBank bank
+                    ? new(_targetCurrency, _precision, _midpointRounding, bank.AddExchangeRate(currency, GetTargetCurrencyOrException(), sellRate))
+                    : throw new Exception("Invalid Builder: you can either use WithExchangeRate or WithBank, but not both.");
+
+            public Builder WithBank(IBank bank)
+                => new(_targetCurrency, _precision, _midpointRounding, bank);
+
+            private Currency GetTargetCurrencyOrException()
+                => _targetCurrency.GetOrElse(()
+                    => throw new Exception("You need to set a target currency before you can add an exchange rate."));
         }
     }
 }
