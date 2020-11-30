@@ -66,6 +66,7 @@ namespace Funcky
         private static Currency SelectCurrency(Option<Currency> currency)
             => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
 
+        // ReSharper disable InconsistentNaming - Reason: we want the currencies in capital letters
         public static Money CHF(decimal amount)
             => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.05m).Build());
 

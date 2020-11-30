@@ -26,6 +26,7 @@ namespace Funcky
         public int MinorUnitDigits
             => _currencyInformation.MinorUnitDigits;
 
+        // ReSharper disable InconsistentNaming - Reason: we want the currencies in capital letters
         public static Currency CHF()
             => Chf.Value;
 
