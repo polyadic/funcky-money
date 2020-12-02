@@ -100,17 +100,17 @@ namespace Funcky.Test
         }
 
         [Fact]
-        public void InputValuesGetRoundedUntilEvaluation()
+        public void InputValuesGetRoundedDuringEvaluation()
         {
             var fiveDollarsSeventy = new Money(5.7m);
             var midpoint1 = new Money(5.715m);
             var midpoint2 = new Money(5.725m);
             var pi = new Money((decimal)Math.PI);
 
-            Assert.Equal(5.70m, fiveDollarsSeventy.Amount);
-            Assert.Equal(5.715m, midpoint1.Amount);
-            Assert.Equal(5.725m, midpoint2.Amount);
-            Assert.Equal(3.14159265358979m, pi.Amount);
+            Assert.Equal(5.70m, fiveDollarsSeventy.Evaluate().Amount);
+            Assert.Equal(5.72m, midpoint1.Evaluate().Amount);
+            Assert.Equal(5.72m, midpoint2.Evaluate().Amount);
+            Assert.Equal(3.14m, pi.Evaluate().Amount);
         }
 
         [Fact]
@@ -130,7 +130,7 @@ namespace Funcky.Test
                 .WithExchangeRate(Currency.EUR(), 1.0715m)
                 .Build();
 
-            Assert.Equal(38.7230m, sum.Evaluate(context).Amount);
+            Assert.Equal(38.72m, sum.Evaluate(context).Amount);
         }
 
         [Fact]
@@ -222,11 +222,7 @@ namespace Funcky.Test
         {
             var francs = Money.CHF(0.08m);
 
-            Assert.Collection(
-                francs.Distribute(3).Select(e => e.Evaluate().Amount),
-                item => Assert.Equal(0.05m, item),
-                item => Assert.Equal(0.03m, item),
-                item => Assert.Equal(0m, item));
+            Assert.Throws<ImpossibleDistributionException>(() => francs.Distribute(3).Select(e => e.Evaluate()));
         }
 
         [Fact]
@@ -276,5 +272,55 @@ namespace Funcky.Test
             Assert.Equal(Money.Zero, Money.Zero.Evaluate());
             Assert.Equal(Money.Zero, sum.Evaluate());
         }
+
+        [Fact]
+        public void DifferentPrecisionsCannotBeEvaluatedWithoutAnEvaluationContext()
+        {
+            var francs = MoneyEvaluationContext
+                .Builder
+                .Default
+                .WithTargetCurrency(Currency.CHF());
+
+            var normalFrancs = francs.WithPrecision(0.05m);
+            var preciseFrancs = francs.WithPrecision(0.001m);
+
+            var two = new Money(2, normalFrancs.Build());
+            var oneHalf = new Money(0.5m, preciseFrancs.Build());
+            var sum = (two + oneHalf) * 0.01m;
+
+            Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
+            Assert.Equal(0.02m, sum.Evaluate(francs.Build()).Amount);
+        }
+
+        [Fact]
+        public void DifferentRoundingStrategiesCannotBeEvaluatedWithoutAnEvaluationContext()
+        {
+            var francs = MoneyEvaluationContext
+                .Builder
+                .Default
+                .WithTargetCurrency(Currency.CHF());
+
+            var normalFrancs = francs.WithMidpointRounding(MidpointRounding.AwayFromZero);
+            var preciseFrancs = francs.WithPrecision(0.001m);
+
+            var two = new Money(2, normalFrancs.Build());
+            var oneHalf = new Money(0.5m, preciseFrancs.Build());
+            var sum = (two + oneHalf) * 0.05m;
+
+            Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
+            Assert.Equal(0.13m, sum.Evaluate(normalFrancs.Build()).Amount);
+        }
+
+        ////[Fact]
+        ////public void DistributionMustDistributeExactlyTheGivenAmountWhenRoundingIsOff()
+        ////{
+        ////    var francs = Money.CHF(0.08m);
+
+        ////    Assert.Collection(
+        ////        francs.Distribute(3).Select(e => e.Evaluate().Amount),
+        ////        item => Assert.Equal(0.05m, item),
+        ////        item => Assert.Equal(0.03m, item),
+        ////        item => Assert.Equal(0m, item));
+        ////}
     }
 }

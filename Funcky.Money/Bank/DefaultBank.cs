@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Immutable;
 using Funcky.Extensions;
-using Funcky.Monads;
 
 namespace Funcky
 {

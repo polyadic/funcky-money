@@ -9,6 +9,8 @@ namespace Funcky
     internal class MoneyBags
     {
         private readonly Dictionary<Currency, List<Money>> _moneyBags = new();
+        private Option<decimal> _precision;
+        private Option<MidpointRounding> _midpointRounding;
 
         public void Add(Money money)
         {
@@ -25,8 +27,8 @@ namespace Funcky
 
         public Money CalculateTotal(Option<MoneyEvaluationContext> context)
             => context.Match(
-                none: AggregateSingleCurrency,
-                some: AggregateMultipleCurrencies);
+                none: AggregateWithEvaluationContext,
+                some: AggregateWithoutEvaluationContext);
 
         public void Clear()
             => _moneyBags.Clear();
@@ -36,24 +38,56 @@ namespace Funcky
                 .Select(m => m with { Amount = m.Amount * factor })
                 .ToList();
 
-        private Money AggregateMultipleCurrencies(MoneyEvaluationContext context)
+        private Money AggregateWithoutEvaluationContext(MoneyEvaluationContext context)
             => _moneyBags
-                .Select(kv => kv.Value.Aggregate(MoneySum))
+                .Select(kv => kv.Value.Aggregate(MoneySum(context)))
                 .Aggregate(new Money(0m, context), ToSingleCurrency(context));
 
-        private Money AggregateSingleCurrency()
+        private Money AggregateWithEvaluationContext()
             => ExceptionTransformer<InvalidOperationException>.Transform(
                 AggregateSingleMoneyBag,
-                exception => throw new MissingEvaluationContextException("Multiple currencies cannot be evaluated without an evaluation context.", exception));
+                exception => throw new MissingEvaluationContextException("Different currencies cannot be evaluated without an evaluation context.", exception));
 
         private Money AggregateSingleMoneyBag()
             => _moneyBags
                 .SingleOrNone()
                 .Match(
                     none: () => Money.Zero,
-                    some: m => m.Value.Aggregate(MoneySum));
+                    some: m => CheckAndAggregateBag(m.Value));
 
-        private Func<Money, Money, Money> ToSingleCurrency(MoneyEvaluationContext context)
+        private Money CheckAndAggregateBag(List<Money> bag)
+            => bag
+                .Inspect(CheckEvaluationRules)
+                .Aggregate(MoneySum);
+
+        private void CheckEvaluationRules(Money money)
+        {
+            _precision.Match(
+                none: () => _precision = money.Precision,
+                some: p => CheckPrecision(p == money.Precision));
+
+            _midpointRounding.Match(
+                none: () => _midpointRounding = money.MidpointRounding,
+                some: r => CheckRoundingStrategy(r == money.MidpointRounding));
+        }
+
+        private static void CheckPrecision(bool validPrecision)
+        {
+            if (!validPrecision)
+            {
+                throw new MissingEvaluationContextException("Different precisions cannot be evaluated without an evaluation context.");
+            }
+        }
+
+        private static void CheckRoundingStrategy(bool validStrategy)
+        {
+            if (!validStrategy)
+            {
+                throw new MissingEvaluationContextException("Different precisions cannot be evaluated without an evaluation context.");
+            }
+        }
+
+        private static Func<Money, Money, Money> ToSingleCurrency(MoneyEvaluationContext context)
             => (moneySum, money)
                 => moneySum with { Amount = moneySum.Amount + ExchangeToTargetCurrency(money, context).Amount };
 
@@ -68,7 +102,11 @@ namespace Funcky
         private static Money MoneySum(Money currentSum, Money money)
             => currentSum with { Amount = currentSum.Amount + money.Amount };
 
-        private Money ExchangeToTargetCurrency(Money money, MoneyEvaluationContext context)
+        private static Func<Money, Money, Money> MoneySum(MoneyEvaluationContext context)
+            => (currentSum, money)
+                => new Money(currentSum.Amount + money.Amount, context);
+
+        private static Money ExchangeToTargetCurrency(Money money, MoneyEvaluationContext context)
             => money.Currency == context.TargetCurrency
                 ? money
                 : money with { Amount = money.Amount * context.Bank.ExchangeRate(money.Currency, context.TargetCurrency), Currency = context.TargetCurrency };

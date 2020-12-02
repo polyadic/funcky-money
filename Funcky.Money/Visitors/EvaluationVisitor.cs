@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Funcky.Extensions;
 using Funcky.Monads;
@@ -15,7 +16,9 @@ namespace Funcky
             _context = context;
         }
 
-        public Money Result => _moneyBags.CalculateTotal(_context);
+        public Money Result => Round(RawResult);
+
+        private Money RawResult => _moneyBags.CalculateTotal(_context);
 
         public void Visit(Money money)
             => _moneyBags.Add(money);
@@ -39,8 +42,13 @@ namespace Funcky
 
             var partAmount = SliceAmount(part);
 
+            if (ToDistribute(part) / Ɛ() == decimal.Truncate(ToDistribute(part) / Ɛ()))
+            {
+                throw new ImpossibleDistributionException($"It is impossible to distribute {ToDistribute(part)} in sizes of {Ɛ()}");
+            }
+
             // we have to evaluate the money bag before we clear it
-            var result = Result;
+            var result = RawResult;
             _moneyBags.Clear();
             _moneyBags.Add(result with { Amount = partAmount, Currency = result.Currency });
         }
@@ -60,10 +68,10 @@ namespace Funcky
             => Ɛ() * part.Index;
 
         private decimal Ɛ()
-            => _context.AndThen(c => c.Precision).GetOrElse(Result.Precision);
+            => _context.AndThen(c => c.Precision).GetOrElse(RawResult.Precision);
 
         private decimal ToDistribute(MoneyDistributionPart part)
-            => Result.Amount - DistributedTotal(part);
+            => RawResult.Amount - DistributedTotal(part);
 
         private decimal DistributedTotal(MoneyDistributionPart part)
             => part
@@ -73,15 +81,18 @@ namespace Funcky
                 .Sum(f => Slice(part.Distribution, f.Index));
 
         private decimal Slice(MoneyDistribution distribution, int index)
-            => Truncate(ExactSlice(distribution, index), Result.Precision);
+            => Truncate(ExactSlice(distribution, index), RawResult.Precision);
 
         private decimal ExactSlice(MoneyDistribution distribution, int index)
-            => Result.Amount / DistributionTotal(distribution) * distribution.Factors[index];
+            => RawResult.Amount / DistributionTotal(distribution) * distribution.Factors[index];
 
         private static decimal Truncate(decimal amount, decimal precision)
             => decimal.Truncate(amount / precision) * precision;
 
         private static int DistributionTotal(MoneyDistribution distribution)
             => distribution.Factors.Sum();
+
+        private static Money Round(Money money)
+            => money with { Amount = Math.Round(money.Amount / money.Precision, money.MidpointRounding) * money.Precision };
     }
 }

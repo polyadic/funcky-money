@@ -30,10 +30,9 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Two moneys are equal if they have the same `Currency` and the same `Amount`.
 * [x] Ability to round to 0.05 / distribute 1CHF as [0.35, 0.35, 0.30]
 * [x] Evaluation passes through precision to result.
-* [ ] Override precision on evaluation.
+* [x] Override precision on evaluation.
 * [x] Support different Exchange rates (evaluation).
 * [x] Every construction of `Money` currently rounds to two digits, while this is interesting for 5.7f, it has bad effects in evaluation. We should remove the rounding again.
-* [ ] Evaluation arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
 * [x] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`).
 * [x] Multiply a `Money` with a real number (`int`, and `decimal`).
 * [x] There is a neutral `Money` element (`Zero`).
@@ -50,7 +49,11 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] To avoid rounding problems on construction, Money can only be constructed from decimal and int.
 * [x] Add possibility to delegate the acquisition of exchange rates. (`IBank` interface)
 * [ ] There are a few throw `Exception` calls in the code which should be refined to specific exceptions.
-
+* [ ] There needs to be a `NoRounding` strategy, maybe provide an Interface `IRoundingStrategy` with a few given implementations.
+* [ ] Evaluation arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
+* [ ] Distribution with `NoRounding` strategy should distribute exactly.
+* [x] Distribution wich cannot exactly distribute money throws an `ImpossibleDistributionException`
+* [x] Rounding only happens at the end of an evaluation.
 ### Decisions
 
 * We construct `Money` objects only from `decimal` and `int`. The decision how to handle external rounding problems should be done before construction of a `Money` object.
