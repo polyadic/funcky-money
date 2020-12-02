@@ -59,8 +59,8 @@ namespace Funcky
             public Builder WithPrecision(decimal precision)
                 => new(_targetCurrency, precision, _midpointRounding, _bank);
 
-            public Builder WithMidpointRounding(decimal precision)
-                => new(_targetCurrency, precision, _midpointRounding, _bank);
+            public Builder WithMidpointRounding(MidpointRounding midpointRounding)
+                => new(_targetCurrency, _precision, midpointRounding, _bank);
 
             public Builder WithExchangeRate(Currency currency, decimal sellRate)
                 => _bank is DefaultBank bank
