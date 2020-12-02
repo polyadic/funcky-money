@@ -45,11 +45,11 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] `ToString` supports correct cultural formatting and units.
 * [x] Parse `Money` from string considering cultural formatting and units.
 * [x] Support operators on the IMoneyExpression interface.
-* [ ] Convert currencies as late as possible (keep Moneybags per currency in the `EvaluationVisitor`).
+* [x] Convert currencies as late as possible (keep Moneybags per currency in the `EvaluationVisitor`).
 * [x] Static constructor for most used Currencies, this could inject rules like precision: Money.CHF(2.00m)
 * [x] To avoid rounding problems on construction, Money can only be constructed from decimal and int.
 * [x] Add possibility to delegate the acquisition of exchange rates. (`IBank` interface)
-* [ ] There are few throw `Exception` calls in the code which should be refined to specific exceptions.
+* [ ] There are a few throw `Exception` calls in the code which should be refined to specific exceptions.
 
 ### Decisions
 

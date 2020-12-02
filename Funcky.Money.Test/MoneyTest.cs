@@ -39,7 +39,7 @@ namespace Funcky.Test
         }
 
         [Fact]
-        public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAEvaluationContext()
+        public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAnEvaluationContext()
         {
             var fiveFrancs = new Money(5, Currency.CHF());
             var tenDollars = new Money(10, Currency.USD());
@@ -257,6 +257,24 @@ namespace Funcky.Test
                 .Build();
 
             Assert.Equal(30m, sum.Evaluate(context).Amount);
+        }
+
+        [Fact]
+        public void EvaluationOnZeroMoniesWorks()
+        {
+            var sum = (Money.Zero + Money.Zero) * 1.5m;
+
+            var context = MoneyEvaluationContext
+                .Builder
+                .Default
+                .WithTargetCurrency(Currency.CHF())
+                .WithBank(OneToOneBank.Instance)
+                .Build();
+
+            Assert.Equal(Money.Zero, Money.Zero.Evaluate(context));
+            Assert.Equal(Money.Zero, sum.Evaluate(context));
+            Assert.Equal(Money.Zero, Money.Zero.Evaluate());
+            Assert.Equal(Money.Zero, sum.Evaluate());
         }
     }
 }

@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 
 namespace Funcky
 {
+    [DebuggerDisplay("{CurrencyName,nq} ({AlphabeticCurrencyCode,nq})")]
     public record Currency
     {
         private readonly Iso4217Record _currencyInformation;

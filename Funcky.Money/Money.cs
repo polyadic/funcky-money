@@ -38,6 +38,9 @@ namespace Funcky
 
         public MidpointRounding MidpointRounding { get; }
 
+        public bool IsZero
+            => Amount == 0m;
+
         public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
         {
             var selectedCurrency = SelectCurrency(currency);
