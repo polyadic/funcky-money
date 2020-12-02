@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using Funcky.Extensions;
 using Funcky.Monads;
@@ -7,15 +7,16 @@ namespace Funcky
 {
     internal class EvaluationVisitor : IMoneyExpressionVisitor
     {
-        private readonly Stack<Money> _stack = new();
         private readonly Option<MoneyEvaluationContext> _context;
+        private Option<Money> _result;
 
         public EvaluationVisitor(Option<MoneyEvaluationContext> context)
         {
             _context = context;
         }
 
-        public Money Result => _stack.Peek();
+        public Money Result
+            => _result.GetOrElse(() => throw new Exception("this should not happen"));
 
         public void Visit(Money money)
         {
@@ -23,28 +24,28 @@ namespace Funcky
                 none: money,
                 some: c => ExchangeToTargetCurrency(money, c.TargetCurrency));
 
-            _stack.Push(result);
+            _result = result;
         }
 
         public void Visit(MoneySum sum)
         {
             sum.Left.Accept(this);
-            sum.Right.Accept(this);
+            var left = Result;
 
-            var left = _stack.Pop();
-            var right = _stack.Pop();
+            sum.Right.Accept(this);
+            var right = Result;
 
             if (right.Amount == 0m)
             {
-                _stack.Push(left);
+                _result = left;
             }
             else if (left.Amount == 0m)
             {
-                _stack.Push(right);
+                _result = right;
             }
             else if (SameEvaluationTarget(left, right))
             {
-                _stack.Push(left with { Amount = left.Amount + right.Amount });
+                _result = left with { Amount = left.Amount + right.Amount };
             }
             else
             {
@@ -55,9 +56,8 @@ namespace Funcky
         public void Visit(MoneyProduct product)
         {
             product.Expression.Accept(this);
-            var expression = _stack.Pop();
 
-            _stack.Push(expression with { Amount = expression.Amount * product.Factor });
+            _result = Result with { Amount = Result.Amount * product.Factor };
         }
 
         public void Visit(MoneyDistributionPart part)
@@ -65,9 +65,8 @@ namespace Funcky
             ((IMoneyExpression)part.Distribution).Accept(this);
 
             var partAmount = SliceAmount(part);
-            var expression = _stack.Pop();
 
-            _stack.Push(expression with { Amount = partAmount, Currency = expression.Currency });
+            _result = Result with { Amount = partAmount, Currency = Result.Currency };
         }
 
         public void Visit(MoneyDistribution distribution)
@@ -90,10 +89,10 @@ namespace Funcky
             => Ɛ() * part.Index;
 
         private decimal Ɛ()
-            => _context.AndThen(c => c.Precision).GetOrElse(_stack.Peek().Precision);
+            => _context.AndThen(c => c.Precision).GetOrElse(Result.Precision);
 
         private decimal ToDistribute(MoneyDistributionPart part)
-            => _stack.Peek().Amount - DistributedTotal(part);
+            => Result.Amount - DistributedTotal(part);
 
         private decimal DistributedTotal(MoneyDistributionPart part)
             => part
@@ -103,10 +102,10 @@ namespace Funcky
                 .Sum(f => Slice(part.Distribution, f.Index));
 
         private decimal Slice(MoneyDistribution distribution, int index)
-            => Truncate(ExactSlice(distribution, index), _stack.Peek().Precision);
+            => Truncate(ExactSlice(distribution, index), Result.Precision);
 
         private decimal ExactSlice(MoneyDistribution distribution, int index)
-            => _stack.Peek().Amount / DistributionTotal(distribution) * distribution.Factors[index];
+            => Result.Amount / DistributionTotal(distribution) * distribution.Factors[index];
 
         private Money ExchangeToTargetCurrency(Money money, Currency targetCurrency) => money.Currency == targetCurrency
                 ? money
