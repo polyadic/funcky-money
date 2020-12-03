@@ -1,5 +1,7 @@
 # funcky-money
 
+![Build](https://github.com/polyadic/funcky-money/workflows/Build/badge.svg)
+
 Funcky.Money is an implementation of a versatile Money concept which addresses a lot of the problems you encounter when working with money quantities and currencies.
 
 The implementation uses a lot of the concepts from the TDD implementation of Kent Beck in his book: Test-Driven Development by Example.
