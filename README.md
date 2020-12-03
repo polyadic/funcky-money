@@ -56,6 +56,9 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [ ] Distribution with `NoRounding` strategy should distribute exactly.
 * [x] Distribution wich cannot exactly distribute money throws an `ImpossibleDistributionException`
 * [x] Rounding only happens at the end of an evaluation.
+* [ ] Fix tests failing in other locales.
+* [ ] Write property tests using FsCheck.
+
 ### Decisions
 
 * We construct `Money` objects only from `decimal` and `int`. The decision how to handle external rounding problems should be done before construction of a `Money` object.

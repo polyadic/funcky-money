@@ -222,7 +222,7 @@ namespace Funcky.Test
         {
             var francs = Money.CHF(0.08m);
 
-            Assert.Throws<ImpossibleDistributionException>(() => francs.Distribute(3).Select(e => e.Evaluate()));
+            Assert.Throws<ImpossibleDistributionException>(() => francs.Distribute(3).Select(e => e.Evaluate()).First());
         }
 
         [Fact]

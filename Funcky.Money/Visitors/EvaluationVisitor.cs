@@ -42,7 +42,7 @@ namespace Funcky
 
             var partAmount = SliceAmount(part);
 
-            if (ToDistribute(part) / Ɛ() == decimal.Truncate(ToDistribute(part) / Ɛ()))
+            if (decimal.Remainder(ToDistribute(part), Ɛ()) != 0m)
             {
                 throw new ImpossibleDistributionException($"It is impossible to distribute {ToDistribute(part)} in sizes of {Ɛ()}");
             }
