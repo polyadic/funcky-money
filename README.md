@@ -1,6 +1,6 @@
 # funcky-money
 
-![Build](https://github.com/polyadic/funcky-money/workflows/Build/badge.svg)
+[![Build](https://github.com/polyadic/funcky-money/workflows/Build/badge.svg)](https://github.com/polyadic/funcky-money/actions?query=workflow%3ABuild)
 
 Funcky.Money is an implementation of a versatile Money concept which addresses a lot of the problems you encounter when working with money quantities and currencies.
 
