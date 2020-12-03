@@ -16,7 +16,7 @@ namespace Funcky
         internal static IFormatProvider CultureInfoFromCurrency(Currency currency)
         {
             return AllCultures()
-                .Select(c => (CultureInfo: c, RegionInfo: new RegionInfo(c.LCID)))
+                .Select(c => (CultureInfo: c, RegionInfo: new RegionInfo(c.Name)))
                 .First(cr => cr.RegionInfo.ISOCurrencySymbol == currency.AlphabeticCurrencyCode)
                 .CultureInfo;
         }
