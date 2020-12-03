@@ -9,6 +9,7 @@ on:
 env:
   DOTNET_NOLOGO: 1
   DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 0
+  LANG: de-CH
 
 jobs:
   build:
