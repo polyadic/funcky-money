@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Config", "Build Confi
 		Packages.props = Packages.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Funcky.Money.SourceGenerator", "Funcky.Money.SourceGenerator\Funcky.Money.SourceGenerator.csproj", "{A5B8FAE1-86B6-4868-87DF-F7B20C1C04F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{4632619D-5471-47C6-BDE8-28700243EE95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4632619D-5471-47C6-BDE8-28700243EE95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4632619D-5471-47C6-BDE8-28700243EE95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5B8FAE1-86B6-4868-87DF-F7B20C1C04F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5B8FAE1-86B6-4868-87DF-F7B20C1C04F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5B8FAE1-86B6-4868-87DF-F7B20C1C04F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5B8FAE1-86B6-4868-87DF-F7B20C1C04F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

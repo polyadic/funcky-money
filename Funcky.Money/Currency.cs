@@ -13,7 +13,7 @@ namespace Funcky
 
         public Currency(string currency)
         {
-            _currencyInformation = CurrencyInformationIso4217.Instance[currency];
+            _currencyInformation = Iso4217Information.Currencies[currency];
         }
 
         public string CurrencyName

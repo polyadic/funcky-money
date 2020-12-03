@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk; Microsoft.Build.CentralPackageVersions">
-
     <PropertyGroup>
         <TargetFrameworks>net5.0;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
         <LangVersion>9.0</LangVersion>
@@ -14,24 +13,20 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
-
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>$(AssemblyName).Test</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-
     <ItemGroup>
-        <None Remove="Resources\list_one.xml" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Include="Resources\list_one.xml" />
+        <AdditionalFiles Include="Resources\list_one.xml" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Funcky" />
         <PackageReference Include="IsExternalInit" PrivateAssets="all" />
     </ItemGroup>
-
+    <ItemGroup>
+        <ProjectReference Include="..\Funcky.Money.SourceGenerator\Funcky.Money.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
     <Import Project="..\FrameworkFeatureConstants.props" />
 </Project>
