@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Funcky.Test
 {
-    public class MoneyTest
+    public sealed class MoneyTest
     {
         [Fact]
         public void WeCanCreateAMoneyFromDifferentTypesAndTheAmountIsADecimal()

@@ -1,6 +1,6 @@
 namespace Funcky
 {
-    internal record MoneyProduct : IMoneyExpression
+    internal sealed record MoneyProduct : IMoneyExpression
     {
         public MoneyProduct(IMoneyExpression moneyExpression, decimal factor)
         {

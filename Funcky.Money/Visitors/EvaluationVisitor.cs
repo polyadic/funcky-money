@@ -4,7 +4,7 @@ using Funcky.Monads;
 
 namespace Funcky
 {
-    internal class EvaluationVisitor : IMoneyExpressionVisitor
+    internal sealed class EvaluationVisitor : IMoneyExpressionVisitor
     {
         private readonly Option<MoneyEvaluationContext> _context;
 

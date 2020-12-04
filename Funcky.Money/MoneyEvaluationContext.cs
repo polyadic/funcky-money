@@ -3,7 +3,7 @@ using Funcky.Monads;
 
 namespace Funcky
 {
-    public class MoneyEvaluationContext
+    public sealed class MoneyEvaluationContext
     {
         private MoneyEvaluationContext(Currency targetCurrency, Option<AbstractRoundingStrategy> roundingStrategy, IBank bank)
         {
@@ -18,7 +18,7 @@ namespace Funcky
 
         public IBank Bank { get; }
 
-        public class Builder
+        public sealed class Builder
         {
             public static readonly Builder Default = new();
 

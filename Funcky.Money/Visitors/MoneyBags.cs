@@ -6,7 +6,7 @@ using Funcky.Monads;
 
 namespace Funcky
 {
-    internal class MoneyBags
+    internal sealed class MoneyBags
     {
         private readonly Dictionary<Currency, List<Money>> _moneyBags = new();
         private Option<AbstractRoundingStrategy> _roundingStrategy;

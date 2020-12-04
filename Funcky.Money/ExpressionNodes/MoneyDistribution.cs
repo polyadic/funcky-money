@@ -6,7 +6,7 @@ using Funcky.Monads;
 
 namespace Funcky
 {
-    internal class MoneyDistribution : IEnumerable<IMoneyExpression>, IMoneyExpression
+    internal sealed class MoneyDistribution : IEnumerable<IMoneyExpression>, IMoneyExpression
     {
         public MoneyDistribution(IMoneyExpression moneyExpression, IEnumerable<int> factors, Option<decimal> precision)
         {

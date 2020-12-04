@@ -2,7 +2,7 @@ using System.Linq;
 
 namespace Funcky
 {
-    internal class Power
+    internal static class Power
     {
         public static decimal OfTen(int exponent)
             => Enumerable.Repeat(10m, exponent).Aggregate(1m, (p, b) => b * p);

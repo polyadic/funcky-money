@@ -1,6 +1,6 @@
 namespace Funcky
 {
-    internal record MoneySum : IMoneyExpression
+    internal sealed record MoneySum : IMoneyExpression
     {
         public MoneySum(IMoneyExpression leftMoneyExpression, IMoneyExpression rightMoneyExpression)
         {

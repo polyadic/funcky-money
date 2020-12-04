@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Funcky
 {
     [Serializable]
-    internal class ImpossibleDistributionException : Exception
+    internal sealed class ImpossibleDistributionException : Exception
     {
         public ImpossibleDistributionException()
         {
@@ -17,11 +17,6 @@ namespace Funcky
 
         public ImpossibleDistributionException(string? message, Exception? innerException)
             : base(message, innerException)
-        {
-        }
-
-        protected ImpossibleDistributionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

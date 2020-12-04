@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Funcky
 {
     [DebuggerDisplay("{ToString()}")]
-    internal record RoundWithAwayFromZero : AbstractRoundingStrategy
+    internal sealed record RoundWithAwayFromZero : AbstractRoundingStrategy
     {
         public RoundWithAwayFromZero(in decimal precision)
             : base(precision)

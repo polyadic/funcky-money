@@ -4,7 +4,7 @@ using Funcky.Extensions;
 
 namespace Funcky
 {
-    internal class DefaultBank : IBank
+    internal sealed class DefaultBank : IBank
     {
         internal static readonly DefaultBank Empty = new();
 

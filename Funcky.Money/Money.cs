@@ -4,7 +4,7 @@ using Funcky.Monads;
 
 namespace Funcky
 {
-    public record Money : IMoneyExpression
+    public sealed record Money : IMoneyExpression
     {
         public static readonly Money Zero = new(0m);
 
