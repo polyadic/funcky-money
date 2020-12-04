@@ -51,14 +51,16 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] To avoid rounding problems on construction, Money can only be constructed from decimal and int.
 * [x] Add possibility to delegate the acquisition of exchange rates. (`IBank` interface)
 * [ ] There are a few throw `Exception` calls in the code which should be refined to specific exceptions.
-* [ ] There needs to be a `NoRounding` strategy, maybe provide an Interface `IRoundingStrategy` with a few given implementations.
-* [ ] Evaluation arithmetic `Money` operations can use different rounding mechanism (`MidpointRounding`).
-* [ ] Distribution with `NoRounding` strategy should distribute exactly.
+* [x] There needs to be a `NoRounding` strategy, maybe provide an Interface `IRoundingStrategy` with a few given implementations.
+* [x] Evaluation arithmetic `Money` operations can use different rounding mechanism.
+* [x] Distribution with `NoRounding` strategy should distribute exactly according to the precision.
 * [x] Distribution wich cannot exactly distribute money throws an `ImpossibleDistributionException`
 * [x] Rounding only happens at the end of an evaluation.
 * [ ] Fix tests failing in other locales.
 * [ ] Write property tests using FsCheck.
-
+* [x] Rounding is done at the end of every evaluation according to the rounding strategy.
+* [x] The user can use arbitray rounding function, he just needs to implement the AbstractRoundingStratgey.
+* [x] We do not round a Money on construction only on evaluation. You can create a 0.01m Money even if the precision is 0.1m.
 ### Decisions
 
 * We construct `Money` objects only from `decimal` and `int`. The decision how to handle external rounding problems should be done before construction of a `Money` object.
@@ -69,9 +71,5 @@ These is the evolving list of TDD requirements which led to the implementation.
 * Implicit type conversion
   * Should A `Money` be constructible implicitly from a `decimal`?
   * Should adding a number to a money be possible (fiveDollars + 2.00m)?
-* Rounding
-  * Should we round at the end of an evaluation?
-  * Should we allow to inject arbitray Rounding Functions a => a?
-  * Should a user be able to construct a `Money` which does not conform to the Precision?
 * Should we have a substract and divide? We have negative numbers and fractions anyway.
 

@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using Funcky.Extensions;
 using Funcky.Monads;
@@ -13,16 +12,14 @@ namespace Funcky
         {
             Amount = amount;
             Currency = SelectCurrency(currency);
-            Precision = Power.OfATenth(Currency.MinorUnitDigits);
-            MidpointRounding = RoundingStrategy.DefaultRoundingStrategy;
+            RoundingStrategy = Funcky.RoundingStrategy.Default(Currency);
         }
 
         public Money(decimal amount, MoneyEvaluationContext context)
         {
             Amount = amount;
             Currency = context.TargetCurrency;
-            Precision = context.Precision;
-            MidpointRounding = context.MidpointRounding;
+            RoundingStrategy = context.RoundingStrategy;
         }
 
         public Money(int amount, Option<Currency> currency = default)
@@ -34,9 +31,7 @@ namespace Funcky
 
         public Currency Currency { get; init; }
 
-        public decimal Precision { get; }
-
-        public MidpointRounding MidpointRounding { get; }
+        public AbstractRoundingStrategy RoundingStrategy { get; }
 
         public bool IsZero
             => Amount == 0m;
@@ -71,7 +66,7 @@ namespace Funcky
 
         // ReSharper disable InconsistentNaming - Reason: we want the currencies in capital letters
         public static Money CHF(decimal amount)
-            => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.05m).Build());
+            => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithRounding(Funcky.RoundingStrategy.BankersRounding(0.05m)).Build());
 
         public static Money EUR(decimal amount)
             => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.EUR()).Build());

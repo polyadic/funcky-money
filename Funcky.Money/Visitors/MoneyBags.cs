@@ -9,8 +9,7 @@ namespace Funcky
     internal class MoneyBags
     {
         private readonly Dictionary<Currency, List<Money>> _moneyBags = new();
-        private Option<decimal> _precision;
-        private Option<MidpointRounding> _midpointRounding;
+        private Option<AbstractRoundingStrategy> _roundingStrategy;
 
         public void Add(Money money)
         {
@@ -62,28 +61,16 @@ namespace Funcky
 
         private void CheckEvaluationRules(Money money)
         {
-            _precision.Match(
-                none: () => _precision = money.Precision,
-                some: p => CheckPrecision(p == money.Precision));
-
-            _midpointRounding.Match(
-                none: () => _midpointRounding = money.MidpointRounding,
-                some: r => CheckRoundingStrategy(r == money.MidpointRounding));
+            _roundingStrategy.Match(
+                none: () => _roundingStrategy = Option.Some(money.RoundingStrategy),
+                some: r => CheckRoundingStrategy(r == money.RoundingStrategy));
         }
 
-        private static void CheckPrecision(bool validPrecision)
+        private static void CheckRoundingStrategy(bool validRoundingStrategy)
         {
-            if (!validPrecision)
+            if (!validRoundingStrategy)
             {
-                throw new MissingEvaluationContextException("Different precisions cannot be evaluated without an evaluation context.");
-            }
-        }
-
-        private static void CheckRoundingStrategy(bool validStrategy)
-        {
-            if (!validStrategy)
-            {
-                throw new MissingEvaluationContextException("Different precisions cannot be evaluated without an evaluation context.");
+                throw new MissingEvaluationContextException("Different rounding strategies cannot be evaluated without an evaluation context.");
             }
         }
 

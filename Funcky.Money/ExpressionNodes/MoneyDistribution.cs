@@ -2,20 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Funcky.Extensions;
+using Funcky.Monads;
 
 namespace Funcky
 {
     internal class MoneyDistribution : IEnumerable<IMoneyExpression>, IMoneyExpression
     {
-        public MoneyDistribution(IMoneyExpression moneyExpression, IEnumerable<int> factors)
+        public MoneyDistribution(IMoneyExpression moneyExpression, IEnumerable<int> factors, Option<decimal> precision)
         {
             Expression = moneyExpression;
             Factors = factors.ToList();
+            Precision = precision;
         }
 
         public IMoneyExpression Expression { get; }
 
         public List<int> Factors { get; }
+
+        public Option<decimal> Precision { get; }
 
         public IEnumerator<IMoneyExpression> GetEnumerator()
             => Factors
