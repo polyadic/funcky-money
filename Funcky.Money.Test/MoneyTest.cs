@@ -7,6 +7,14 @@ namespace Funcky.Test
 {
     public sealed class MoneyTest
     {
+        private static MoneyEvaluationContext SwissRounding
+            => MoneyEvaluationContext
+                .Builder
+                .Default
+                .WithTargetCurrency(Currency.CHF)
+                .WithRounding(RoundingStrategy.BankersRounding(0.05m))
+                .Build();
+
         [Fact]
         public void WeCanCreateAMoneyFromDifferentTypesAndTheAmountIsADecimal()
         {
@@ -197,7 +205,7 @@ namespace Funcky.Test
                 item => Assert.Equal(0.334m, item),
                 item => Assert.Equal(0.332m, item));
 
-            var francs = Money.CHF(0.10m);
+            var francs = new Money(0.10m, SwissRounding);
             Assert.Collection(
                 francs.Distribute(3).Select(e => e.Evaluate().Amount),
                 item => Assert.Equal(0.05m, item),
@@ -218,7 +226,7 @@ namespace Funcky.Test
         [Fact]
         public void DistributionMustDistributeExactlyTheGivenAmount()
         {
-            var francs = Money.CHF(0.08m);
+            var francs = new Money(0.08m, SwissRounding);
 
             Assert.Throws<ImpossibleDistributionException>(() => francs.Distribute(3).Select(e => e.Evaluate()).First());
         }
@@ -226,7 +234,7 @@ namespace Funcky.Test
         [Fact]
         public void DefaultRoundingStrategyIsBankersRounding()
         {
-            var francs = Money.CHF(1);
+            var francs = new Money(1m, SwissRounding);
             var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF);
 
             Assert.Equal("BankesRounding { Precision: 0.05 }", francs.RoundingStrategy.ToString());
@@ -309,9 +317,9 @@ namespace Funcky.Test
         }
 
         [Fact]
-        public void DistributionMustDistributeExactlyTheGivenAmountWhenRoundingIsOff()
+        public void RoundingIsOnlyDoneAtTheEndOfTheEvaluation()
         {
-            var francs = Money.CHF(0.08m);
+            var francs = new Money(0.01m, SwissRounding);
             var noRounding = MoneyEvaluationContext
                 .Builder
                 .Default
@@ -319,11 +327,8 @@ namespace Funcky.Test
                 .WithRounding(RoundingStrategy.NoRounding(0.05m))
                 .Build();
 
-            Assert.Collection(
-                francs.Distribute(3).Select(e => e.Evaluate(noRounding).Amount),
-                item => Assert.Equal(0.05m, item),
-                item => Assert.Equal(0.03m, item),
-                item => Assert.Equal(0m, item));
+            Assert.Equal(0.01m, francs.Amount);
+            Assert.Equal(0m, francs.Evaluate().Amount);
         }
     }
 }
