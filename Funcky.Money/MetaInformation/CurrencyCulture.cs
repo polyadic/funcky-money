@@ -8,7 +8,12 @@ namespace Funcky
     internal static class CurrencyCulture
     {
         public static Currency CurrentCurrency()
-            => new(CurrentRegion().ISOCurrencySymbol);
+        {
+            var currencySymbol = CurrentRegion().ISOCurrencySymbol;
+            return Currency
+                .ParseOrNone(currencySymbol)
+                .GetOrElse(() => throw new NotSupportedException($"The currency '{currencySymbol}' is not supported"));
+        }
 
         public static RegionInfo CurrentRegion()
             => new(CultureInfo.CurrentCulture.LCID);

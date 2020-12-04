@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace Funcky.Money.SourceGenerator
     [Generator]
     public sealed class Iso4217RecordGenerator : ISourceGenerator
     {
+        private const string RootNamespace = "Funcky";
         private const string Indent = "    ";
         private const string CurrencyNameNode = "CcyNm";
         private const string AlphabeticCurrencyCodeNode = "Ccy";
@@ -25,33 +27,81 @@ namespace Funcky.Money.SourceGenerator
 
         public void Execute(GeneratorExecutionContext context)
         {
-            var dictionaryInitializerPairs = new StringBuilder();
-            foreach (var record in ReadIso4217RecordsFromAdditionalFiles(context))
+            var records = ReadIso4217RecordsFromAdditionalFiles(context).ToImmutableArray();
+            context.AddSource("CurrencyCode.Generated", SourceText.From(GenerateCurrencyClass(records), Encoding.UTF8));
+            context.AddSource("Money.Generated", SourceText.From(GenerateMoneyClass(records), Encoding.UTF8));
+        }
+
+        private static string GenerateCurrencyClass(IEnumerable<Iso4217Record> records)
+            => $"using Funcky.Monads;{NewLine}" +
+               $"namespace {RootNamespace}{NewLine}" +
+               $"{{{NewLine}" +
+               $"{Indent}public partial record Currency{NewLine}" +
+               $"{Indent}{{{NewLine}" +
+               $"{GenerateCurrencyProperties(records)}" +
+               $"{GenerateParseMethod(records)}" +
+               $"{Indent}}}{NewLine}" +
+               $"}}{NewLine}";
+
+        private static string GenerateParseMethod(IEnumerable<Iso4217Record> records)
+        {
+            var switchCases = new StringBuilder();
+
+            foreach (var record in records)
             {
-                dictionaryInitializerPairs.AppendLine(
-                    $"{Indent}{Indent}{Indent}{Indent}[{Literal(record.AlphabeticCurrencyCode)}] = " +
-                    $"new Iso4217Record(" +
-                        $"{Literal(record.CurrencyName)}, " +
-                        $"{Literal(record.AlphabeticCurrencyCode)}, " +
-                        $"{Literal(record.NumericCurrencyCode)}, " +
-                        $"{Literal(record.MinorUnitDigits ?? 0)}),");
+                switchCases.AppendLine($"{Indent}{Indent}{Indent}  {Literal(record.AlphabeticCurrencyCode)} => {Identifier(record.AlphabeticCurrencyCode)},");
             }
 
-            var iso4217Information =
-                $"using System.Collections.Generic;{NewLine}" +
-                $"{NewLine}" +
-                $"namespace Funcky{NewLine}" +
-                $"{{{NewLine}" +
-                $"{Indent}internal static class Iso4217Information{NewLine}" +
-                $"{Indent}{Indent}{{{NewLine}" +
-                $"{Indent}{Indent}{Indent}public static readonly IReadOnlyDictionary<string, Iso4217Record> Currencies = new Dictionary<string, Iso4217Record>{NewLine}" +
-                $"{Indent}{Indent}{Indent}{{{NewLine}" +
-                dictionaryInitializerPairs +
-                $"{Indent}{Indent}}};{NewLine}" +
-                $"{Indent}}}{NewLine}" +
-                $"}}{NewLine}";
+            switchCases.AppendLine($"{Indent}{Indent}{Indent}  _ => Option<Currency>.None(),");
 
-            context.AddSource("Iso4217Information.Generated", SourceText.From(iso4217Information, Encoding.UTF8));
+            return $"{Indent}{Indent}public static partial Option<Currency> ParseOrNone(string input){NewLine}" +
+                   $"{Indent}{Indent}  => input switch{NewLine}" +
+                   $"{Indent}{Indent}  {{{NewLine}" +
+                   switchCases +
+                   $"{Indent}{Indent}  }};{NewLine}";
+        }
+
+        private static string GenerateCurrencyProperties(IEnumerable<Iso4217Record> records)
+        {
+            var properties = new StringBuilder();
+
+            foreach (var record in records)
+            {
+                properties.AppendLine($"{Indent}{Indent}/// <summary>{record.CurrencyName}</summary>");
+                properties.AppendLine($"{Indent}{Indent}public static Currency {Identifier(record.AlphabeticCurrencyCode)} {{ get; }} = " +
+                                      $"new Currency(new Iso4217Record(" +
+                                      $"{Literal(record.CurrencyName)}, " +
+                                      $"{Literal(record.AlphabeticCurrencyCode)}, " +
+                                      $"{Literal(record.NumericCurrencyCode)}, " +
+                                      $"{Literal(record.MinorUnitDigits ?? 0)}));");
+            }
+
+            return properties.ToString();
+        }
+
+        private static string GenerateMoneyClass(IEnumerable<Iso4217Record> records)
+            => $"using Funcky.Monads;{NewLine}" +
+               $"namespace {RootNamespace}{NewLine}" +
+               $"{{{NewLine}" +
+               $"{Indent}public partial record Money{NewLine}" +
+               $"{Indent}{{{NewLine}" +
+               $"{GenerateMoneyFactoryMethods(records)}" +
+               $"{Indent}}}{NewLine}" +
+               $"}}{NewLine}";
+
+        private static string GenerateMoneyFactoryMethods(IEnumerable<Iso4217Record> records)
+        {
+            var properties = new StringBuilder();
+
+            foreach (var record in records)
+            {
+                var identifier = Identifier(record.AlphabeticCurrencyCode);
+                properties.AppendLine($"{Indent}{Indent}/// <summary>Creates a new <see cref=\"Money\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>{NewLine}" +
+                                      $"{Indent}{Indent}public static Money {identifier}(decimal amount){NewLine}" +
+                                      $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());");
+            }
+
+            return properties.ToString();
         }
 
         private static IEnumerable<Iso4217Record> ReadIso4217RecordsFromAdditionalFiles(GeneratorExecutionContext context)
@@ -61,7 +111,9 @@ namespace Funcky.Money.SourceGenerator
                     .Where(f => f is not null)
                     .SelectMany(text => CreateXmlDocumentFromString(text!.ToString())
                         .SelectNodesAsEnumerable("//CcyNtry/Ccy/..")
-                        .Select(ReadIso4217RecordFromNode));
+                        .Select(ReadIso4217RecordFromNode))
+                    .ToImmutableDictionary(r => r.AlphabeticCurrencyCode)
+                    .Select(r => r.Value);
 
         private static XmlDocument CreateXmlDocumentFromString(string xml)
         {
