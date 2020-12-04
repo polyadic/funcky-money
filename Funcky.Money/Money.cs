@@ -5,7 +5,7 @@ using Funcky.Monads;
 
 namespace Funcky
 {
-    public record Money : IMoneyExpression
+    public partial record Money : IMoneyExpression
     {
         public static readonly Money Zero = new(0m);
 
@@ -68,15 +68,5 @@ namespace Funcky
 
         private static Currency SelectCurrency(Option<Currency> currency)
             => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
-
-        // ReSharper disable InconsistentNaming - Reason: we want the currencies in capital letters
-        public static Money CHF(decimal amount)
-            => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.05m).Build());
-
-        public static Money EUR(decimal amount)
-            => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.EUR()).Build());
-
-        public static Money USD(decimal amount)
-            => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.USD()).Build());
     }
 }

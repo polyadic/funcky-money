@@ -41,8 +41,8 @@ namespace Funcky.Test
         [Fact]
         public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAnEvaluationContext()
         {
-            var fiveFrancs = new Money(5, Currency.CHF());
-            var tenDollars = new Money(10, Currency.USD());
+            var fiveFrancs = new Money(5, Currency.CHF);
+            var tenDollars = new Money(10, Currency.USD);
             var sum = fiveFrancs.Add(tenDollars);
 
             Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
@@ -51,8 +51,8 @@ namespace Funcky.Test
         [Fact]
         public void FiveDollarsAreNotFiveFrancs()
         {
-            var fiveFrancs = new Money(5, Currency.CHF());
-            var fiveDollars = new Money(5, Currency.USD());
+            var fiveFrancs = new Money(5, Currency.CHF);
+            var fiveDollars = new Money(5, Currency.USD);
 
             Assert.NotEqual(fiveFrancs, fiveDollars);
         }
@@ -116,18 +116,18 @@ namespace Funcky.Test
         [Fact]
         public void WeCanEvaluateASumOfDifferentCurrenciesWithAContextWhichDefinesExchangeRates()
         {
-            var fiveFrancs = new Money(5, Currency.CHF());
-            var tenDollars = new Money(10, Currency.USD());
-            var fiveEuros = new Money(5, Currency.EUR());
+            var fiveFrancs = new Money(5, Currency.CHF);
+            var tenDollars = new Money(10, Currency.USD);
+            var fiveEuros = new Money(5, Currency.EUR);
 
             var sum = fiveFrancs.Add(tenDollars).Add(fiveEuros).Multiply(2);
 
             var context = MoneyEvaluationContext
                 .Builder
                 .Default
-                .WithTargetCurrency(Currency.CHF())
-                .WithExchangeRate(Currency.USD(), 0.9004m)
-                .WithExchangeRate(Currency.EUR(), 1.0715m)
+                .WithTargetCurrency(Currency.CHF)
+                .WithExchangeRate(Currency.USD, 0.9004m)
+                .WithExchangeRate(Currency.EUR, 1.0715m)
                 .Build();
 
             Assert.Equal(38.72m, sum.Evaluate(context).Amount);
@@ -169,21 +169,21 @@ namespace Funcky.Test
         [Fact]
         public void MoneyParsesCorrectlyFromString()
         {
-            var r1 = FunctionalAssert.IsSome(Money.ParseOrNone("CHF-1’000.00", Currency.CHF()));
-            Assert.Equal(new Money(-1000, Currency.CHF()), r1);
+            var r1 = FunctionalAssert.IsSome(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
+            Assert.Equal(new Money(-1000, Currency.CHF), r1);
 
-            var r2 = FunctionalAssert.IsSome(Money.ParseOrNone("-$1,000.00", Currency.USD()));
-            Assert.Equal(new Money(-1000, Currency.USD()), r2);
+            var r2 = FunctionalAssert.IsSome(Money.ParseOrNone("-$1,000.00", Currency.USD));
+            Assert.Equal(new Money(-1000, Currency.USD), r2);
 
-            var r3 = FunctionalAssert.IsSome(Money.ParseOrNone("1000", Currency.CHF()));
-            Assert.Equal(new Money(1000, Currency.CHF()), r3);
+            var r3 = FunctionalAssert.IsSome(Money.ParseOrNone("1000", Currency.CHF));
+            Assert.Equal(new Money(1000, Currency.CHF), r3);
         }
 
         [Fact]
         public void ThePrecisionCanBeSetToSomethingOtherThanAPowerOfTen()
         {
-            var precision05 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.05m).Build());
-            var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.002m).Build());
+            var precision05 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithPrecision(0.05m).Build());
+            var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithPrecision(0.002m).Build());
 
             Assert.Collection(
                 precision05.Distribute(3).Select(e => e.Evaluate().Amount),
@@ -208,8 +208,8 @@ namespace Funcky.Test
         [Fact]
         public void ThePrecisionIsCorrectlyPassedThrough()
         {
-            var precision05 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.05m).Build());
-            var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF()).WithPrecision(0.002m).Build());
+            var precision05 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithPrecision(0.05m).Build());
+            var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithPrecision(0.002m).Build());
 
             var x = precision05 with { Amount = 0m };
 
@@ -229,7 +229,7 @@ namespace Funcky.Test
         public void DefaultRoundingStrategyIsBankersRounding()
         {
             var francs = Money.CHF(1);
-            var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF());
+            var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF);
 
             Assert.Equal(MidpointRounding.ToEven, francs.MidpointRounding);
             Assert.Equal(MidpointRounding.ToEven, francs.MidpointRounding);
@@ -239,16 +239,16 @@ namespace Funcky.Test
         [Fact]
         public void WeCanDelegateTheExchangeRatesToABank()
         {
-            var fiveFrancs = new Money(5, Currency.CHF());
-            var tenDollars = new Money(10, Currency.USD());
-            var fiveEuros = new Money(5, Currency.EUR());
+            var fiveFrancs = new Money(5, Currency.CHF);
+            var tenDollars = new Money(10, Currency.USD);
+            var fiveEuros = new Money(5, Currency.EUR);
 
             var sum = (fiveFrancs + tenDollars + fiveEuros) * 1.5m;
 
             var context = MoneyEvaluationContext
                 .Builder
                 .Default
-                .WithTargetCurrency(Currency.CHF())
+                .WithTargetCurrency(Currency.CHF)
                 .WithBank(OneToOneBank.Instance)
                 .Build();
 
@@ -263,7 +263,7 @@ namespace Funcky.Test
             var context = MoneyEvaluationContext
                 .Builder
                 .Default
-                .WithTargetCurrency(Currency.CHF())
+                .WithTargetCurrency(Currency.CHF)
                 .WithBank(OneToOneBank.Instance)
                 .Build();
 
@@ -279,7 +279,7 @@ namespace Funcky.Test
             var francs = MoneyEvaluationContext
                 .Builder
                 .Default
-                .WithTargetCurrency(Currency.CHF());
+                .WithTargetCurrency(Currency.CHF);
 
             var normalFrancs = francs.WithPrecision(0.05m);
             var preciseFrancs = francs.WithPrecision(0.001m);
@@ -298,7 +298,7 @@ namespace Funcky.Test
             var francs = MoneyEvaluationContext
                 .Builder
                 .Default
-                .WithTargetCurrency(Currency.CHF());
+                .WithTargetCurrency(Currency.CHF);
 
             var normalFrancs = francs.WithMidpointRounding(MidpointRounding.AwayFromZero);
             var preciseFrancs = francs.WithPrecision(0.001m);

@@ -1,19 +1,16 @@
-using System;
 using System.Diagnostics;
+using Funcky.Monads;
 
 namespace Funcky
 {
     [DebuggerDisplay("{CurrencyName,nq} ({AlphabeticCurrencyCode,nq})")]
-    public record Currency
+    public partial record Currency
     {
         private readonly Iso4217Record _currencyInformation;
-        private static readonly Lazy<Currency> Chf = new(() => new(nameof(CHF)));
-        private static readonly Lazy<Currency> Eur = new(() => new(nameof(EUR)));
-        private static readonly Lazy<Currency> Usd = new(() => new(nameof(USD)));
 
-        public Currency(string currency)
+        internal Currency(Iso4217Record currencyInformation)
         {
-            _currencyInformation = Iso4217Information.Currencies[currency];
+            _currencyInformation = currencyInformation;
         }
 
         public string CurrencyName
@@ -28,14 +25,6 @@ namespace Funcky
         public int MinorUnitDigits
             => _currencyInformation.MinorUnitDigits;
 
-        // ReSharper disable InconsistentNaming - Reason: we want the currencies in capital letters
-        public static Currency CHF()
-            => Chf.Value;
-
-        public static Currency EUR()
-            => Eur.Value;
-
-        public static Currency USD()
-            => Usd.Value;
+        public static partial Option<Currency> ParseOrNone(string input);
     }
 }
