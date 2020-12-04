@@ -1,11 +1,10 @@
-using System;
 using System.Globalization;
 using Funcky.Extensions;
 using Funcky.Monads;
 
 namespace Funcky
 {
-    public partial record Money : IMoneyExpression
+    public sealed partial record Money : IMoneyExpression
     {
         public static readonly Money Zero = new(0m);
 
@@ -13,16 +12,14 @@ namespace Funcky
         {
             Amount = amount;
             Currency = SelectCurrency(currency);
-            Precision = Power.OfATenth(Currency.MinorUnitDigits);
-            MidpointRounding = RoundingStrategy.DefaultRoundingStrategy;
+            RoundingStrategy = Funcky.RoundingStrategy.Default(Currency);
         }
 
         public Money(decimal amount, MoneyEvaluationContext context)
         {
             Amount = amount;
             Currency = context.TargetCurrency;
-            Precision = context.Precision;
-            MidpointRounding = context.MidpointRounding;
+            RoundingStrategy = context.RoundingStrategy;
         }
 
         public Money(int amount, Option<Currency> currency = default)
@@ -34,9 +31,7 @@ namespace Funcky
 
         public Currency Currency { get; init; }
 
-        public decimal Precision { get; }
-
-        public MidpointRounding MidpointRounding { get; }
+        public AbstractRoundingStrategy RoundingStrategy { get; }
 
         public bool IsZero
             => Amount == 0m;

@@ -1,11 +1,10 @@
-using System;
 using System.Linq;
 using Funcky.Extensions;
 using Funcky.Monads;
 
 namespace Funcky
 {
-    internal class EvaluationVisitor : IMoneyExpressionVisitor
+    internal sealed class EvaluationVisitor : IMoneyExpressionVisitor
     {
         private readonly Option<MoneyEvaluationContext> _context;
 
@@ -16,9 +15,11 @@ namespace Funcky
             _context = context;
         }
 
-        public Money Result => Round(RawResult);
+        public Money Result
+            => Round(RawResult);
 
-        private Money RawResult => _moneyBags.CalculateTotal(_context);
+        public Money RawResult =>
+            _moneyBags.CalculateTotal(_context);
 
         public void Visit(Money money)
             => _moneyBags.Add(money);
@@ -40,51 +41,53 @@ namespace Funcky
         {
             ((IMoneyExpression)part.Distribution).Accept(this);
 
-            var partAmount = SliceAmount(part);
+            var money = RawResult;
+            var partAmount = SliceAmount(part, money);
 
-            if (decimal.Remainder(ToDistribute(part), Ɛ()) != 0m)
+            if (RoundingStrategy(money) is not NoRounding && decimal.Remainder(ToDistribute(part, money), Precision(money)) != 0m)
             {
-                throw new ImpossibleDistributionException($"It is impossible to distribute {ToDistribute(part)} in sizes of {Ɛ()}");
+                throw new ImpossibleDistributionException($"It is impossible to distribute {ToDistribute(part, money)} in sizes of {Precision(money)}");
             }
 
-            // we have to evaluate the money bag before we clear it
-            var result = RawResult;
             _moneyBags.Clear();
-            _moneyBags.Add(result with { Amount = partAmount, Currency = result.Currency });
+            _moneyBags.Add(money with { Amount = partAmount, Currency = money.Currency });
         }
 
         public void Visit(MoneyDistribution distribution)
             => distribution.Expression.Accept(this);
 
-        private decimal SliceAmount(MoneyDistributionPart part)
+        private decimal SliceAmount(MoneyDistributionPart part, Money money)
             => part.Index switch
             {
-                _ when Ɛ() * (part.Index + 1) < ToDistribute(part) => Slice(part.Distribution, part.Index) + Ɛ(),
-                _ when Ɛ() * part.Index < ToDistribute(part) => Slice(part.Distribution, part.Index) + ToDistribute(part) - AlreadyDistributed(part),
-                _ => Slice(part.Distribution, part.Index),
+                _ when Precision(money) * (part.Index + 1) < ToDistribute(part, money) => Slice(part.Distribution, part.Index, money) + Precision(money),
+                _ when Precision(money) * part.Index < ToDistribute(part, money) => Slice(part.Distribution, part.Index, money) + ToDistribute(part, money) - AlreadyDistributed(part, money),
+                _ => Slice(part.Distribution, part.Index, money),
             };
 
-        private decimal AlreadyDistributed(MoneyDistributionPart part)
-            => Ɛ() * part.Index;
+        private decimal AlreadyDistributed(MoneyDistributionPart part, Money money)
+            => Precision(money) * part.Index;
 
-        private decimal Ɛ()
-            => _context.AndThen(c => c.Precision).GetOrElse(RawResult.Precision);
+        private decimal Precision(Money money)
+            => RoundingStrategy(money).Precision;
 
-        private decimal ToDistribute(MoneyDistributionPart part)
-            => RawResult.Amount - DistributedTotal(part);
+        private AbstractRoundingStrategy RoundingStrategy(Money money)
+            => _context.Match(some: c => c.RoundingStrategy, none: money.RoundingStrategy);
 
-        private decimal DistributedTotal(MoneyDistributionPart part)
+        private decimal ToDistribute(MoneyDistributionPart part, Money money)
+            => money.Amount - DistributedTotal(part, money);
+
+        private decimal DistributedTotal(MoneyDistributionPart part, Money money)
             => part
                 .Distribution
                 .Factors
                 .WithIndex()
-                .Sum(f => Slice(part.Distribution, f.Index));
+                .Sum(f => Slice(part.Distribution, f.Index, money));
 
-        private decimal Slice(MoneyDistribution distribution, int index)
-            => Truncate(ExactSlice(distribution, index), RawResult.Precision);
+        private decimal Slice(MoneyDistribution distribution, int index, Money money)
+            => Truncate(ExactSlice(distribution, index, money), Precision(money));
 
-        private decimal ExactSlice(MoneyDistribution distribution, int index)
-            => RawResult.Amount / DistributionTotal(distribution) * distribution.Factors[index];
+        private decimal ExactSlice(MoneyDistribution distribution, int index, Money money)
+            => money.Amount / DistributionTotal(distribution) * distribution.Factors[index];
 
         private static decimal Truncate(decimal amount, decimal precision)
             => decimal.Truncate(amount / precision) * precision;
@@ -92,7 +95,12 @@ namespace Funcky
         private static int DistributionTotal(MoneyDistribution distribution)
             => distribution.Factors.Sum();
 
-        private static Money Round(Money money)
-            => money with { Amount = Math.Round(money.Amount / money.Precision, money.MidpointRounding) * money.Precision };
+        private Money Round(Money money)
+            => money with { Amount = FindRoundingStrategy(money).Round(money.Amount) };
+
+        private AbstractRoundingStrategy FindRoundingStrategy(Money money)
+            => _context
+            .AndThen(c => c.RoundingStrategy)
+            .GetOrElse(money.RoundingStrategy);
     }
 }

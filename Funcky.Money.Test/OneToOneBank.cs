@@ -1,7 +1,7 @@
 namespace Funcky.Test
 {
     // Bank which returns a 1:1 exchange rate for every pair of currencies.
-    internal class OneToOneBank : IBank
+    internal sealed class OneToOneBank : IBank
     {
         public static readonly IBank Instance = new OneToOneBank();
 

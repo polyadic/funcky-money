@@ -1,6 +1,6 @@
 namespace Funcky
 {
-    internal class MoneyDistributionPart : IMoneyExpression
+    internal sealed class MoneyDistributionPart : IMoneyExpression
     {
         public MoneyDistributionPart(MoneyDistribution distribution, int index)
         {
