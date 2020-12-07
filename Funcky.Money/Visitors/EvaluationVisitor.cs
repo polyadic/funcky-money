@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Funcky.Extensions;
 using Funcky.Monads;
@@ -8,40 +9,43 @@ namespace Funcky
     {
         private readonly Option<MoneyEvaluationContext> _context;
 
-        private readonly MoneyBags _moneyBags = new();
+        private Stack<MoneyBag> _moneyBags = new();
 
         public EvaluationVisitor(Option<MoneyEvaluationContext> context)
         {
             _context = context;
+            PushMoneyBag();
         }
 
         public Money Result
-            => Round(RawResult);
-
-        public Money RawResult =>
-            _moneyBags.CalculateTotal(_context);
+            => Round(_moneyBags.Peek().CalculateTotal(_context));
 
         public void Visit(Money money)
-            => _moneyBags.Add(money);
+            => _moneyBags.Peek().Add(money);
 
         public void Visit(MoneySum sum)
         {
             sum.Left.Accept(this);
+
+            PushMoneyBag();
             sum.Right.Accept(this);
+
+            var moneyBags = _moneyBags.Pop();
+            _moneyBags.Peek().Merge(moneyBags);
         }
 
         public void Visit(MoneyProduct product)
         {
             product.Expression.Accept(this);
 
-            _moneyBags.Multiply(product.Factor);
+            _moneyBags.Peek().Multiply(product.Factor);
         }
 
         public void Visit(MoneyDistributionPart part)
         {
             ((IMoneyExpression)part.Distribution).Accept(this);
 
-            var money = RawResult;
+            var money = _moneyBags.Pop().CalculateTotal(_context);
             var partAmount = SliceAmount(part, money);
 
             if (RoundingStrategy(money) is not NoRounding && decimal.Remainder(ToDistribute(part, money), Precision(money)) != 0m)
@@ -49,8 +53,7 @@ namespace Funcky
                 throw new ImpossibleDistributionException($"It is impossible to distribute {ToDistribute(part, money)} in sizes of {Precision(money)}");
             }
 
-            _moneyBags.Clear();
-            _moneyBags.Add(money with { Amount = partAmount, Currency = money.Currency });
+            PushMoneyBag(money with { Amount = partAmount, Currency = money.Currency });
         }
 
         public void Visit(MoneyDistribution distribution)
@@ -63,6 +66,15 @@ namespace Funcky
                 _ when Precision(money) * part.Index < ToDistribute(part, money) => Slice(part.Distribution, part.Index, money) + ToDistribute(part, money) - AlreadyDistributed(part, money),
                 _ => Slice(part.Distribution, part.Index, money),
             };
+
+        private void PushMoneyBag(Option<Money> money = default)
+        {
+            var moneyBag = new MoneyBag();
+
+            money.AndThen(m => moneyBag.Add(m));
+
+            _moneyBags.Push(moneyBag);
+        }
 
         private decimal AlreadyDistributed(MoneyDistributionPart part, Money money)
             => Precision(money) * part.Index;

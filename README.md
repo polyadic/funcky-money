@@ -62,6 +62,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] The user can use arbitray rounding function, he just needs to implement the AbstractRoundingStratgey.
 * [x] We do not round a Money on construction only on evaluation. You can create a 0.01m Money even if the precision is 0.1m.
 * [ ] Money distribution has a precision member, use that instead of the contrived Precision on Rounding.
+* [x] Add unary and binary minus and the division operator.
 
 ### Decisions
 

@@ -71,8 +71,8 @@ namespace Funcky.Test
             var fiveFrancs = new Money(5);
 
             Assert.Equal(15.00m, fiveFrancs.Multiply(3).Evaluate().Amount);
-            Assert.Equal(16.00m, fiveFrancs.Multiply(3.2).Evaluate().Amount);
-            Assert.Equal(17.50m, fiveFrancs.Multiply(3.5f).Evaluate().Amount);
+            Assert.Equal(16.00m, fiveFrancs.Multiply(3.2m).Evaluate().Amount);
+            Assert.Equal(17.50m, fiveFrancs.Multiply(3.5m).Evaluate().Amount);
             Assert.Equal(19.00m, fiveFrancs.Multiply(3.8m).Evaluate().Amount);
         }
 
@@ -82,6 +82,8 @@ namespace Funcky.Test
             var fiveFrancs = new Money(5);
             var sum = fiveFrancs.Add(fiveFrancs);
             var distribution = sum.Distribute(3);
+
+            var x = sum.Multiply(3);
 
             Assert.Equal(sum.Evaluate().Amount, distribution.Select(e => e.Evaluate().Amount).Sum());
 
@@ -329,6 +331,29 @@ namespace Funcky.Test
 
             Assert.Equal(0.01m, francs.Amount);
             Assert.Equal(0m, francs.Evaluate().Amount);
+            Assert.Equal(0.01m, francs.Evaluate(noRounding).Amount);
+        }
+
+        [Fact]
+        public void AllNecessaryOperatorsAreDefined()
+        {
+            var francs = new Money(0.50m, SwissRounding);
+
+            var allOperators = -((((francs * 2) + francs) / 2) - +(francs * 2));
+
+            Assert.Equal(0.25m, allOperators.Evaluate().Amount);
+        }
+
+        [Fact]
+        public void WeCanEvaluateComplexExpressions()
+        {
+            var v1 = new Money(0.50m, SwissRounding);
+            var v2 = new Money(7m, SwissRounding);
+            var v3 = new Money(2.50m, SwissRounding);
+
+            var tree = v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1)).Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
+
+            Assert.Equal(35m, tree.Evaluate().Amount);
         }
     }
 }

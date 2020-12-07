@@ -3,14 +3,26 @@ namespace Funcky
     public interface IMoneyExpression
     {
 #if DEFAULT_INTERFACE_IMPLEMENTATION_SUPPORTED
-        public static IMoneyExpression operator *(IMoneyExpression moneyExpression, decimal factor)
-            => new MoneyProduct(moneyExpression, factor);
+        public static IMoneyExpression operator *(IMoneyExpression multiplicand, decimal multiplier)
+            => multiplicand.Multiply(multiplier);
 
-        public static IMoneyExpression operator *(decimal factor, IMoneyExpression moneyExpression)
-            => new MoneyProduct(moneyExpression, factor);
+        public static IMoneyExpression operator *(decimal multiplier, IMoneyExpression multiplicand)
+            => multiplicand.Multiply(multiplier);
 
-        public static IMoneyExpression operator +(IMoneyExpression leftMoneyExpression, IMoneyExpression rightMoneyExpression)
-            => new MoneySum(leftMoneyExpression, rightMoneyExpression);
+        public static IMoneyExpression operator /(IMoneyExpression dividend, decimal divisor)
+            => dividend.Divide(divisor);
+
+        public static IMoneyExpression operator +(IMoneyExpression augend, IMoneyExpression addend)
+            => augend.Add(addend);
+
+        public static IMoneyExpression operator +(IMoneyExpression moneyExpression)
+            => moneyExpression;
+
+        public static IMoneyExpression operator -(IMoneyExpression minuend, IMoneyExpression subtrahend)
+            => minuend.Subtract(subtrahend);
+
+        public static IMoneyExpression operator -(IMoneyExpression moneyExpression)
+            => moneyExpression.Multiply(-1);
 #endif
 
         internal void Accept(IMoneyExpressionVisitor visitor);

@@ -6,39 +6,41 @@ using Funcky.Monads;
 
 namespace Funcky
 {
-    internal sealed class MoneyBags
+    internal sealed class MoneyBag
     {
-        private readonly Dictionary<Currency, List<Money>> _moneyBags = new();
+        private readonly Dictionary<Currency, List<Money>> _currencies = new();
         private Option<AbstractRoundingStrategy> _roundingStrategy;
 
         public void Add(Money money)
         {
             if (!money.IsZero)
             {
-                CreateMoneyBagByCurrency(money);
+                CreateMoneyBagByCurrency(money.Currency);
 
-                _moneyBags[money.Currency].Add(money);
+                _currencies[money.Currency].Add(money);
             }
         }
 
         public void Multiply(decimal factor)
-            => _moneyBags.ForEach(kv => _moneyBags[kv.Key] = MultiplyBag(factor, kv.Value));
+            => _currencies.ForEach(kv => _currencies[kv.Key] = MultiplyBag(factor, kv.Value));
 
         public Money CalculateTotal(Option<MoneyEvaluationContext> context)
             => context.Match(
                 none: AggregateWithEvaluationContext,
                 some: AggregateWithoutEvaluationContext);
 
-        public void Clear()
-            => _moneyBags.Clear();
+        public void Merge(MoneyBag moneyBag)
+            => moneyBag._currencies
+                .SelectMany(kv => kv.Value)
+                .ForEach(Add);
 
-        private List<Money> MultiplyBag(decimal factor, IEnumerable<Money> bag) =>
-            bag
+        private List<Money> MultiplyBag(decimal factor, IEnumerable<Money> bag)
+            => bag
                 .Select(m => m with { Amount = m.Amount * factor })
                 .ToList();
 
         private Money AggregateWithoutEvaluationContext(MoneyEvaluationContext context)
-            => _moneyBags
+            => _currencies
                 .Select(kv => kv.Value.Aggregate(MoneySum(context)))
                 .Aggregate(new Money(0m, context), ToSingleCurrency(context));
 
@@ -48,7 +50,7 @@ namespace Funcky
                 exception => throw new MissingEvaluationContextException("Different currencies cannot be evaluated without an evaluation context.", exception));
 
         private Money AggregateSingleMoneyBag()
-            => _moneyBags
+            => _currencies
                 .SingleOrNone()
                 .Match(
                     none: () => Money.Zero,
@@ -78,11 +80,11 @@ namespace Funcky
             => (moneySum, money)
                 => moneySum with { Amount = moneySum.Amount + ExchangeToTargetCurrency(money, context).Amount };
 
-        private void CreateMoneyBagByCurrency(Money money)
+        private void CreateMoneyBagByCurrency(Currency currency)
         {
-            if (!_moneyBags.ContainsKey(money.Currency))
+            if (!_currencies.ContainsKey(currency))
             {
-                _moneyBags.Add(money.Currency, new List<Money>());
+                _currencies.Add(currency, new List<Money>());
             }
         }
 
