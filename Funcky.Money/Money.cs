@@ -31,7 +31,7 @@ namespace Funcky
 
         public Currency Currency { get; init; }
 
-        public AbstractRoundingStrategy RoundingStrategy { get; }
+        public IRoundingStrategy RoundingStrategy { get; }
 
         public bool IsZero
             => Amount == 0m;

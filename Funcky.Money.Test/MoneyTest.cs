@@ -7,12 +7,14 @@ namespace Funcky.Test
 {
     public sealed class MoneyTest
     {
+        private const decimal SmallestCoin = 0.05m;
+
         private static MoneyEvaluationContext SwissRounding
             => MoneyEvaluationContext
                 .Builder
                 .Default
                 .WithTargetCurrency(Currency.CHF)
-                .WithRounding(RoundingStrategy.BankersRounding(0.05m))
+                .WithSmallestDistributionUnit(SmallestCoin)
                 .Build();
 
         [Fact]
@@ -51,6 +53,7 @@ namespace Funcky.Test
         {
             var fiveFrancs = new Money(5, Currency.CHF);
             var tenDollars = new Money(10, Currency.USD);
+
             var sum = fiveFrancs.Add(tenDollars);
 
             Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
@@ -59,8 +62,8 @@ namespace Funcky.Test
         [Fact]
         public void FiveDollarsAreNotFiveFrancs()
         {
-            var fiveFrancs = new Money(5, Currency.CHF);
-            var fiveDollars = new Money(5, Currency.USD);
+            var fiveFrancs = Money.CHF(5);
+            var fiveDollars = Money.USD(5);
 
             Assert.NotEqual(fiveFrancs, fiveDollars);
         }
@@ -68,7 +71,7 @@ namespace Funcky.Test
         [Fact]
         public void MoneyCanBeMultipliedByConstantsFactors()
         {
-            var fiveFrancs = new Money(5);
+            var fiveFrancs = Money.CHF(5);
 
             Assert.Equal(15.00m, fiveFrancs.Multiply(3).Evaluate().Amount);
             Assert.Equal(16.00m, fiveFrancs.Multiply(3.2m).Evaluate().Amount);
@@ -79,16 +82,15 @@ namespace Funcky.Test
         [Fact]
         public void DistributeMoneyEqually()
         {
-            var fiveFrancs = new Money(5);
+            var fiveFrancs = Money.CHF(5);
             var sum = fiveFrancs.Add(fiveFrancs);
             var distribution = sum.Distribute(3);
 
-            var x = sum.Multiply(3);
-
-            Assert.Equal(sum.Evaluate().Amount, distribution.Select(e => e.Evaluate().Amount).Sum());
+            var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
+            Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
 
             Assert.Collection(
-                distribution.Select(e => e.Evaluate().Amount),
+                distributed,
                 item => Assert.Equal(3.34m, item),
                 item => Assert.Equal(3.33m, item),
                 item => Assert.Equal(3.33m, item));
@@ -97,14 +99,15 @@ namespace Funcky.Test
         [Fact]
         public void DistributeMoneyProportionally()
         {
-            var fiftyCents = new Money(0.5m);
+            var fiftyCents = Money.EUR(0.5m);
             var sum = fiftyCents.Add(fiftyCents);
             var distribution = sum.Distribute(new[] { 5, 1 });
 
-            Assert.Equal(sum.Evaluate().Amount, distribution.Select(e => e.Evaluate().Amount).Sum());
+            var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
+            Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
 
             Assert.Collection(
-                distribution.Select(e => e.Evaluate().Amount),
+                distributed,
                 item => Assert.Equal(0.84m, item),
                 item => Assert.Equal(0.16m, item));
         }
@@ -112,10 +115,10 @@ namespace Funcky.Test
         [Fact]
         public void InputValuesGetRoundedDuringEvaluation()
         {
-            var fiveDollarsSeventy = new Money(5.7m);
-            var midpoint1 = new Money(5.715m);
-            var midpoint2 = new Money(5.725m);
-            var pi = new Money((decimal)Math.PI);
+            var fiveDollarsSeventy = Money.USD(5.7m);
+            var midpoint1 = Money.USD(5.715m);
+            var midpoint2 = Money.USD(5.725m);
+            var pi = Money.USD((decimal)Math.PI);
 
             Assert.Equal(5.70m, fiveDollarsSeventy.Evaluate().Amount);
             Assert.Equal(5.72m, midpoint1.Evaluate().Amount);
@@ -146,14 +149,14 @@ namespace Funcky.Test
         [Fact]
         public void WeCanDefineMoneyExpressionsWithOperators()
         {
-            var fiveDollars = new Money(5);
-            var tenDollars = new Money(10);
+            var fiveDollars = Money.USD(5);
+            var tenDollars = Money.USD(10);
 
             var sum = fiveDollars + tenDollars + fiveDollars;
             var product = 3.00m * tenDollars;
 
-            Assert.Equal(new Money(20), sum.Evaluate());
-            Assert.Equal(new Money(30), product.Evaluate());
+            Assert.Equal(Money.USD(20), sum.Evaluate());
+            Assert.Equal(Money.USD(30), product.Evaluate());
         }
 
         [Fact]
@@ -192,37 +195,42 @@ namespace Funcky.Test
         [Fact]
         public void ThePrecisionCanBeSetToSomethingOtherThanAPowerOfTen()
         {
-            var precision05 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithRounding(RoundingStrategy.BankersRounding(0.05m)).Build());
+            var precision05 = new Money(1m, SwissRounding);
             var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
 
             Assert.Collection(
-                precision05.Distribute(3).Select(e => e.Evaluate().Amount),
+                precision05.Distribute(3, 0.05m).Select(e => e.Evaluate().Amount),
                 item => Assert.Equal(0.35m, item),
                 item => Assert.Equal(0.35m, item),
                 item => Assert.Equal(0.30m, item));
 
             Assert.Collection(
-                precision002.Distribute(3).Select(e => e.Evaluate().Amount),
+                precision002.Distribute(3, 0.002m).Select(e => e.Evaluate().Amount),
                 item => Assert.Equal(0.334m, item),
                 item => Assert.Equal(0.334m, item),
                 item => Assert.Equal(0.332m, item));
 
             var francs = new Money(0.10m, SwissRounding);
             Assert.Collection(
-                francs.Distribute(3).Select(e => e.Evaluate().Amount),
+                francs.Distribute(3, 0.05m).Select(e => e.Evaluate().Amount),
                 item => Assert.Equal(0.05m, item),
                 item => Assert.Equal(0.05m, item),
                 item => Assert.Equal(0m, item));
         }
 
         [Fact]
-        public void ThePrecisionIsCorrectlyPassedThrough()
+        public void TheRoundingStrategyIsCorrectlyPassedThrough()
         {
-            var precision05 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithRounding(RoundingStrategy.BankersRounding(0.05m)).Build());
-            var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
+            var commonContext = MoneyEvaluationContext
+                .Builder
+                .Default
+                .WithTargetCurrency(Currency.CHF);
 
-            Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3).First().Evaluate().RoundingStrategy);
-            Assert.Equal(precision002.RoundingStrategy, precision002.Distribute(3).First().Evaluate().RoundingStrategy);
+            var precision05 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SmallestCoin)).Build());
+            var precision002 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
+
+            Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3, SmallestCoin).First().Evaluate().RoundingStrategy);
+            Assert.Equal(precision002.RoundingStrategy, precision002.Distribute(3, 0.002m).First().Evaluate().RoundingStrategy);
         }
 
         [Fact]
@@ -230,7 +238,8 @@ namespace Funcky.Test
         {
             var francs = new Money(0.08m, SwissRounding);
 
-            Assert.Throws<ImpossibleDistributionException>(() => francs.Distribute(3).Select(e => e.Evaluate()).First());
+            Assert.Throws<ImpossibleDistributionException>(() =>
+                francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
         }
 
         [Fact]
@@ -239,8 +248,8 @@ namespace Funcky.Test
             var francs = new Money(1m, SwissRounding);
             var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF);
 
-            Assert.Equal("BankesRounding { Precision: 0.05 }", francs.RoundingStrategy.ToString());
-            Assert.Equal("BankesRounding { Precision: 0.01 }", francs.Evaluate(evaluationContext.Build()).RoundingStrategy.ToString());
+            Assert.Equal("BankersRounding { Precision: 0.05 }", francs.RoundingStrategy.ToString());
+            Assert.Equal("BankersRounding { Precision: 0.01 }", francs.Evaluate(evaluationContext.Build()).RoundingStrategy.ToString());
         }
 
         [Fact]
@@ -326,7 +335,7 @@ namespace Funcky.Test
                 .Builder
                 .Default
                 .WithTargetCurrency(Currency.CHF)
-                .WithRounding(RoundingStrategy.NoRounding(0.05m))
+                .WithRounding(RoundingStrategy.NoRounding())
                 .Build();
 
             Assert.Equal(0.01m, francs.Amount);
@@ -351,9 +360,23 @@ namespace Funcky.Test
             var v2 = new Money(7m, SwissRounding);
             var v3 = new Money(2.50m, SwissRounding);
 
-            var tree = v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1)).Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
+            var tree = v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1))
+                .Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
 
             Assert.Equal(35m, tree.Evaluate().Amount);
+        }
+
+        [Fact]
+        public void BuildContextFailsWhenCreatingItWithARoundingStrategyIncompatibleWithSmallestDistributionUnit()
+        {
+            var incompatibleRoundingContext = MoneyEvaluationContext
+                .Builder
+                .Default
+                .WithTargetCurrency(Currency.CHF)
+                .WithSmallestDistributionUnit(0.01m)
+                .WithRounding(RoundingStrategy.Default(0.05m));
+
+            Assert.Throws<IncompatibleRoundingException>(() => incompatibleRoundingContext.Build());
         }
     }
 }

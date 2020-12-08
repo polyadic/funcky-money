@@ -9,7 +9,7 @@ namespace Funcky
     internal sealed class MoneyBag
     {
         private readonly Dictionary<Currency, List<Money>> _currencies = new();
-        private Option<AbstractRoundingStrategy> _roundingStrategy;
+        private Option<IRoundingStrategy> _roundingStrategy;
 
         public void Add(Money money)
         {
@@ -61,12 +61,10 @@ namespace Funcky
                 .Inspect(CheckEvaluationRules)
                 .Aggregate(MoneySum);
 
-        private void CheckEvaluationRules(Money money)
-        {
+        private void CheckEvaluationRules(Money money) =>
             _roundingStrategy.Match(
                 none: () => _roundingStrategy = Option.Some(money.RoundingStrategy),
-                some: r => CheckRoundingStrategy(r == money.RoundingStrategy));
-        }
+                some: r => CheckRoundingStrategy(money.RoundingStrategy.Equals(r)));
 
         private static void CheckRoundingStrategy(bool validRoundingStrategy)
         {

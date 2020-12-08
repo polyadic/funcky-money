@@ -2,28 +2,25 @@ namespace Funcky
 {
     public static class RoundingStrategy
     {
-        public static AbstractRoundingStrategy NoRounding(decimal precision)
-            => new NoRounding(precision);
+        public static IRoundingStrategy NoRounding()
+            => new NoRounding();
 
-        public static AbstractRoundingStrategy NoRounding(Currency currency)
-            => new NoRounding(currency);
-
-        public static AbstractRoundingStrategy BankersRounding(decimal precision)
+        public static IRoundingStrategy BankersRounding(decimal precision)
             => new BankersRounding(precision);
 
-        public static AbstractRoundingStrategy BankersRounding(Currency currency)
+        public static IRoundingStrategy BankersRounding(Currency currency)
             => new BankersRounding(currency);
 
-        public static AbstractRoundingStrategy RoundWithAwayFromZero(decimal precision)
+        public static IRoundingStrategy RoundWithAwayFromZero(decimal precision)
             => new RoundWithAwayFromZero(precision);
 
-        public static AbstractRoundingStrategy RoundWithAwayFromZero(Currency currency)
+        public static IRoundingStrategy RoundWithAwayFromZero(Currency currency)
             => new RoundWithAwayFromZero(currency);
 
-        internal static AbstractRoundingStrategy Default(decimal precision)
+        internal static IRoundingStrategy Default(decimal precision)
             => BankersRounding(precision);
 
-        internal static AbstractRoundingStrategy Default(Currency currency)
+        internal static IRoundingStrategy Default(Currency currency)
             => BankersRounding(currency);
     }
 }
