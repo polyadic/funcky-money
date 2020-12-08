@@ -9,7 +9,5 @@ namespace Funcky
         void Visit(MoneyProduct money);
 
         void Visit(MoneyDistributionPart money);
-
-        void Visit(MoneyDistribution money);
     }
 }

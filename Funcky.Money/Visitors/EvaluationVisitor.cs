@@ -43,7 +43,7 @@ namespace Funcky
 
         public void Visit(MoneyDistributionPart part)
         {
-            ((IMoneyExpression)part.Distribution).Accept(this);
+            part.Distribution.Expression.Accept(this);
 
             var total = _moneyBags.Pop().CalculateTotal(_context);
 
@@ -56,9 +56,6 @@ namespace Funcky
                 throw new ImpossibleDistributionException($"It is impossible to distribute {ToDistribute(part, total)} in sizes of {Precision(part.Distribution, total)} with the current Rounding strategy: {RoundingStrategy(total)}.");
             }
         }
-
-        public void Visit(MoneyDistribution distribution)
-            => distribution.Expression.Accept(this);
 
         private bool IsDistributable(MoneyDistributionPart part, Money money)
             => RoundingStrategy(money).IsSameAfterRounding(Precision(part.Distribution, money))

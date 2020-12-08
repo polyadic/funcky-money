@@ -7,7 +7,7 @@ using Funcky.Monads;
 
 namespace Funcky
 {
-    internal sealed class MoneyDistribution : IEnumerable<IMoneyExpression>, IMoneyExpression
+    internal sealed class MoneyDistribution : IEnumerable<IMoneyExpression>
     {
         public MoneyDistribution(IMoneyExpression moneyExpression, IEnumerable<int> factors, Option<decimal> precision)
         {
@@ -32,9 +32,6 @@ namespace Funcky
                 .WithIndex()
                 .Select(f => (IMoneyExpression)new MoneyDistributionPart(this, f.Index))
                 .GetEnumerator();
-
-        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
-            => visitor.Visit(this);
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
