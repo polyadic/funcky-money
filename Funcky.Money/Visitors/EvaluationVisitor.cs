@@ -45,17 +45,13 @@ namespace Funcky
         {
             part.Distribution.Expression.Accept(this);
 
-            var total = _moneyBags.Pop().CalculateTotal(_context);
-
-            if (IsDistributable(part, total))
-            {
-                PushMoneyBag(total with { Amount = SliceAmount(part, total), Currency = total.Currency });
-            }
-            else
-            {
-                throw new ImpossibleDistributionException($"It is impossible to distribute {ToDistribute(part, total)} in sizes of {Precision(part.Distribution, total)} with the current Rounding strategy: {RoundingStrategy(total)}.");
-            }
+            PushMoneyBag(Distribute(part, _moneyBags.Pop().CalculateTotal(_context)));
         }
+
+        private Money Distribute(MoneyDistributionPart part, Money total)
+            => IsDistributable(part, total)
+                ? total with { Amount = SliceAmount(part, total), Currency = total.Currency }
+                : throw new ImpossibleDistributionException($"It is impossible to distribute {ToDistribute(part, total)} in sizes of {Precision(part.Distribution, total)} with the current Rounding strategy: {RoundingStrategy(total)}.");
 
         private bool IsDistributable(MoneyDistributionPart part, Money money)
             => RoundingStrategy(money).IsSameAfterRounding(Precision(part.Distribution, money))
