@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,11 @@ namespace Funcky
             Expression = moneyExpression;
             Factors = factors.ToList();
             Precision = precision;
+
+            if (Factors.None())
+            {
+                throw new Exception("we need at least one factor to distribute");
+            }
         }
 
         public IMoneyExpression Expression { get; }

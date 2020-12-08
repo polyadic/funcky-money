@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using FsCheck;
+using FsCheck.Xunit;
 using Funcky.Xunit;
 using Xunit;
 
@@ -68,33 +70,32 @@ namespace Funcky.Test
             Assert.NotEqual(fiveFrancs, fiveDollars);
         }
 
-        [Fact]
-        public void MoneyCanBeMultipliedByConstantsFactors()
+        [Property]
+        public Property MoneyCanBeMultipliedByConstantsFactors(decimal amount, decimal multiplier)
         {
-            var fiveFrancs = Money.CHF(5);
+            var someMoney = Money.CHF(amount);
+            var result = decimal.Round(amount * multiplier, someMoney.Currency.MinorUnitDigits)
+                         == someMoney.Multiply(multiplier).Evaluate().Amount;
 
-            Assert.Equal(15.00m, fiveFrancs.Multiply(3).Evaluate().Amount);
-            Assert.Equal(16.00m, fiveFrancs.Multiply(3.2m).Evaluate().Amount);
-            Assert.Equal(17.50m, fiveFrancs.Multiply(3.5m).Evaluate().Amount);
-            Assert.Equal(19.00m, fiveFrancs.Multiply(3.8m).Evaluate().Amount);
+            return result.ToProperty();
         }
 
-        [Fact]
-        public void DistributeMoneyEqually()
-        {
-            var fiveFrancs = Money.CHF(5);
-            var sum = fiveFrancs.Add(fiveFrancs);
-            var distribution = sum.Distribute(3);
+        [Property]
+        public Property DistributeMoneyEqually()
+            => Prop.ForAll(
+                Arb.Default.Decimal(),
+                Arb.Default.PositiveInt(),
+                (amount, numberOfParts) =>
+                        {
+                            var validAmount = SwissRounding.RoundingStrategy.Round(amount);
+                            var someMoney = new Money(validAmount, SwissRounding);
+                            var distributed = someMoney.Distribute(numberOfParts.Get).Select(e => e.Evaluate(SwissRounding).Amount).ToList();
+                            var first = distributed.First();
 
-            var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
-            Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
-
-            Assert.Collection(
-                distributed,
-                item => Assert.Equal(3.34m, item),
-                item => Assert.Equal(3.33m, item),
-                item => Assert.Equal(3.33m, item));
-        }
+                            return distributed.Sum() == validAmount
+                                   && distributed.Count == numberOfParts.Get
+                                   && distributed.All(AtMostOneUnitLess(first, SmallestCoin));
+                        });
 
         [Fact]
         public void DistributeMoneyProportionally()
@@ -407,5 +408,8 @@ namespace Funcky.Test
 
             Assert.Throws<NotSupportedException>(() => new Money(5));
         }
+
+        private Func<decimal, bool> AtMostOneUnitLess(decimal reference, decimal unit)
+            => amount => amount == reference || amount == reference - unit;
     }
 }

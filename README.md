@@ -56,8 +56,8 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Distribution with `NoRounding` strategy should distribute exactly according to the precision.
 * [x] Distribution wich cannot exactly distribute money throws an `ImpossibleDistributionException`
 * [x] Rounding only happens at the end of an evaluation.
-* [ ] Fix tests failing in other locales.
-* [ ] Write property tests using FsCheck.
+* [x] Fix tests failing in other locales.
+* [x] Write property tests using FsCheck.
 * [x] Rounding is done at the end of every evaluation according to the rounding strategy.
 * [x] The user can use arbitray rounding function, he just needs to implement the AbstractRoundingStratgey.
 * [x] We do not round a Money on construction only on evaluation. You can create a 0.01m Money even if the precision is 0.1m.
