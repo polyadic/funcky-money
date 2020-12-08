@@ -50,7 +50,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Static constructor for most used Currencies, this could inject rules like precision: Money.CHF(2.00m)
 * [x] To avoid rounding problems on construction, Money can only be constructed from decimal and int.
 * [x] Add possibility to delegate the acquisition of exchange rates. (`IBank` interface)
-* [ ] There are a few throw `Exception` calls in the code which should be refined to specific exceptions.
+* [x] There are a few throw `Exception` calls in the code which should be refined to specific exceptions.
 * [x] There needs to be a `NoRounding` strategy, maybe provide an Interface `IRoundingStrategy` with a few given implementations.
 * [x] Evaluation arithmetic `Money` operations can use different rounding mechanism.
 * [x] Distribution with `NoRounding` strategy should distribute exactly according to the precision.

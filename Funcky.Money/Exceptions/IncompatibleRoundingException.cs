@@ -3,7 +3,7 @@ using System;
 namespace Funcky
 {
     [Serializable]
-    internal sealed class IncompatibleRoundingException : Exception
+    public sealed class IncompatibleRoundingException : Exception
     {
         public IncompatibleRoundingException()
         {

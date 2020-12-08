@@ -23,7 +23,7 @@ namespace Funcky
         public decimal ExchangeRate(Currency source, Currency target)
             => ExchangeRates
                 .TryGetValue(key: (source, target))
-                .GetOrElse(() => throw new Exception($"No exchange rate for {source} => {target}"));
+                .GetOrElse(() => throw new NotSupportedException($"No exchange rate for {source} => {target}"));
 
         internal DefaultBank AddExchangeRate(Currency source, Currency target, decimal sellRate)
             => new DefaultBank(ExchangeRates.Add((source, target), sellRate));

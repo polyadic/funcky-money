@@ -66,7 +66,7 @@ namespace Funcky
             public Builder WithExchangeRate(Currency currency, decimal sellRate)
                 => _bank is DefaultBank bank
                     ? new(_targetCurrency, _distributionUnit, _roundingStrategy, bank.AddExchangeRate(currency, GetTargetCurrencyOrException(), sellRate))
-                    : throw new Exception("Invalid Builder: you can either use WithExchangeRate or WithBank, but not both.");
+                    : throw new InvalidMoneyEvaluationContextBuilderException("You can either use WithExchangeRate or WithBank, but not both.");
 
             public Builder WithBank(IBank bank)
                 => new(_targetCurrency, _distributionUnit, _roundingStrategy, bank);
@@ -76,7 +76,7 @@ namespace Funcky
 
             private Currency GetTargetCurrencyOrException()
                 => _targetCurrency.GetOrElse(()
-                    => throw new Exception("You need to set a target currency before you can add an exchange rate."));
+                    => throw new InvalidMoneyEvaluationContextBuilderException("You need to set a target currency before you can add an exchange rate."));
 
             private Option<bool> CompatibleRounding()
                 => from rounding in _roundingStrategy
@@ -86,7 +86,7 @@ namespace Funcky
             private MoneyEvaluationContext CreateContext()
                 => new(
                     _targetCurrency.GetOrElse(() =>
-                        throw new Exception("Money evaluation context has no target currency set.")),
+                        throw new InvalidMoneyEvaluationContextBuilderException("Money evaluation context has no target currency set.")),
                     _distributionUnit,
                     _roundingStrategy,
                     _bank);
