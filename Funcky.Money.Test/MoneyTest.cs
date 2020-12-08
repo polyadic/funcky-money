@@ -248,8 +248,8 @@ namespace Funcky.Test
             var francs = new Money(1m, SwissRounding);
             var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF);
 
-            Assert.Equal("BankersRounding { Precision: 0.05 }", francs.RoundingStrategy.ToString());
-            Assert.Equal("BankersRounding { Precision: 0.01 }", francs.Evaluate(evaluationContext.Build()).RoundingStrategy.ToString());
+            Assert.Equal(new BankersRounding(0.05m), francs.RoundingStrategy);
+            Assert.Equal(new BankersRounding(0.01m), francs.Evaluate(evaluationContext.Build()).RoundingStrategy);
         }
 
         [Fact]
@@ -279,14 +279,14 @@ namespace Funcky.Test
             var context = MoneyEvaluationContext
                 .Builder
                 .Default
-                .WithTargetCurrency(Currency.CHF)
+                .WithTargetCurrency(Currency.JPY)
                 .WithBank(OneToOneBank.Instance)
                 .Build();
 
-            Assert.Equal(Money.Zero, Money.Zero.Evaluate(context));
-            Assert.Equal(Money.Zero, sum.Evaluate(context));
-            Assert.Equal(Money.Zero, Money.Zero.Evaluate());
-            Assert.Equal(Money.Zero, sum.Evaluate());
+            Assert.True(Money.Zero.Evaluate(context).IsZero);
+            Assert.True(sum.Evaluate(context).IsZero);
+            Assert.True(Money.Zero.Evaluate().IsZero);
+            Assert.True(sum.Evaluate().IsZero);
         }
 
         [Fact]
@@ -377,6 +377,35 @@ namespace Funcky.Test
                 .WithRounding(RoundingStrategy.Default(0.05m));
 
             Assert.Throws<IncompatibleRoundingException>(() => incompatibleRoundingContext.Build());
+        }
+
+        [Theory]
+        [MemberData(nameof(CulturesWithCurrencies))]
+        public void IfCurrencyIsOmittedOnConstructionOfAMoneyItGetsDeducedByTheCurrentCulture(string culture, Currency currency)
+        {
+            using var cultureSwitch = new TemporaryCultureSwitch(culture);
+
+            var money = new Money(5);
+
+            Assert.Equal(currency, money.Currency);
+        }
+
+        public static TheoryData<string, Currency> CulturesWithCurrencies()
+            => new()
+            {
+                { "jp-JP", Currency.JPY },
+                { "de-CH", Currency.CHF },
+                { "de-DE", Currency.EUR },
+                { "en-GB", Currency.GBP },
+                { "en-US", Currency.USD },
+            };
+
+        [Fact]
+        public void YouCannotConstructAMoneyWithIllegalCulturesWithoutACorrectCurrencyIsoCode()
+        {
+            using var cultureSwitch = new TemporaryCultureSwitch("en-UK");
+
+            Assert.Throws<NotSupportedException>(() => new Money(5));
         }
     }
 }

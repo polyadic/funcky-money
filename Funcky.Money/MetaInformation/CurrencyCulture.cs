@@ -10,13 +10,14 @@ namespace Funcky
         public static Currency CurrentCurrency()
         {
             var currencySymbol = CurrentRegion().ISOCurrencySymbol;
+
             return Currency
                 .ParseOrNone(currencySymbol)
-                .GetOrElse(() => throw new NotSupportedException($"The currency '{currencySymbol}' is not supported"));
+                .GetOrElse(() => throw new NotSupportedException($"The currency '{currencySymbol}' is not supported, is the current Region '{CurrentRegion().Name}' valid?"));
         }
 
         public static RegionInfo CurrentRegion()
-            => new(CultureInfo.CurrentCulture.LCID);
+            => new(CultureInfo.CurrentCulture.Name);
 
         internal static IFormatProvider CultureInfoFromCurrency(Currency currency)
         {
