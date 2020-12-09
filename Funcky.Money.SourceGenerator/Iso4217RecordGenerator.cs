@@ -90,18 +90,18 @@ namespace Funcky.Money.SourceGenerator
                $"}}{NewLine}";
 
         private static string GenerateMoneyFactoryMethods(IEnumerable<Iso4217Record> records)
+            => records.Aggregate(new StringBuilder(), AppendCurrencyFactory).ToString();
+
+        private static StringBuilder AppendCurrencyFactory(StringBuilder stringBuilder, Iso4217Record record)
+            => stringBuilder.Append(CreateCurrencyFactory(record));
+
+        private static string CreateCurrencyFactory(Iso4217Record record)
         {
-            var properties = new StringBuilder();
+            var identifier = Identifier(record.AlphabeticCurrencyCode);
 
-            foreach (var record in records)
-            {
-                var identifier = Identifier(record.AlphabeticCurrencyCode);
-                properties.AppendLine($"{Indent}{Indent}/// <summary>Creates a new <see cref=\"Money\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>{NewLine}" +
-                                      $"{Indent}{Indent}public static Money {identifier}(decimal amount){NewLine}" +
-                                      $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());");
-            }
-
-            return properties.ToString();
+            return $"{Indent}{Indent}/// <summary>Creates a new <see cref=\"Money\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>{NewLine}" +
+                $"{Indent}{Indent}public static Money {identifier}(decimal amount){NewLine}" +
+                $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());";
         }
 
         private static IEnumerable<Iso4217Record> ReadIso4217RecordsFromAdditionalFiles(GeneratorExecutionContext context)

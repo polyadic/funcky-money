@@ -38,15 +38,12 @@ namespace Funcky
             => Amount == 0m;
 
         public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
-        {
-            var selectedCurrency = SelectCurrency(currency);
-            var formatProvider = CurrencyCulture.FormatProviderFromCurrency(selectedCurrency);
-
-            return formatProvider.Match(
-                none: ParseManually(money),
-                some: ParseWithFormatProvider(money))
-                .AndThen(amount => new Money(amount, selectedCurrency));
-        }
+            => CurrencyCulture
+                .FormatProviderFromCurrency(SelectCurrency(currency))
+                .Match(
+                    none: ParseManually(money),
+                    some: ParseWithFormatProvider(money))
+                .AndThen(amount => new Money(amount, SelectCurrency(currency)));
 
         private static Func<Option<decimal>> ParseManually(string money)
             => ()

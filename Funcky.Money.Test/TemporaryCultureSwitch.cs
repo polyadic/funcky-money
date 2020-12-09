@@ -14,8 +14,6 @@ namespace Funcky.Test
         }
 
         public void Dispose()
-        {
-            CultureInfo.CurrentCulture = _lastCulture;
-        }
+            => CultureInfo.CurrentCulture = _lastCulture;
     }
 }

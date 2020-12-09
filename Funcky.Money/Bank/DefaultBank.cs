@@ -26,6 +26,6 @@ namespace Funcky
                 .GetOrElse(() => throw new NotSupportedException($"No exchange rate for {source} => {target}"));
 
         internal DefaultBank AddExchangeRate(Currency source, Currency target, decimal sellRate)
-            => new DefaultBank(ExchangeRates.Add((source, target), sellRate));
+            => new(ExchangeRates.Add((source, target), sellRate));
     }
 }

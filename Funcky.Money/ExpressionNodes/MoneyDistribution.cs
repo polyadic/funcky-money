@@ -17,7 +17,7 @@ namespace Funcky
 
             if (Factors.None())
             {
-                throw new Exception("we need at least one factor to distribute");
+                throw new ImpossibleDistributionException("we need at least one factor to distribute.");
             }
         }
 

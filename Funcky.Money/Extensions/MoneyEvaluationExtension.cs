@@ -6,12 +6,17 @@ namespace Funcky
     {
         public static Money Evaluate(this IMoneyExpression moneyExpression, Option<MoneyEvaluationContext> context = default)
         {
-            var distributionStrategy = new DefaultDistributionStrategy(context);
-            var visitor = new EvaluationVisitor(distributionStrategy, context);
+            var visitor = CreateEvaluationVisitor(context);
 
             moneyExpression.Accept(visitor);
 
             return visitor.Result;
         }
+
+        private static EvaluationVisitor CreateEvaluationVisitor(Option<MoneyEvaluationContext> context)
+            => new(CreateDistributionStrategy(context), context);
+
+        private static IDistributionStrategy CreateDistributionStrategy(Option<MoneyEvaluationContext> context)
+            => new DefaultDistributionStrategy(context);
     }
 }
