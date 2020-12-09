@@ -167,7 +167,7 @@ namespace Funcky.Test
 
             Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
             Assert.Equal("-$1,000.00", thousandDollars.ToString());
-            Assert.Equal("9’585.00 XAU", currencyWithoutFormatProvider.ToString());
+            Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
         }
 
         [Fact]
