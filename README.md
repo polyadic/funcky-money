@@ -40,7 +40,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] There is a neutral `Money` element (`Zero`).
 * [x] Distribute `Money` equally into n slices (1CHF into 3 slices: [0.33, 0.33, 0.34]).
 * [x] Distribute `Money` proportionally (1 CHF in 1:5 -> [0.17, 0.83]).
-* [ ] Support different distribution strategies?
+* [x] Extract distribution of money into a strategy which is injected.
 * [x] Support [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) Currencies.
 * [x] Support calculations smaller than the minor unit? (on `Money` and `EvaluationVisitor`)
 * [x] `ToString` supports correct cultural formatting and units.
@@ -69,11 +69,12 @@ These is the evolving list of TDD requirements which led to the implementation.
 
 * We construct `Money` objects only from `decimal` and `int`. The decision how to handle external rounding problems should be done before construction of a `Money` object.
 * We keep Add, Multiply,etc because no all supported frameworks allow default implementations on the interface.
+* We prepare a distribution strategy but do not make it chosable at this point.
+* We support the following operators: unary + and -, and the binary operators ==, !=, +, -, * and /.
 
 ### Open Decisions
 
 * Implicit type conversion
   * Should A `Money` be constructible implicitly from a `decimal`?
   * Should adding a number to a money be possible (fiveDollars + 2.00m)?
-* Should we have a substract and divide? We have negative numbers and fractions anyway.
 
