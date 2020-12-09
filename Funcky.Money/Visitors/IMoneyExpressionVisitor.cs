@@ -4,10 +4,10 @@ namespace Funcky
     {
         void Visit(Money money);
 
-        void Visit(MoneySum money);
+        void Visit(MoneySum sum);
 
-        void Visit(MoneyProduct money);
+        void Visit(MoneyProduct product);
 
-        void Visit(MoneyDistributionPart money);
+        void Visit(MoneyDistributionPart part);
     }
 }
