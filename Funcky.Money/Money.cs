@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using Funcky.Extensions;
 using Funcky.Monads;
@@ -39,14 +40,34 @@ namespace Funcky
         public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
         {
             var selectedCurrency = SelectCurrency(currency);
+            var formatProvider = CurrencyCulture.FormatProviderFromCurrency(selectedCurrency);
 
-            return money
-                .TryParseDecimal(NumberStyles.Currency, CurrencyCulture.CultureInfoFromCurrency(selectedCurrency))
-                .AndThen(m => new Money(m, selectedCurrency));
+            return formatProvider.Match(
+                none: ParseManually(money),
+                some: ParseWithFormatProvider(money))
+                .AndThen(amount => new Money(amount, selectedCurrency));
         }
 
+        private static Func<Option<decimal>> ParseManually(string money)
+            => ()
+               => RemoveIsoCurrency(money).TryParseDecimal();
+
+        private static string RemoveIsoCurrency(string money)
+        {
+            var parts = money.Split(' ');
+            return parts.Length == 2 && parts[1].Length == 3
+                ? parts[0]
+                : money;
+        }
+
+        private static Func<IFormatProvider, Option<decimal>> ParseWithFormatProvider(string money)
+            => formatProvider
+                => money.TryParseDecimal(NumberStyles.Currency, formatProvider);
+
         public override string ToString()
-            => string.Format(CurrencyCulture.CultureInfoFromCurrency(Currency), "{0:C}", Amount);
+            => CurrencyCulture.FormatProviderFromCurrency(Currency).Match(
+                none: () => $"{Amount:N2} {Currency.AlphabeticCurrencyCode}",
+                some: formatProvider => string.Format(formatProvider, "{0:C}", Amount));
 
         void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
             => visitor.Visit(this);

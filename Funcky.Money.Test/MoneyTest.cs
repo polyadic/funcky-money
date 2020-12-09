@@ -11,6 +11,10 @@ namespace Funcky.Test
     {
         private const decimal SmallestCoin = 0.05m;
 
+        public MoneyTest() =>
+            Arb
+                .Register<CurrencyGenerator>();
+
         private static MoneyEvaluationContext SwissRounding
             => MoneyEvaluationContext
                 .Builder
@@ -81,21 +85,17 @@ namespace Funcky.Test
         }
 
         [Property]
-        public Property DistributeMoneyEqually()
-            => Prop.ForAll(
-                Arb.Default.Decimal(),
-                Arb.Default.PositiveInt(),
-                (amount, numberOfParts) =>
-                        {
-                            var validAmount = SwissRounding.RoundingStrategy.Round(amount);
-                            var someMoney = new Money(validAmount, SwissRounding);
-                            var distributed = someMoney.Distribute(numberOfParts.Get).Select(e => e.Evaluate(SwissRounding).Amount).ToList();
-                            var first = distributed.First();
+        public Property DistributeMoneyEqually(decimal amount, PositiveInt numberOfParts)
+        {
+            var validAmount = SwissRounding.RoundingStrategy.Round(amount);
+            var someMoney = new Money(validAmount, SwissRounding);
+            var distributed = someMoney.Distribute(numberOfParts.Get).Select(e => e.Evaluate(SwissRounding).Amount).ToList();
+            var first = distributed.First();
 
-                            return distributed.Sum() == validAmount
-                                   && distributed.Count == numberOfParts.Get
-                                   && distributed.All(AtMostOneUnitLess(first, SmallestCoin));
-                        });
+            return (distributed.Sum() == validAmount
+                   && distributed.Count == numberOfParts.Get
+                   && distributed.All(AtMostOneUnitLess(first, SmallestCoin))).ToProperty();
+        }
 
         [Fact]
         public void DistributeMoneyProportionally()
@@ -173,16 +173,22 @@ namespace Funcky.Test
         [Fact]
         public void MoneyFormatsCorrectlyAccordingToTheCurrency()
         {
+            using var cultureSwitch = new TemporaryCultureSwitch("CHF");
+
             var thousandFrancs = Money.CHF(-1000);
             var thousandDollars = Money.USD(-1000);
+            var currencyWithoutFormatProvider = Money.XAU(9585);
 
             Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
             Assert.Equal("-$1,000.00", thousandDollars.ToString());
+            Assert.Equal("9’585.00 XAU", currencyWithoutFormatProvider.ToString());
         }
 
         [Fact]
         public void MoneyParsesCorrectlyFromString()
         {
+            using var cultureSwitch = new TemporaryCultureSwitch("CHF");
+
             var r1 = FunctionalAssert.IsSome(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
             Assert.Equal(new Money(-1000, Currency.CHF), r1);
 
@@ -191,6 +197,17 @@ namespace Funcky.Test
 
             var r3 = FunctionalAssert.IsSome(Money.ParseOrNone("1000", Currency.CHF));
             Assert.Equal(new Money(1000, Currency.CHF), r3);
+
+            var r4 = FunctionalAssert.IsSome(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
+            Assert.Equal(new Money(9585, Currency.XAU), r4);
+        }
+
+        [Property]
+        public Property WeCanParseTheStringsWeGenerate(decimal amount, Currency currency)
+        {
+            var money = new Money(decimal.Round(amount, currency.MinorUnitDigits), currency);
+
+            return Money.ParseOrNone(money.ToString(), currency).Match(false, m => m == money).ToProperty();
         }
 
         [Fact]

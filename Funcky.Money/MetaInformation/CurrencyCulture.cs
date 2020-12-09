@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Funcky.Extensions;
+using Funcky.Monads;
 
 namespace Funcky
 {
@@ -19,12 +21,12 @@ namespace Funcky
         public static RegionInfo CurrentRegion()
             => new(CultureInfo.CurrentCulture.Name);
 
-        internal static IFormatProvider CultureInfoFromCurrency(Currency currency)
+        internal static Option<IFormatProvider> FormatProviderFromCurrency(Currency currency)
         {
             return AllCultures()
                 .Select(c => (CultureInfo: c, RegionInfo: new RegionInfo(c.Name)))
-                .First(cr => cr.RegionInfo.ISOCurrencySymbol == currency.AlphabeticCurrencyCode)
-                .CultureInfo;
+                .FirstOrNone(cr => cr.RegionInfo.ISOCurrencySymbol == currency.AlphabeticCurrencyCode)
+                .AndThen(ci => (IFormatProvider)ci.CultureInfo);
         }
 
         private static IEnumerable<CultureInfo> AllCultures()
