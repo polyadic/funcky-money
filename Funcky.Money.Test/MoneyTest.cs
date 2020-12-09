@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FsCheck;
 using FsCheck.Xunit;
@@ -23,35 +24,21 @@ namespace Funcky.Test
                 .WithSmallestDistributionUnit(SmallestCoin)
                 .Build();
 
-        [Fact]
-        public void WeCanCreateAMoneyFromDifferentTypesAndTheAmountIsADecimal()
+        [Property]
+        public Property EvaluatingAMoneyInTheSameCurrencyDoesReturnTheSameAmount(decimal amount, Currency currency)
         {
-            var fiveDollars = Money.USD(5);
-            var fiveDollarsFifty = Money.USD(5.5m);
-            var fiveDollarsSeventy = Money.USD(5.7m);
-            var fiveDollarsNinety = Money.USD(5.90m);
+            var money = new Money(ValidAmount(amount, currency), currency);
 
-            Assert.Equal(5.00m, fiveDollars.Amount);
-            Assert.Equal(5.50m, fiveDollarsFifty.Amount);
-            Assert.Equal(5.70m, fiveDollarsSeventy.Amount);
-            Assert.Equal(5.90m, fiveDollarsNinety.Amount);
+            return (money.Amount == money.Evaluate().Amount).ToProperty();
         }
 
-        [Fact]
-        public void EvaluatingAMoneyInTheSameCurrencyDoesReturnTheSameAmount()
+        [Property]
+        public void TheSumOfTwoMoneysIsCommutative(decimal amount1, decimal amount2, Currency currency)
         {
-            IMoneyExpression fiveDollars = Money.USD(5);
+            var money1 = new Money(ValidAmount(amount1, currency));
+            var money2 = new Money(ValidAmount(amount2, currency));
 
-            Assert.Equal(fiveDollars, fiveDollars.Evaluate());
-        }
-
-        [Fact]
-        public void TheSumOfTwoMoneysEvaluatesCorrectly()
-        {
-            var fiveDollars = Money.USD(5);
-            var tenDollars = Money.USD(10);
-
-            Assert.Equal(15.00m, fiveDollars.Add(tenDollars).Evaluate().Amount);
+            (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
         }
 
         [Fact]
@@ -65,13 +52,13 @@ namespace Funcky.Test
             Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
         }
 
-        [Fact]
-        public void FiveDollarsAreNotFiveFrancs()
+        [Property]
+        public Property DollarsAreNotFrancs(decimal amount1)
         {
-            var fiveFrancs = Money.CHF(5);
-            var fiveDollars = Money.USD(5);
+            var francs = Money.CHF(ValidAmount(0, Currency.CHF));
+            var dollars = Money.USD(ValidAmount(0, Currency.CHF));
 
-            Assert.NotEqual(fiveFrancs, fiveDollars);
+            return (francs != dollars).ToProperty();
         }
 
         [Property]
@@ -92,9 +79,9 @@ namespace Funcky.Test
             var distributed = someMoney.Distribute(numberOfParts.Get).Select(e => e.Evaluate(SwissRounding).Amount).ToList();
             var first = distributed.First();
 
-            return (distributed.Sum() == validAmount
-                   && distributed.Count == numberOfParts.Get
-                   && distributed.All(AtMostOneUnitLess(first, SmallestCoin))).ToProperty();
+            return (TheSumOfThePartsIsEqualToTheTotal(distributed, validAmount)
+                   && TheNumberOfPartsIsCorrect(numberOfParts, distributed)
+                   && TheIndividualPartsAreAtMostOneUnitApart(distributed, first)).ToProperty();
         }
 
         [Fact]
@@ -160,14 +147,13 @@ namespace Funcky.Test
             Assert.Equal(Money.USD(30), product.Evaluate());
         }
 
-        [Fact]
-        public void TheMoneyNeutralElementIsWorkingWithAnyCurrency()
+        [Property]
+        public Property TheMoneyNeutralElementIsWorkingWithAnyCurrency(decimal amount, Currency currency)
         {
-            var fiveFrancs = Money.CHF(5);
-            var fiveDollars = Money.USD(5);
+            var money = new Money(ValidAmount(amount, currency), currency);
 
-            Assert.Equal(fiveFrancs, (fiveFrancs + Money.Zero).Evaluate());
-            Assert.Equal(fiveDollars, (fiveDollars + Money.Zero).Evaluate());
+            return (money == (money + Money.Zero).Evaluate()
+                    && (money == (Money.Zero + money).Evaluate())).ToProperty().When(!money.IsZero);
         }
 
         [Fact]
@@ -426,7 +412,19 @@ namespace Funcky.Test
             Assert.Throws<NotSupportedException>(() => new Money(5));
         }
 
-        private Func<decimal, bool> AtMostOneUnitLess(decimal reference, decimal unit)
+        private static decimal ValidAmount(in decimal amount, Currency currency)
+            => decimal.Round(amount, currency.MinorUnitDigits);
+
+        private static bool TheIndividualPartsAreAtMostOneUnitApart(List<decimal> distributed, decimal first)
+            => distributed.All(AtMostOneUnitLess(first, SmallestCoin));
+
+        private static Func<decimal, bool> AtMostOneUnitLess(decimal reference, decimal unit)
             => amount => amount == reference || amount == reference - unit;
+
+        private static bool TheNumberOfPartsIsCorrect(PositiveInt numberOfParts, List<decimal> distributed)
+            => distributed.Count == numberOfParts.Get;
+
+        private static bool TheSumOfThePartsIsEqualToTheTotal(List<decimal> distributed, decimal validAmount)
+            => distributed.Sum() == validAmount;
     }
 }
