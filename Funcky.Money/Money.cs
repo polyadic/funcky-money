@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using Funcky.Extensions;
 using Funcky.Monads;
 
 namespace Funcky
 {
+    [DebuggerDisplay("{Amount} {Currency.AlphabeticCurrencyCode,nq}")]
     public sealed partial record Money : IMoneyExpression
     {
         public static readonly Money Zero = new(0m);
