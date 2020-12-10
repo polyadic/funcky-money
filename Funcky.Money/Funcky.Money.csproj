@@ -9,7 +9,7 @@
         <Product>Funcky.Money</Product>
         <Description>Funcky.Money is the Money-Class you want to have.</Description>
         <PackageTags>Functional Money</PackageTags>
-        <Version>1.0.0-pre</Version>
+        <Version>1.0.0-beta.1</Version>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
