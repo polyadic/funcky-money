@@ -9,7 +9,7 @@ The implementation uses a lot of the concepts from the TDD implementation of Ken
 
 ## Package
 
-[![NuGet package](https://buildstats.info/nuget/Funcky)](https://www.nuget.org/packages/Funcky.Money)
+[![NuGet package](https://buildstats.info/nuget/Funcky.Money)](https://www.nuget.org/packages/Funcky.Money)
 
 ## How can Money be Funcky?
 
