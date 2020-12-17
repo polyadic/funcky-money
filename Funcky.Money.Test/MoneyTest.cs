@@ -167,7 +167,7 @@ namespace Funcky.Test
 
             Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
             Assert.Equal("-$1,000.00", thousandDollars.ToString());
-            Assert.Equal("9’585.00 XAU", currencyWithoutFormatProvider.ToString());
+            Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
         }
 
         [Fact]
@@ -360,12 +360,7 @@ namespace Funcky.Test
         [Fact]
         public void WeCanEvaluateComplexExpressions()
         {
-            var v1 = new Money(0.50m, SwissRounding);
-            var v2 = new Money(7m, SwissRounding);
-            var v3 = new Money(2.50m, SwissRounding);
-
-            var tree = v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1))
-                .Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
+            var tree = ComplexExpression();
 
             Assert.Equal(35m, tree.Evaluate().Amount);
         }
@@ -412,6 +407,26 @@ namespace Funcky.Test
             Assert.Throws<NotSupportedException>(() => new Money(5));
         }
 
+        [Fact]
+        public void ToHumanReadableExtensionTransformsExpressionsCorrectly()
+        {
+            var distribution = ((Money.CHF(1.5m) + Money.EUR(2.5m)) * 3).Distribute(new[] { 3, 1, 3, 2 });
+            var expression = (distribution.Skip(2).First() + (Money.USD(2.99m) * 2)) / 2;
+            var sum = Money.CHF(300) + Money.JPY(50000);
+            var product = Money.CHF(100) * 2.5m;
+            var difference = Money.CHF(200) - Money.JPY(500);
+            var quotient = Money.CHF(500) / 2;
+
+            // this also shows a few quirks of the Expression-Tree (subtraction and division are only convenience)
+            Assert.Equal("(((2.50CHF + ((1.5 * 7.00CHF) + 0.50CHF)) + ((2 * 7.00CHF) + 0.50CHF)) + ((2.50CHF + (((0.5 * 7.00CHF) + 0.50CHF) + (-1 * 7.00CHF))) + (7.00CHF + 0.50CHF)))", ComplexExpression().ToHumanReadable());
+            Assert.Equal("(0.5 * ((3 * (1.50CHF + 2.50EUR)).Distribute(3, 1, 3, 2)[2] + (2 * 2.99USD)))", expression.ToHumanReadable());
+
+            // Assert.Equal("(300.00CHF + 50’000JPY)", sum.ToHumanReadable());
+            Assert.Equal("(2.5 * 100.00CHF)", product.ToHumanReadable());
+            Assert.Equal("(200.00CHF + (-1 * 500JPY))", difference.ToHumanReadable());
+            Assert.Equal("(0.5 * 500.00CHF)", quotient.ToHumanReadable());
+        }
+
         private static decimal ValidAmount(in decimal amount, Currency currency)
             => decimal.Round(amount, currency.MinorUnitDigits);
 
@@ -426,5 +441,15 @@ namespace Funcky.Test
 
         private static bool TheSumOfThePartsIsEqualToTheTotal(List<decimal> distributed, decimal validAmount)
             => distributed.Sum() == validAmount;
+
+        private static IMoneyExpression ComplexExpression()
+        {
+            var v1 = new Money(0.50m, SwissRounding);
+            var v2 = new Money(7m, SwissRounding);
+            var v3 = new Money(2.50m, SwissRounding);
+
+            return v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1))
+                .Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
+        }
     }
 }

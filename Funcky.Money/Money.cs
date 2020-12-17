@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using Funcky.Extensions;
 using Funcky.Monads;
 
 namespace Funcky
 {
+    [DebuggerDisplay("{Amount} {Currency.AlphabeticCurrencyCode,nq}")]
     public sealed partial record Money : IMoneyExpression
     {
         public static readonly Money Zero = new(0m);
@@ -63,11 +65,11 @@ namespace Funcky
 
         public override string ToString()
             => CurrencyCulture.FormatProviderFromCurrency(Currency).Match(
-                none: () => $"{Amount:N2} {Currency.AlphabeticCurrencyCode}",
+                none: () => string.Format($"{{0:N{Currency.MinorUnitDigits}}} {{1}}", Amount, Currency.AlphabeticCurrencyCode),
                 some: formatProvider => string.Format(formatProvider, "{0:C}", Amount));
 
-        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
-            => visitor.Visit(this);
+        TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor, TState state)
+            => visitor.Visit(this, state);
 
         // These operators supports the operators on IMoneyExpression, because Money + Money or Money * factor does not work otherwise without a cast.
         public static IMoneyExpression operator +(Money augend, IMoneyExpression addend)
@@ -93,5 +95,6 @@ namespace Funcky
 
         private static Currency SelectCurrency(Option<Currency> currency)
             => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
+
     }
 }
