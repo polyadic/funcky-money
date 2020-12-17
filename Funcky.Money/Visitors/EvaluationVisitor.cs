@@ -1,68 +1,64 @@
+using System;
 using System.Collections.Generic;
 using Funcky.Monads;
 
 namespace Funcky
 {
-    internal sealed class EvaluationVisitor : IMoneyExpressionVisitor
+    internal sealed class EvaluationVisitor : IMoneyExpressionVisitor<EvaluationVisitor.State>
     {
-        private readonly IDistributionStrategy _distributionStrategy;
-        private readonly Option<MoneyEvaluationContext> _context;
+        internal sealed record State(
+            IDistributionStrategy DistributionStrategy,
+            Option<MoneyEvaluationContext> Context,
+            Stack<MoneyBag> MoneyBags);
 
-        private readonly Stack<MoneyBag> _moneyBags = new();
+        private static readonly Lazy<EvaluationVisitor> LazyInstance = new(() => new());
 
-        public EvaluationVisitor(IDistributionStrategy distributionStrategy, Option<MoneyEvaluationContext> context)
+        public static EvaluationVisitor Instance
+            => LazyInstance.Value;
+
+        public State Visit(Money money, State state)
         {
-            _distributionStrategy = distributionStrategy;
-            _context = context;
-            PushMoneyBag();
+            state.MoneyBags.Peek().Add(money);
+
+            return state;
         }
 
-        public Money Result
-            => Round(_moneyBags.Peek().CalculateTotal(_context));
-
-        public void Visit(Money money)
-            => _moneyBags.Peek().Add(money);
-
-        public void Visit(MoneySum sum)
+        public State Visit(MoneySum sum, State state)
         {
-            sum.Left.Accept(this);
+            PushMoneyBag(sum.Left.Accept(this, state));
+            sum.Right.Accept(this, state);
 
-            PushMoneyBag();
-            sum.Right.Accept(this);
+            var moneyBags = state.MoneyBags.Pop();
+            state.MoneyBags.Peek().Merge(moneyBags);
 
-            var moneyBags = _moneyBags.Pop();
-            _moneyBags.Peek().Merge(moneyBags);
+            return state;
         }
 
-        public void Visit(MoneyProduct product)
+        public State Visit(MoneyProduct product, State state)
         {
-            product.Expression.Accept(this);
+            product.Expression.Accept(this, state);
 
-            _moneyBags.Peek().Multiply(product.Factor);
+            state.MoneyBags.Peek().Multiply(product.Factor);
+
+            return state;
         }
 
-        public void Visit(MoneyDistributionPart part)
+        public State Visit(MoneyDistributionPart part, State state)
         {
-            part.Distribution.Expression.Accept(this);
+            part.Distribution.Expression.Accept(this, state);
 
-            PushMoneyBag(_distributionStrategy.Distribute(part, _moneyBags.Pop().CalculateTotal(_context)));
+            PushMoneyBag(state, state.DistributionStrategy.Distribute(part, state.MoneyBags.Pop().CalculateTotal(state.Context)));
+
+            return state;
         }
 
-        private void PushMoneyBag(Option<Money> money = default)
+        private void PushMoneyBag(State state, Option<Money> money = default)
         {
             var moneyBag = new MoneyBag();
 
             money.AndThen(m => moneyBag.Add(m));
 
-            _moneyBags.Push(moneyBag);
+            state.MoneyBags.Push(moneyBag);
         }
-
-        private Money Round(Money money)
-            => money with { Amount = FindRoundingStrategy(money).Round(money.Amount) };
-
-        private IRoundingStrategy FindRoundingStrategy(Money money)
-            => _context
-            .AndThen(c => c.RoundingStrategy)
-            .GetOrElse(money.RoundingStrategy);
     }
 }

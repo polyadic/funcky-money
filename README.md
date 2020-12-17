@@ -1,7 +1,7 @@
 # funcky-money
 
 [![Build](https://github.com/polyadic/funcky-money/workflows/Build/badge.svg)](https://github.com/polyadic/funcky-money/actions?query=workflow%3ABuild)
-[![Licence: MIT](https://img.shields.io/badge/licence-MIT-green)](https://raw.githubusercontent.com/polyadic/funcky/master/LICENSE-MIT)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-green)](https://raw.githubusercontent.com/polyadic/funcky-money/main/LICENSE)
 
 Funcky.Money is an implementation of a versatile Money concept which addresses a lot of the problems you encounter when working with money quantities and currencies.
 
@@ -125,4 +125,3 @@ These is the evolving list of TDD requirements which led to the implementation.
 * Implicit type conversion
   * Should A `Money` be constructible implicitly from a `decimal`?
   * Should adding a number to a money be possible (fiveDollars + 2.00m)?
-

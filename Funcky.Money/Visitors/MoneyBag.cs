@@ -10,7 +10,7 @@ namespace Funcky
     {
         private readonly Dictionary<Currency, List<Money>> _currencies = new();
         private Option<IRoundingStrategy> _roundingStrategy;
-        private Option<Currency> _firstCurrency = default;
+        private Option<Currency> _firstCurrency;
 
         public void Add(Money money)
         {
@@ -38,7 +38,7 @@ namespace Funcky
                 .SelectMany(kv => kv.Value)
                 .ForEach(Add);
 
-        private List<Money> MultiplyBag(decimal factor, IEnumerable<Money> bag)
+        private static List<Money> MultiplyBag(decimal factor, IEnumerable<Money> bag)
             => bag
                 .Select(m => m with { Amount = m.Amount * factor })
                 .ToList();
