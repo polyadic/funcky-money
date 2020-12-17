@@ -1,13 +1,13 @@
 namespace Funcky
 {
-    internal interface IMoneyExpressionVisitor
+    internal interface IMoneyExpressionVisitor<TState>
     {
-        void Visit(Money money);
+        TState Visit(Money money, TState state);
 
-        void Visit(MoneySum sum);
+        TState Visit(MoneySum sum, TState state);
 
-        void Visit(MoneyProduct product);
+        TState Visit(MoneyProduct product, TState state);
 
-        void Visit(MoneyDistributionPart part);
+        TState Visit(MoneyDistributionPart part, TState state);
     }
 }

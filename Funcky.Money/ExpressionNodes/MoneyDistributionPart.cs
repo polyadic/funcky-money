@@ -12,7 +12,7 @@ namespace Funcky
 
         public int Index { get; }
 
-        void IMoneyExpression.Accept(IMoneyExpressionVisitor visitor)
-            => visitor.Visit(this);
+        TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor, TState state)
+            => visitor.Visit(this, state);
     }
 }

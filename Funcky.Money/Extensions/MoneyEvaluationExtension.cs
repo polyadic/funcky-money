@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Funcky.Monads;
 
 namespace Funcky
@@ -5,18 +6,36 @@ namespace Funcky
     public static class MoneyEvaluationExtension
     {
         public static Money Evaluate(this IMoneyExpression moneyExpression, Option<MoneyEvaluationContext> context = default)
+            => Round(CalculateTotal(moneyExpression, context), context);
+
+        private static Money CalculateTotal(IMoneyExpression moneyExpression, Option<MoneyEvaluationContext> context)
+            => moneyExpression
+                .Accept(EvaluationVisitor.Instance, CreateState(context))
+                .MoneyBags
+                .Peek()
+                .CalculateTotal(context);
+
+        private static EvaluationVisitor.State CreateState(Option<MoneyEvaluationContext> context)
+            => new(CreateDistributionStrategy(context), context, CreateInitialStack());
+
+        private static Stack<MoneyBag> CreateInitialStack()
         {
-            var visitor = CreateEvaluationVisitor(context);
+            var stack = new Stack<MoneyBag>();
 
-            moneyExpression.Accept(visitor);
+            stack.Push(new MoneyBag());
 
-            return visitor.Result;
+            return stack;
         }
-
-        private static EvaluationVisitor CreateEvaluationVisitor(Option<MoneyEvaluationContext> context)
-            => new(CreateDistributionStrategy(context), context);
 
         private static IDistributionStrategy CreateDistributionStrategy(Option<MoneyEvaluationContext> context)
             => new DefaultDistributionStrategy(context);
+
+        private static Money Round(Money money, Option<MoneyEvaluationContext> context)
+            => money with { Amount = FindRoundingStrategy(money, context).Round(money.Amount) };
+
+        private static IRoundingStrategy FindRoundingStrategy(Money money, Option<MoneyEvaluationContext> context)
+            => context
+                .AndThen(c => c.RoundingStrategy)
+                .GetOrElse(money.RoundingStrategy);
     }
 }
