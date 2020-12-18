@@ -68,8 +68,8 @@ namespace Funcky
                 none: () => string.Format($"{{0:N{Currency.MinorUnitDigits}}} {{1}}", Amount, Currency.AlphabeticCurrencyCode),
                 some: formatProvider => string.Format(formatProvider, "{0:C}", Amount));
 
-        TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor, TState state)
-            => visitor.Visit(this, state);
+        TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
+            => visitor.Visit(this);
 
         // These operators supports the operators on IMoneyExpression, because Money + Money or Money * factor does not work otherwise without a cast.
         public static IMoneyExpression operator +(Money augend, IMoneyExpression addend)

@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace Funcky
 {
     internal sealed record MoneyProduct : IMoneyExpression
@@ -14,7 +12,7 @@ namespace Funcky
 
         public decimal Factor { get; }
 
-        TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor, TState state)
-            => visitor.Visit(this, state);
+        TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
+            => visitor.Visit(this);
     }
 }

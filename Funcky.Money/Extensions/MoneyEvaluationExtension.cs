@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using Funcky.Monads;
 
 namespace Funcky
@@ -6,32 +6,26 @@ namespace Funcky
     public static class MoneyEvaluationExtension
     {
         public static Money Evaluate(this IMoneyExpression moneyExpression, Option<MoneyEvaluationContext> context = default)
-            => Round(CalculateTotal(moneyExpression, context), context);
+            => Evaluate(moneyExpression, Round(context), CalculateTotal(context));
 
-        private static Money CalculateTotal(IMoneyExpression moneyExpression, Option<MoneyEvaluationContext> context)
+        private static Money Evaluate(IMoneyExpression moneyExpression, Func<Money, Money> round, Func<IMoneyExpression, Money> total)
+            => round(total(moneyExpression));
+
+        private static Func<IMoneyExpression, Money> CalculateTotal(Option<MoneyEvaluationContext> context)
             => moneyExpression
-                .Accept(EvaluationVisitor.Instance, CreateState(context))
-                .MoneyBags
-                .Peek()
-                .CalculateTotal(context);
+                => moneyExpression
+                    .Accept(CreateVisitor(context))
+                    .CalculateTotal(context);
 
-        private static EvaluationVisitor.State CreateState(Option<MoneyEvaluationContext> context)
-            => new(CreateDistributionStrategy(context), context, CreateInitialStack());
+        private static Func<Money, Money> Round(Option<MoneyEvaluationContext> context)
+            => money
+                => money with { Amount = FindRoundingStrategy(money, context).Round(money.Amount) };
 
-        private static Stack<MoneyBag> CreateInitialStack()
-        {
-            var stack = new Stack<MoneyBag>();
-
-            stack.Push(new MoneyBag());
-
-            return stack;
-        }
+        private static EvaluationVisitor CreateVisitor(Option<MoneyEvaluationContext> context)
+            => new(CreateDistributionStrategy(context), context);
 
         private static IDistributionStrategy CreateDistributionStrategy(Option<MoneyEvaluationContext> context)
             => new DefaultDistributionStrategy(context);
-
-        private static Money Round(Money money, Option<MoneyEvaluationContext> context)
-            => money with { Amount = FindRoundingStrategy(money, context).Round(money.Amount) };
 
         private static IRoundingStrategy FindRoundingStrategy(Money money, Option<MoneyEvaluationContext> context)
             => context

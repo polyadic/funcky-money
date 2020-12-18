@@ -12,31 +12,49 @@ namespace Funcky
         private Option<IRoundingStrategy> _roundingStrategy;
         private Option<Currency> _firstCurrency;
 
-        public void Add(Money money)
+        public MoneyBag(Money money)
         {
-            if (!money.IsZero)
-            {
-                CreateMoneyBagByCurrency(money.Currency);
-                _currencies[money.Currency].Add(money);
-            }
-            else if (_currencies.None())
-            {
-                _firstCurrency = money.Currency;
-            }
+            Add(money);
         }
 
-        public void Multiply(decimal factor)
-            => _currencies.ForEach(kv => _currencies[kv.Key] = MultiplyBag(factor, kv.Value));
+        public MoneyBag Merge(MoneyBag moneyBag)
+        {
+            moneyBag
+                ._currencies
+                .SelectMany(kv => kv.Value)
+                .ForEach(Add);
+
+            return this;
+        }
+
+        public MoneyBag Multiply(decimal factor)
+        {
+            _currencies
+                .ForEach(kv => _currencies[kv.Key] = MultiplyBag(factor, kv.Value));
+
+            return this;
+        }
 
         public Money CalculateTotal(Option<MoneyEvaluationContext> context)
             => context.Match(
                 none: AggregateWithEvaluationContext,
                 some: AggregateWithoutEvaluationContext);
 
-        public void Merge(MoneyBag moneyBag)
-            => moneyBag._currencies
-                .SelectMany(kv => kv.Value)
-                .ForEach(Add);
+        private void Add(Money money)
+        {
+            if (money.IsZero)
+            {
+                if (_currencies.None())
+                {
+                    _firstCurrency = money.Currency;
+                }
+            }
+            else
+            {
+                CreateMoneyBagByCurrency(money.Currency);
+                _currencies[money.Currency].Add(money);
+            }
+        }
 
         private static List<Money> MultiplyBag(decimal factor, IEnumerable<Money> bag)
             => bag
@@ -60,7 +78,7 @@ namespace Funcky
                     none: () => _firstCurrency.Match(Money.Zero, c => Money.Zero with { Currency = c }),
                     some: m => CheckAndAggregateBag(m.Value));
 
-        private Money CheckAndAggregateBag(List<Money> bag)
+        private Money CheckAndAggregateBag(IEnumerable<Money> bag)
             => bag
                 .Inspect(CheckEvaluationRules)
                 .Aggregate(MoneySum);
@@ -86,7 +104,7 @@ namespace Funcky
         {
             if (!_currencies.ContainsKey(currency))
             {
-                _currencies.Add(currency, new List<Money>());
+                _currencies.Add(currency, new());
             }
         }
 

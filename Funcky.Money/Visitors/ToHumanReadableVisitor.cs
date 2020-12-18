@@ -1,41 +1,29 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace Funcky
 {
-    internal class ToHumanReadableVisitor : IMoneyExpressionVisitor<ImmutableStack<string>>
+    internal class ToHumanReadableVisitor : IMoneyExpressionVisitor<string>
     {
         private static readonly Lazy<ToHumanReadableVisitor> LazyInstance = new(() => new());
 
         public static ToHumanReadableVisitor Instance
             => LazyInstance.Value;
 
-        public ImmutableStack<string> Visit(Money money, ImmutableStack<string> stack)
-            => stack
-                .Push(string.Format($"{{0:N{money.Currency.MinorUnitDigits}}}{{1}}", money.Amount, money.Currency.AlphabeticCurrencyCode));
+        public string Visit(Money money)
+            => string.Format($"{{0:N{money.Currency.MinorUnitDigits}}}{{1}}", money.Amount, money.Currency.AlphabeticCurrencyCode);
 
-        public ImmutableStack<string> Visit(MoneySum sum, ImmutableStack<string> stack)
-            => sum
-                .Right
-                .Accept(this, sum.Left.Accept(this, stack))
-                .Pop(out var right)
-                .Pop(out var left)
-                .Push($"({left} + {right})");
+        public string Visit(MoneySum sum)
+            => $"({Accept(sum.Left)} + {Accept(sum.Right)})";
 
-        public ImmutableStack<string> Visit(MoneyProduct product, ImmutableStack<string> stack)
-            => product
-                .Expression
-                .Accept(this, stack)
-                .Pop(out var expression)
-                .Push($"({product.Factor} * {expression})");
+        public string Visit(MoneyProduct product)
+            => $"({product.Factor} * {Accept(product.Expression)})";
 
-        public ImmutableStack<string> Visit(MoneyDistributionPart part, ImmutableStack<string> stack)
-            => part.Distribution
-                .Expression
-                .Accept(this, stack)
-                .Pop(out var total)
-                .Push($"{total}.Distribute({FormatFactors(part.Distribution.Factors)})[{part.Index}]");
+        public string Visit(MoneyDistributionPart part)
+            => $"{Accept(part.Distribution.Expression)}.Distribute({FormatFactors(part.Distribution.Factors)})[{part.Index}]";
+
+        private string Accept(IMoneyExpression expression)
+            => expression.Accept(this);
 
         private string FormatFactors(IEnumerable<int> factors)
             => string.Join(", ", factors);
