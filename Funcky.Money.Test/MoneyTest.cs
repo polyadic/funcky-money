@@ -156,6 +156,14 @@ namespace Funcky.Test
                     && (money == (Money.Zero + money).Evaluate())).ToProperty().When(!money.IsZero);
         }
 
+        [Property]
+        public Property InASumOfMultipleZerosWithDifferentCurrenciesTheEvaluationHasTheSameCurrencyAsTheFirstMoneyInTheExpression(Currency c1, Currency c2, Currency c3)
+        {
+            var sum = new Money(0m, c1) + new Money(0m, c2) + new Money(0m, c3) + new Money(0m, c2);
+
+            return (sum.Evaluate().Currency == c1).ToProperty();
+        }
+
         [Fact]
         public void MoneyFormatsCorrectlyAccordingToTheCurrency()
         {

@@ -10,7 +10,7 @@ namespace Funcky
     {
         private readonly Dictionary<Currency, List<Money>> _currencies = new();
         private Option<IRoundingStrategy> _roundingStrategy;
-        private Option<Currency> _firstCurrency;
+        private Option<Currency> _emptyCurrency;
 
         public MoneyBag(Money money)
         {
@@ -46,7 +46,7 @@ namespace Funcky
             {
                 if (_currencies.None())
                 {
-                    _firstCurrency = money.Currency;
+                    _emptyCurrency = money.Currency;
                 }
             }
             else
@@ -75,7 +75,7 @@ namespace Funcky
             => _currencies
                 .SingleOrNone()
                 .Match(
-                    none: () => _firstCurrency.Match(Money.Zero, c => Money.Zero with { Currency = c }),
+                    none: () => _emptyCurrency.Match(Money.Zero, c => Money.Zero with { Currency = c }),
                     some: m => CheckAndAggregateBag(m.Value));
 
         private Money CheckAndAggregateBag(IEnumerable<Money> bag)
