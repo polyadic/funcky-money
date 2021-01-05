@@ -54,10 +54,10 @@ namespace Funcky.Test
         }
 
         [Property]
-        public Property DollarsAreNotFrancs(decimal amount1)
+        public Property DollarsAreNotFrancs(decimal amount)
         {
-            var francs = Money.CHF(ValidAmount(0, Currency.CHF));
-            var dollars = Money.USD(ValidAmount(0, Currency.CHF));
+            var francs = Money.CHF(ValidAmount(amount, Currency.CHF));
+            var dollars = Money.USD(ValidAmount(amount, Currency.USD));
 
             return (francs != dollars).ToProperty();
         }
