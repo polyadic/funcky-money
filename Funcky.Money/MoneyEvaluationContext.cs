@@ -92,13 +92,14 @@ namespace Funcky
 
             private MoneyEvaluationContext CreateContext()
                 => new(
-                    _targetCurrency.GetOrElse(() =>
-                        throw new InvalidMoneyEvaluationContextBuilderException("Money evaluation context has no target currency set.")),
+                    _targetCurrency.GetOrElse(()
+                        => throw new InvalidMoneyEvaluationContextBuilderException("Money evaluation context has no target currency set.")),
                     _distributionUnit,
                     _roundingStrategy,
                     _bank);
 
-            private bool Negate(bool c) => !c;
+            private bool Negate(bool c)
+                => !c;
         }
     }
 }

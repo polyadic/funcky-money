@@ -251,8 +251,8 @@ namespace Funcky.Test
         {
             var francs = new Money(0.08m, SwissRounding);
 
-            Assert.Throws<ImpossibleDistributionException>(() =>
-                francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
+            Assert.Throws<ImpossibleDistributionException>(()
+                => francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
         }
 
         [Fact]
