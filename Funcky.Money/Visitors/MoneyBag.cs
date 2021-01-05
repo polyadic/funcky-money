@@ -84,8 +84,8 @@ namespace Funcky
                 .Inspect(CheckEvaluationRules)
                 .Aggregate(MoneySum);
 
-        private void CheckEvaluationRules(Money money) =>
-            _roundingStrategy.Match(
+        private void CheckEvaluationRules(Money money)
+            => _roundingStrategy.Match(
                 none: () => _roundingStrategy = Option.Some(money.RoundingStrategy),
                 some: r => CheckRoundingStrategy(money.RoundingStrategy.Equals(r)));
 
