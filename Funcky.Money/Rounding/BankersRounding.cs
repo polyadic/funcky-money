@@ -8,7 +8,7 @@ namespace Funcky
     {
         private readonly decimal _precision;
 
-        public BankersRounding(in decimal precision)
+        public BankersRounding(decimal precision)
         {
             Debug.Assert(precision > 0m, "precision must be positive and cannot be zero");
 

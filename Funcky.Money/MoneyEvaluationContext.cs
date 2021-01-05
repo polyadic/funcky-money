@@ -71,7 +71,7 @@ namespace Funcky
             public Builder WithBank(IBank bank)
                 => With(bank: Option.Some(bank));
 
-            public Builder WithSmallestDistributionUnit(in decimal distributionUnit)
+            public Builder WithSmallestDistributionUnit(decimal distributionUnit)
                 => With(distributionUnit: distributionUnit);
 
             private Builder With(Option<Currency> targetCurrency = default, Option<decimal> distributionUnit = default, Option<IRoundingStrategy> roundingStrategy = default, Option<IBank> bank = default)

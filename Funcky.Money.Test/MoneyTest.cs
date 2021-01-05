@@ -435,7 +435,7 @@ namespace Funcky.Test
             Assert.Equal("(0.5 * 500.00CHF)", quotient.ToHumanReadable());
         }
 
-        private static decimal ValidAmount(in decimal amount, Currency currency)
+        private static decimal ValidAmount(decimal amount, Currency currency)
             => decimal.Round(amount, currency.MinorUnitDigits);
 
         private static bool TheIndividualPartsAreAtMostOneUnitApart(List<decimal> distributed, decimal first)
