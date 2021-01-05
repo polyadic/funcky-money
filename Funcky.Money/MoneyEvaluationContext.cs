@@ -14,12 +14,25 @@ namespace Funcky
             Bank = bank;
         }
 
+        /// <summary>
+        /// If there are multiple currencies involved in an evaluation, we will convert all the money amounts of different currencies to this one.
+        /// </summary>
         public Currency TargetCurrency { get; }
 
+        /// <summary>
+        /// This is the smallest money unit you want to have distributed.
+        /// Usually you want this to be the smallest coin of the given currency.
+        /// </summary>
         public Option<decimal> DistributionUnit { get; }
 
+        /// <summary>
+        /// Defines how we round amounts in the evaluation.
+        /// </summary>
         public IRoundingStrategy RoundingStrategy { get; }
 
+        /// <summary>
+        /// Source for exchange rates.
+        /// </summary>
         public IBank Bank { get; }
 
         public sealed class Builder
