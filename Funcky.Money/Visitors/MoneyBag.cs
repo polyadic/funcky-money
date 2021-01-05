@@ -63,7 +63,8 @@ namespace Funcky
 
         private Money AggregateWithoutEvaluationContext(MoneyEvaluationContext context)
             => _currencies
-                .Select(kv => kv.Value.Aggregate(MoneySum(context)))
+                .Values
+                .Select(c => c.Aggregate(MoneySum(context)))
                 .Aggregate(new Money(0m, context), ToSingleCurrency(context));
 
         private Money AggregateWithEvaluationContext()
