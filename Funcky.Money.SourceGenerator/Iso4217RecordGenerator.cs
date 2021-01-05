@@ -32,12 +32,15 @@ namespace Funcky.Money.SourceGenerator
             context.AddSource("Money.Generated", SourceText.From(GenerateMoneyClass(records), Encoding.UTF8));
         }
 
-        private static string GenerateCurrencyClass(IEnumerable<Iso4217Record> records)
-            => $"using Funcky.Monads;{NewLine}" +
+        private static string GenerateCurrencyClass(IReadOnlyList<Iso4217Record> records)
+            => $"using System.Collections.Generic;{NewLine}" +
+               $"using System.Collections.Immutable;{NewLine}" +
+               $"using Funcky.Monads;{NewLine}" +
                $"namespace {RootNamespace}{NewLine}" +
                $"{{{NewLine}" +
                $"{Indent}public partial record Currency{NewLine}" +
                $"{Indent}{{{NewLine}" +
+               $"{GenerateAllCurrenciesProperty(records)}" +
                $"{GenerateCurrencyProperties(records)}" +
                $"{GenerateParseMethod(records)}" +
                $"{Indent}}}{NewLine}" +
@@ -77,6 +80,23 @@ namespace Funcky.Money.SourceGenerator
             }
 
             return properties.ToString();
+        }
+
+        private static string GenerateAllCurrenciesProperty(IReadOnlyCollection<Iso4217Record> records)
+        {
+            var property = new StringBuilder();
+
+            property.AppendLine($"{Indent}{Indent}internal static IReadOnlyCollection<Currency> AllCurrencies {{ get; }} = ImmutableArray.Create(");
+
+            foreach (var (record, index) in records.Select((r, i) => (r, i)))
+            {
+                var comma = index < records.Count - 1 ? "," : string.Empty;
+                property.AppendLine($"{Indent}{Indent}{Indent}Currency.{Identifier(record.AlphabeticCurrencyCode)}{comma}");
+            }
+
+            property.AppendLine($"{Indent}{Indent});");
+
+            return property.ToString();
         }
 
         private static string GenerateMoneyClass(IEnumerable<Iso4217Record> records)
