@@ -34,12 +34,12 @@ namespace Funcky.Test
         }
 
         [Property]
-        public void TheSumOfTwoMoneysIsCommutative(decimal amount1, decimal amount2, Currency currency)
+        public Property TheSumOfTwoMoneysIsCommutative(decimal amount1, decimal amount2, Currency currency)
         {
             var money1 = new Money(ValidAmount(amount1, currency));
             var money2 = new Money(ValidAmount(amount2, currency));
 
-            (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
+            return (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
         }
 
         [Fact]
