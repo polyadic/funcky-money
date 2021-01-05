@@ -163,7 +163,7 @@ namespace Funcky.Test
         }
 
         [Property]
-        public Property TheMoneyNeutralElementIsWorkingWithAnyCurrency(decimal amount, Currency currency)
+        public Property TheMoneyNeutralElementWorksWithAnyCurrency(decimal amount, Currency currency)
         {
             var money = new Money(ValidAmount(amount, currency), currency);
 
