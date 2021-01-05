@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FsCheck;
@@ -420,7 +421,7 @@ namespace Funcky.Test
         {
             var distribution = ((Money.CHF(1.5m) + Money.EUR(2.5m)) * 3).Distribute(new[] { 3, 1, 3, 2 });
             var expression = (distribution.Skip(2).First() + (Money.USD(2.99m) * 2)) / 2;
-            var sum = Money.CHF(300) + Money.JPY(50000);
+            var sum = Money.CHF(30) + Money.JPY(500);
             var product = Money.CHF(100) * 2.5m;
             var difference = Money.CHF(200) - Money.JPY(500);
             var quotient = Money.CHF(500) / 2;
@@ -429,7 +430,7 @@ namespace Funcky.Test
             Assert.Equal("(((2.50CHF + ((1.5 * 7.00CHF) + 0.50CHF)) + ((2 * 7.00CHF) + 0.50CHF)) + ((2.50CHF + (((0.5 * 7.00CHF) + 0.50CHF) + (-1 * 7.00CHF))) + (7.00CHF + 0.50CHF)))", ComplexExpression().ToHumanReadable());
             Assert.Equal("(0.5 * ((3 * (1.50CHF + 2.50EUR)).Distribute(3, 1, 3, 2)[2] + (2 * 2.99USD)))", expression.ToHumanReadable());
 
-            // Assert.Equal("(300.00CHF + 50’000JPY)", sum.ToHumanReadable());
+            Assert.Equal("(30.00CHF + 500JPY)", sum.ToHumanReadable());
             Assert.Equal("(2.5 * 100.00CHF)", product.ToHumanReadable());
             Assert.Equal("(200.00CHF + (-1 * 500JPY))", difference.ToHumanReadable());
             Assert.Equal("(0.5 * 500.00CHF)", quotient.ToHumanReadable());
@@ -438,16 +439,16 @@ namespace Funcky.Test
         private static decimal ValidAmount(decimal amount, Currency currency)
             => decimal.Round(amount, currency.MinorUnitDigits);
 
-        private static bool TheIndividualPartsAreAtMostOneUnitApart(List<decimal> distributed, decimal first)
+        private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed, decimal first)
             => distributed.All(AtMostOneUnitLess(first, SmallestCoin));
 
         private static Func<decimal, bool> AtMostOneUnitLess(decimal reference, decimal unit)
             => amount => amount == reference || amount == reference - unit;
 
-        private static bool TheNumberOfPartsIsCorrect(PositiveInt numberOfParts, List<decimal> distributed)
+        private static bool TheNumberOfPartsIsCorrect(PositiveInt numberOfParts, ICollection distributed)
             => distributed.Count == numberOfParts.Get;
 
-        private static bool TheSumOfThePartsIsEqualToTheTotal(List<decimal> distributed, decimal validAmount)
+        private static bool TheSumOfThePartsIsEqualToTheTotal(IEnumerable<decimal> distributed, decimal validAmount)
             => distributed.Sum() == validAmount;
 
         private static IMoneyExpression ComplexExpression()
