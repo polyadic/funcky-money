@@ -86,7 +86,7 @@ namespace Funcky.Money.SourceGenerator
         {
             var property = new StringBuilder();
 
-            property.AppendLine($"{Indent}{Indent}internal static ImmutableArray<Currency> AllCurrencies => ImmutableArray.Create(");
+            property.AppendLine($"{Indent}{Indent}internal static ImmutableArray<Currency> AllCurrencies {{ get; }} = ImmutableArray.Create(");
 
             foreach (var (record, index) in records.Select((r, i) => (r, i)))
             {
