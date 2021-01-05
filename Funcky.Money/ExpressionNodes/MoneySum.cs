@@ -12,7 +12,7 @@ namespace Funcky
 
         public IMoneyExpression Right { get; }
 
-        TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor, TState state)
-            => visitor.Visit(this, state);
+        TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
+            => visitor.Visit(this);
     }
 }

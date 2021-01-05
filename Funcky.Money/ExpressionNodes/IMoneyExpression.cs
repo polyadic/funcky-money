@@ -25,6 +25,7 @@ namespace Funcky
             => moneyExpression.Multiply(-1);
 #endif
 
-        internal TState Accept<TState>(IMoneyExpressionVisitor<TState> visitor, TState state);
+        internal TState Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
+            where TState : notnull;
     }
 }
