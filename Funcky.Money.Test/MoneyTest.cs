@@ -182,22 +182,16 @@ namespace Funcky.Test
         [Fact]
         public void MoneyFormatsCorrectlyAccordingToTheCurrency()
         {
-            using var cultureSwitch = new TemporaryCultureSwitch("CHF");
-
             var thousandFrancs = Money.CHF(-1000);
             var thousandDollars = Money.USD(-1000);
-            var currencyWithoutFormatProvider = Money.XAU(9585);
 
             Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
             Assert.Equal("-$1,000.00", thousandDollars.ToString());
-            Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
         }
 
         [Fact]
         public void MoneyParsesCorrectlyFromString()
         {
-            using var cultureSwitch = new TemporaryCultureSwitch("CHF");
-
             var r1 = FunctionalAssert.IsSome(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
             Assert.Equal(new Money(-1000, Currency.CHF), r1);
 
@@ -206,9 +200,20 @@ namespace Funcky.Test
 
             var r3 = FunctionalAssert.IsSome(Money.ParseOrNone("1000", Currency.CHF));
             Assert.Equal(new Money(1000, Currency.CHF), r3);
+        }
 
-            var r4 = FunctionalAssert.IsSome(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
-            Assert.Equal(new Money(9585, Currency.XAU), r4);
+        [Fact]
+        public void CurrenciesWithoutFormatProviders()
+        {
+            // XAU is gold and therefore has no format provider, any decimal or thousand separator is therefore arbitrary.
+            // Funcky therefore chooses the current culture to format such currencies, that is why we set a specific one here.
+            using var cultureSwitch = new TemporaryCultureSwitch("CHF");
+
+            var currencyWithoutFormatProvider = Money.XAU(9585);
+            Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
+
+            var money = FunctionalAssert.IsSome(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
+            Assert.Equal(new Money(9585, Currency.XAU), money);
         }
 
         [Property]
