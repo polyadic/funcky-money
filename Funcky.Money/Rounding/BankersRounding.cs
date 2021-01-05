@@ -10,7 +10,10 @@ namespace Funcky
 
         public BankersRounding(decimal precision)
         {
-            Debug.Assert(precision > 0m, "precision must be positive and cannot be zero");
+            if (precision <= 0m)
+            {
+                throw new InvalidPrecisionException();
+            }
 
             _precision = precision;
         }

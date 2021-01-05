@@ -436,6 +436,14 @@ namespace Funcky.Test
             Assert.Equal("(0.5 * 500.00CHF)", quotient.ToHumanReadable());
         }
 
+        [Fact]
+        public void RoundingStrategiesMustBeInitializedWithAValidPrecision()
+        {
+            Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.Default(0.0m));
+            Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.BankersRounding(0.0m));
+            Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
+        }
+
         private static decimal ValidAmount(decimal amount, Currency currency)
             => decimal.Round(amount, currency.MinorUnitDigits);
 
