@@ -87,11 +87,11 @@ namespace Funcky
         private void CheckEvaluationRules(Money money)
             => _roundingStrategy.Match(
                 none: () => _roundingStrategy = Option.Some(money.RoundingStrategy),
-                some: r => CheckRoundingStrategy(money.RoundingStrategy.Equals(r)));
+                some: r => CheckRoundingStrategy(money, r));
 
-        private static void CheckRoundingStrategy(bool validRoundingStrategy)
+        private static void CheckRoundingStrategy(Money money, IRoundingStrategy roundingStrategy)
         {
-            if (!validRoundingStrategy)
+            if (!money.RoundingStrategy.Equals(roundingStrategy))
             {
                 throw new MissingEvaluationContextException("Different rounding strategies cannot be evaluated without an evaluation context.");
             }
