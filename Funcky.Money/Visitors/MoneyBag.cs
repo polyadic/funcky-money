@@ -37,8 +37,8 @@ namespace Funcky
 
         public Money CalculateTotal(Option<MoneyEvaluationContext> context)
             => context.Match(
-                none: AggregateWithEvaluationContext,
-                some: AggregateWithoutEvaluationContext);
+                none: AggregateWithoutEvaluationContext,
+                some: AggregateWithEvaluationContext);
 
         private void Add(Money money)
         {
@@ -61,13 +61,13 @@ namespace Funcky
                 .Select(m => m with { Amount = m.Amount * factor })
                 .ToList();
 
-        private Money AggregateWithoutEvaluationContext(MoneyEvaluationContext context)
+        private Money AggregateWithEvaluationContext(MoneyEvaluationContext context)
             => _currencies
                 .Values
                 .Select(c => c.Aggregate(MoneySum(context)))
                 .Aggregate(new Money(0m, context), ToSingleCurrency(context));
 
-        private Money AggregateWithEvaluationContext()
+        private Money AggregateWithoutEvaluationContext()
             => ExceptionTransformer<InvalidOperationException>.Transform(
                 AggregateSingleMoneyBag,
                 exception => throw new MissingEvaluationContextException("Different currencies cannot be evaluated without an evaluation context.", exception));
