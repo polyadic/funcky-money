@@ -1,3 +1,4 @@
+using System;
 using Funcky.Monads;
 
 namespace Funcky
@@ -48,7 +49,7 @@ namespace Funcky
 
             public MoneyEvaluationContext Build()
             {
-                if (CompatibleRounding().Match(false, c => !c))
+                if (CompatibleRounding().Match(none: false, some: Negate))
                 {
                     throw new IncompatibleRoundingException($"The roundingStrategy {_roundingStrategy} is incompatible with the smallest possible distribution unit {_distributionUnit}.");
                 }
@@ -96,6 +97,8 @@ namespace Funcky
                     _distributionUnit,
                     _roundingStrategy,
                     _bank);
+
+            private bool Negate(bool c) => !c;
         }
     }
 }
