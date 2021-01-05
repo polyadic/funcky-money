@@ -61,8 +61,8 @@ namespace Funcky
                 .OrElse(_context.AndThen(c => c.DistributionUnit))
                 .GetOrElse(Power.OfATenth(MinorUnitDigits(money)));
 
-        private int MinorUnitDigits(Money money) =>
-            _context.Match(
+        private int MinorUnitDigits(Money money)
+            => _context.Match(
                 none: money.Currency.MinorUnitDigits,
                 some: c => c.TargetCurrency.MinorUnitDigits);
 
