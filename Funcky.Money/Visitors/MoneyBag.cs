@@ -74,7 +74,7 @@ namespace Funcky
 
         private Money AggregateSingleMoneyBag()
             => _currencies
-                .SingleOrNone()
+                .SingleOrNone() // Single or None throws an InvalidOperationException if we have more than one currency in the Bag
                 .Match(
                     none: () => _emptyCurrency.Match(Money.Zero, c => Money.Zero with { Currency = c }),
                     some: m => CheckAndAggregateBag(m.Value));
