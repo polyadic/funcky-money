@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Funcky
 {
     [Serializable]
-    internal class InvalidPrecisionException : Exception
+    public class InvalidPrecisionException : Exception
     {
         public InvalidPrecisionException()
             : base("precision must be positive and cannot be zero")

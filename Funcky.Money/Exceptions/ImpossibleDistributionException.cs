@@ -3,7 +3,7 @@ using System;
 namespace Funcky
 {
     [Serializable]
-    internal sealed class ImpossibleDistributionException : Exception
+    public sealed class ImpossibleDistributionException : Exception
     {
         public ImpossibleDistributionException()
         {
