@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Funcky
 {
     [DebuggerDisplay("{ToString()}")]
-    public sealed record BankersRounding : IRoundingStrategy
+    internal sealed record BankersRounding : IRoundingStrategy
     {
         private readonly decimal _precision;
 
