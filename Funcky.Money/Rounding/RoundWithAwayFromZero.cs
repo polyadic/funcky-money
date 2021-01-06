@@ -6,9 +6,12 @@ namespace Funcky
     [DebuggerDisplay("{ToString()}")]
     internal sealed record RoundWithAwayFromZero : IRoundingStrategy
     {
-        public RoundWithAwayFromZero(in decimal precision)
+        public RoundWithAwayFromZero(decimal precision)
         {
-            Debug.Assert(precision > 0m, "precision must be positive and cannot be zero");
+            if (precision <= 0m)
+            {
+                throw new InvalidPrecisionException();
+            }
 
             Precision = precision;
         }

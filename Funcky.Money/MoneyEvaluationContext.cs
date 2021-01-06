@@ -1,3 +1,4 @@
+using System;
 using Funcky.Monads;
 
 namespace Funcky
@@ -13,12 +14,25 @@ namespace Funcky
             Bank = bank;
         }
 
+        /// <summary>
+        /// If there are multiple currencies involved in an evaluation, we will convert all the money amounts of different currencies to this one.
+        /// </summary>
         public Currency TargetCurrency { get; }
 
+        /// <summary>
+        /// This is the smallest money unit you want to have distributed.
+        /// Usually you want this to be the smallest coin of the given currency.
+        /// </summary>
         public Option<decimal> DistributionUnit { get; }
 
+        /// <summary>
+        /// Defines how we round amounts in the evaluation.
+        /// </summary>
         public IRoundingStrategy RoundingStrategy { get; }
 
+        /// <summary>
+        /// Source for exchange rates.
+        /// </summary>
         public IBank Bank { get; }
 
         public sealed class Builder
@@ -48,7 +62,7 @@ namespace Funcky
 
             public MoneyEvaluationContext Build()
             {
-                if (CompatibleRounding().Match(false, c => !c))
+                if (CompatibleRounding().Match(none: false, some: Negate))
                 {
                     throw new IncompatibleRoundingException($"The roundingStrategy {_roundingStrategy} is incompatible with the smallest possible distribution unit {_distributionUnit}.");
                 }
@@ -57,21 +71,28 @@ namespace Funcky
             }
 
             public Builder WithTargetCurrency(Currency currency)
-                => new(currency, _distributionUnit, _roundingStrategy, _bank);
+                => With(targetCurrency: currency);
 
             public Builder WithRounding(IRoundingStrategy roundingStrategy)
-                => new(_targetCurrency, _distributionUnit, Option.Some(roundingStrategy), _bank);
+                => With(roundingStrategy: Option.Some(roundingStrategy));
 
             public Builder WithExchangeRate(Currency currency, decimal sellRate)
                 => _bank is DefaultBank bank
-                    ? new(_targetCurrency, _distributionUnit, _roundingStrategy, bank.AddExchangeRate(currency, GetTargetCurrencyOrException(), sellRate))
+                    ? With(bank: bank.AddExchangeRate(currency, GetTargetCurrencyOrException(), sellRate))
                     : throw new InvalidMoneyEvaluationContextBuilderException("You can either use WithExchangeRate or WithBank, but not both.");
 
             public Builder WithBank(IBank bank)
-                => new(_targetCurrency, _distributionUnit, _roundingStrategy, bank);
+                => With(bank: Option.Some(bank));
 
-            public Builder WithSmallestDistributionUnit(in decimal distributionUnit)
-                => new(_targetCurrency, distributionUnit, _roundingStrategy, _bank);
+            public Builder WithSmallestDistributionUnit(decimal distributionUnit)
+                => With(distributionUnit: distributionUnit);
+
+            private Builder With(Option<Currency> targetCurrency = default, Option<decimal> distributionUnit = default, Option<IRoundingStrategy> roundingStrategy = default, Option<IBank> bank = default)
+                => new(
+                    targetCurrency.OrElse(_targetCurrency),
+                    distributionUnit.OrElse(_distributionUnit),
+                    roundingStrategy.OrElse(_roundingStrategy),
+                    bank.GetOrElse(_bank));
 
             private Currency GetTargetCurrencyOrException()
                 => _targetCurrency.GetOrElse(()
@@ -84,11 +105,14 @@ namespace Funcky
 
             private MoneyEvaluationContext CreateContext()
                 => new(
-                    _targetCurrency.GetOrElse(() =>
-                        throw new InvalidMoneyEvaluationContextBuilderException("Money evaluation context has no target currency set.")),
+                    _targetCurrency.GetOrElse(()
+                        => throw new InvalidMoneyEvaluationContextBuilderException("Money evaluation context has no target currency set.")),
                     _distributionUnit,
                     _roundingStrategy,
                     _bank);
+
+            private bool Negate(bool c)
+                => !c;
         }
     }
 }

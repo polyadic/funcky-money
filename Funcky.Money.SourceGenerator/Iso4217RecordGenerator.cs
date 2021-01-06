@@ -40,8 +40,8 @@ namespace Funcky.Money.SourceGenerator
                $"{{{NewLine}" +
                $"{Indent}public partial record Currency{NewLine}" +
                $"{Indent}{{{NewLine}" +
-               $"{GenerateAllCurrenciesProperty(records)}" +
                $"{GenerateCurrencyProperties(records)}" +
+               $"{GenerateAllCurrenciesProperty(records)}" +
                $"{GenerateParseMethod(records)}" +
                $"{Indent}}}{NewLine}" +
                $"}}{NewLine}";
@@ -86,7 +86,7 @@ namespace Funcky.Money.SourceGenerator
         {
             var property = new StringBuilder();
 
-            property.AppendLine($"{Indent}{Indent}internal static IReadOnlyCollection<Currency> AllCurrencies {{ get; }} = ImmutableArray.Create(");
+            property.AppendLine($"{Indent}{Indent}internal static IReadOnlyList<Currency> AllCurrencies {{ get; }} = ImmutableArray.Create(");
 
             foreach (var (record, index) in records.Select((r, i) => (r, i)))
             {

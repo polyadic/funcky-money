@@ -3,7 +3,7 @@ using System;
 namespace Funcky
 {
     [Serializable]
-    internal sealed class InvalidMoneyEvaluationContextBuilderException : Exception
+    public sealed class InvalidMoneyEvaluationContextBuilderException : Exception
     {
         public InvalidMoneyEvaluationContextBuilderException()
         {

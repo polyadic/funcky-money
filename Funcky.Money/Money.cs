@@ -66,7 +66,7 @@ namespace Funcky
         public override string ToString()
             => CurrencyCulture.FormatProviderFromCurrency(Currency).Match(
                 none: () => string.Format($"{{0:N{Currency.MinorUnitDigits}}} {{1}}", Amount, Currency.AlphabeticCurrencyCode),
-                some: formatProvider => string.Format(formatProvider, "{0:C}", Amount));
+                some: formatProvider => string.Format(formatProvider, $"{{0:C{Currency.MinorUnitDigits}}}", Amount));
 
         TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
             => visitor.Visit(this);

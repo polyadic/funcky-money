@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FsCheck;
@@ -33,12 +34,12 @@ namespace Funcky.Test
         }
 
         [Property]
-        public void TheSumOfTwoMoneysIsCommutative(decimal amount1, decimal amount2, Currency currency)
+        public Property TheSumOfTwoMoneysIsCommutative(decimal amount1, decimal amount2, Currency currency)
         {
             var money1 = new Money(ValidAmount(amount1, currency));
             var money2 = new Money(ValidAmount(amount2, currency));
 
-            (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
+            return (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
         }
 
         [Fact]
@@ -53,10 +54,10 @@ namespace Funcky.Test
         }
 
         [Property]
-        public Property DollarsAreNotFrancs(decimal amount1)
+        public Property DollarsAreNotFrancs(decimal amount)
         {
-            var francs = Money.CHF(ValidAmount(0, Currency.CHF));
-            var dollars = Money.USD(ValidAmount(0, Currency.CHF));
+            var francs = Money.CHF(ValidAmount(amount, Currency.CHF));
+            var dollars = Money.USD(ValidAmount(amount, Currency.USD));
 
             return (francs != dollars).ToProperty();
         }
@@ -84,21 +85,35 @@ namespace Funcky.Test
                    && TheIndividualPartsAreAtMostOneUnitApart(distributed, first)).ToProperty();
         }
 
-        [Fact]
-        public void DistributeMoneyProportionally()
+        [Theory]
+        [MemberData(nameof(ProportionalDistributionData))]
+        public void DistributeMoneyProportionally(int first, int second, decimal expected1, decimal expected2)
         {
             var fiftyCents = Money.EUR(0.5m);
             var sum = fiftyCents.Add(fiftyCents);
-            var distribution = sum.Distribute(new[] { 5, 1 });
+            var distribution = sum.Distribute(new[] { first, second });
 
             var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
             Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
 
             Assert.Collection(
                 distributed,
-                item => Assert.Equal(0.84m, item),
-                item => Assert.Equal(0.16m, item));
+                item => Assert.Equal(expected1, item),
+                item => Assert.Equal(expected2, item));
         }
+
+        public static TheoryData<int, int, decimal, decimal> ProportionalDistributionData()
+            => new()
+            {
+                { 1, 1, 0.5m, 0.5m },
+                { 200, 200, 0.5m, 0.5m },
+                { 5, 1, 0.84m, 0.16m },
+                { 1, 5, 0.17m, 0.83m },
+                { 7, 2, 0.78m, 0.22m },
+                { 2, 7, 0.23m, 0.77m },
+                { 98, 1, 0.99m, 0.01m },
+                { 1, 98, 0.02m, 0.98m },
+            };
 
         [Fact]
         public void InputValuesGetRoundedDuringEvaluation()
@@ -148,7 +163,7 @@ namespace Funcky.Test
         }
 
         [Property]
-        public Property TheMoneyNeutralElementIsWorkingWithAnyCurrency(decimal amount, Currency currency)
+        public Property TheMoneyNeutralElementWorksWithAnyCurrency(decimal amount, Currency currency)
         {
             var money = new Money(ValidAmount(amount, currency), currency);
 
@@ -156,25 +171,27 @@ namespace Funcky.Test
                     && (money == (Money.Zero + money).Evaluate())).ToProperty().When(!money.IsZero);
         }
 
+        [Property]
+        public Property InASumOfMultipleZerosWithDifferentCurrenciesTheEvaluationHasTheSameCurrencyAsTheFirstMoneyInTheExpression(Currency c1, Currency c2, Currency c3)
+        {
+            var sum = new Money(0m, c1) + new Money(0m, c2) + new Money(0m, c3) + new Money(0m, c2);
+
+            return (sum.Evaluate().Currency == c1).ToProperty();
+        }
+
         [Fact]
         public void MoneyFormatsCorrectlyAccordingToTheCurrency()
         {
-            using var cultureSwitch = new TemporaryCultureSwitch("CHF");
-
             var thousandFrancs = Money.CHF(-1000);
             var thousandDollars = Money.USD(-1000);
-            var currencyWithoutFormatProvider = Money.XAU(9585);
 
             Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
             Assert.Equal("-$1,000.00", thousandDollars.ToString());
-            Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
         }
 
         [Fact]
         public void MoneyParsesCorrectlyFromString()
         {
-            using var cultureSwitch = new TemporaryCultureSwitch("CHF");
-
             var r1 = FunctionalAssert.IsSome(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
             Assert.Equal(new Money(-1000, Currency.CHF), r1);
 
@@ -183,9 +200,20 @@ namespace Funcky.Test
 
             var r3 = FunctionalAssert.IsSome(Money.ParseOrNone("1000", Currency.CHF));
             Assert.Equal(new Money(1000, Currency.CHF), r3);
+        }
 
-            var r4 = FunctionalAssert.IsSome(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
-            Assert.Equal(new Money(9585, Currency.XAU), r4);
+        [Fact]
+        public void CurrenciesWithoutFormatProviders()
+        {
+            // XAU is gold and therefore has no format provider, any decimal or thousand separator is therefore arbitrary.
+            // Funcky therefore chooses the current culture to format such currencies, that is why we set a specific one here.
+            using var cultureSwitch = new TemporaryCultureSwitch("CHF");
+
+            var currencyWithoutFormatProvider = Money.XAU(9585);
+            Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
+
+            var money = FunctionalAssert.IsSome(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
+            Assert.Equal(new Money(9585, Currency.XAU), money);
         }
 
         [Property]
@@ -242,8 +270,8 @@ namespace Funcky.Test
         {
             var francs = new Money(0.08m, SwissRounding);
 
-            Assert.Throws<ImpossibleDistributionException>(() =>
-                francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
+            Assert.Throws<ImpossibleDistributionException>(()
+                => francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
         }
 
         [Fact]
@@ -412,7 +440,7 @@ namespace Funcky.Test
         {
             var distribution = ((Money.CHF(1.5m) + Money.EUR(2.5m)) * 3).Distribute(new[] { 3, 1, 3, 2 });
             var expression = (distribution.Skip(2).First() + (Money.USD(2.99m) * 2)) / 2;
-            var sum = Money.CHF(300) + Money.JPY(50000);
+            var sum = Money.CHF(30) + Money.JPY(500);
             var product = Money.CHF(100) * 2.5m;
             var difference = Money.CHF(200) - Money.JPY(500);
             var quotient = Money.CHF(500) / 2;
@@ -421,25 +449,33 @@ namespace Funcky.Test
             Assert.Equal("(((2.50CHF + ((1.5 * 7.00CHF) + 0.50CHF)) + ((2 * 7.00CHF) + 0.50CHF)) + ((2.50CHF + (((0.5 * 7.00CHF) + 0.50CHF) + (-1 * 7.00CHF))) + (7.00CHF + 0.50CHF)))", ComplexExpression().ToHumanReadable());
             Assert.Equal("(0.5 * ((3 * (1.50CHF + 2.50EUR)).Distribute(3, 1, 3, 2)[2] + (2 * 2.99USD)))", expression.ToHumanReadable());
 
-            // Assert.Equal("(300.00CHF + 50’000JPY)", sum.ToHumanReadable());
+            Assert.Equal("(30.00CHF + 500JPY)", sum.ToHumanReadable());
             Assert.Equal("(2.5 * 100.00CHF)", product.ToHumanReadable());
             Assert.Equal("(200.00CHF + (-1 * 500JPY))", difference.ToHumanReadable());
             Assert.Equal("(0.5 * 500.00CHF)", quotient.ToHumanReadable());
         }
 
-        private static decimal ValidAmount(in decimal amount, Currency currency)
+        [Fact]
+        public void RoundingStrategiesMustBeInitializedWithAValidPrecision()
+        {
+            Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.Default(0.0m));
+            Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.BankersRounding(0.0m));
+            Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
+        }
+
+        private static decimal ValidAmount(decimal amount, Currency currency)
             => decimal.Round(amount, currency.MinorUnitDigits);
 
-        private static bool TheIndividualPartsAreAtMostOneUnitApart(List<decimal> distributed, decimal first)
+        private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed, decimal first)
             => distributed.All(AtMostOneUnitLess(first, SmallestCoin));
 
         private static Func<decimal, bool> AtMostOneUnitLess(decimal reference, decimal unit)
             => amount => amount == reference || amount == reference - unit;
 
-        private static bool TheNumberOfPartsIsCorrect(PositiveInt numberOfParts, List<decimal> distributed)
+        private static bool TheNumberOfPartsIsCorrect(PositiveInt numberOfParts, ICollection distributed)
             => distributed.Count == numberOfParts.Get;
 
-        private static bool TheSumOfThePartsIsEqualToTheTotal(List<decimal> distributed, decimal validAmount)
+        private static bool TheSumOfThePartsIsEqualToTheTotal(IEnumerable<decimal> distributed, decimal validAmount)
             => distributed.Sum() == validAmount;
 
         private static IMoneyExpression ComplexExpression()

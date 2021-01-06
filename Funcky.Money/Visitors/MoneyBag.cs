@@ -10,7 +10,7 @@ namespace Funcky
     {
         private readonly Dictionary<Currency, List<Money>> _currencies = new();
         private Option<IRoundingStrategy> _roundingStrategy;
-        private Option<Currency> _firstCurrency;
+        private Option<Currency> _emptyCurrency;
 
         public MoneyBag(Money money)
         {
@@ -37,8 +37,8 @@ namespace Funcky
 
         public Money CalculateTotal(Option<MoneyEvaluationContext> context)
             => context.Match(
-                none: AggregateWithEvaluationContext,
-                some: AggregateWithoutEvaluationContext);
+                none: AggregateWithoutEvaluationContext,
+                some: AggregateWithEvaluationContext);
 
         private void Add(Money money)
         {
@@ -46,7 +46,7 @@ namespace Funcky
             {
                 if (_currencies.None())
                 {
-                    _firstCurrency = money.Currency;
+                    _emptyCurrency = money.Currency;
                 }
             }
             else
@@ -61,21 +61,22 @@ namespace Funcky
                 .Select(m => m with { Amount = m.Amount * factor })
                 .ToList();
 
-        private Money AggregateWithoutEvaluationContext(MoneyEvaluationContext context)
+        private Money AggregateWithEvaluationContext(MoneyEvaluationContext context)
             => _currencies
-                .Select(kv => kv.Value.Aggregate(MoneySum(context)))
+                .Values
+                .Select(c => c.Aggregate(MoneySum(context)))
                 .Aggregate(new Money(0m, context), ToSingleCurrency(context));
 
-        private Money AggregateWithEvaluationContext()
+        private Money AggregateWithoutEvaluationContext()
             => ExceptionTransformer<InvalidOperationException>.Transform(
                 AggregateSingleMoneyBag,
                 exception => throw new MissingEvaluationContextException("Different currencies cannot be evaluated without an evaluation context.", exception));
 
         private Money AggregateSingleMoneyBag()
             => _currencies
-                .SingleOrNone()
+                .SingleOrNone() // Single or None throws an InvalidOperationException if we have more than one currency in the Bag
                 .Match(
-                    none: () => _firstCurrency.Match(Money.Zero, c => Money.Zero with { Currency = c }),
+                    none: () => _emptyCurrency.Match(Money.Zero, c => Money.Zero with { Currency = c }),
                     some: m => CheckAndAggregateBag(m.Value));
 
         private Money CheckAndAggregateBag(IEnumerable<Money> bag)
@@ -83,14 +84,14 @@ namespace Funcky
                 .Inspect(CheckEvaluationRules)
                 .Aggregate(MoneySum);
 
-        private void CheckEvaluationRules(Money money) =>
-            _roundingStrategy.Match(
+        private void CheckEvaluationRules(Money money)
+            => _roundingStrategy.Match(
                 none: () => _roundingStrategy = Option.Some(money.RoundingStrategy),
-                some: r => CheckRoundingStrategy(money.RoundingStrategy.Equals(r)));
+                some: r => CheckRoundingStrategy(money, r));
 
-        private static void CheckRoundingStrategy(bool validRoundingStrategy)
+        private static void CheckRoundingStrategy(Money money, IRoundingStrategy roundingStrategy)
         {
-            if (!validRoundingStrategy)
+            if (!money.RoundingStrategy.Equals(roundingStrategy))
             {
                 throw new MissingEvaluationContextException("Different rounding strategies cannot be evaluated without an evaluation context.");
             }

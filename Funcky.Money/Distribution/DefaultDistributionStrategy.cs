@@ -55,14 +55,14 @@ namespace Funcky
             => money.Amount / DistributionTotal(distribution) * distribution.Factors[index];
 
         // Order of evaluation: Distribution > Context Distribution > Context Currency > Money Currency
-        private decimal Precision(MoneyDistribution distribution, Money money) =>
-            distribution
+        private decimal Precision(MoneyDistribution distribution, Money money)
+            => distribution
                 .Precision
                 .OrElse(_context.AndThen(c => c.DistributionUnit))
                 .GetOrElse(Power.OfATenth(MinorUnitDigits(money)));
 
-        private int MinorUnitDigits(Money money) =>
-            _context.Match(
+        private int MinorUnitDigits(Money money)
+            => _context.Match(
                 none: money.Currency.MinorUnitDigits,
                 some: c => c.TargetCurrency.MinorUnitDigits);
 
