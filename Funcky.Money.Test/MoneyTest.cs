@@ -68,14 +68,8 @@ namespace Funcky.Test
 
         [Property]
         public Property DistributeMoneyEqually(SwissMoney someMoney, PositiveInt numberOfParts)
-        {
-            var distributed = someMoney.Get.Distribute(numberOfParts.Get).Select(e => e.Evaluate(SwissRounding).Amount).ToList();
-            var first = distributed.First();
-
-            return (TheSumOfThePartsIsEqualToTheTotal(distributed, someMoney.Get.Amount)
-                   && TheNumberOfPartsIsCorrect(numberOfParts, distributed)
-                   && TheIndividualPartsAreAtMostOneUnitApart(distributed, first)).ToProperty();
-        }
+            => DistributionLaws(someMoney, numberOfParts, Distributed(someMoney, numberOfParts))
+                .ToProperty();
 
         [Theory]
         [MemberData(nameof(ProportionalDistributionData))]
@@ -467,6 +461,18 @@ namespace Funcky.Test
             Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.BankersRounding(0.0m));
             Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
         }
+
+        private static List<decimal> Distributed(SwissMoney someMoney, PositiveInt numberOfParts)
+            => someMoney
+                .Get
+                .Distribute(numberOfParts.Get)
+                .Select(e => e.Evaluate(SwissRounding).Amount)
+                .ToList();
+
+        private static bool DistributionLaws(SwissMoney someMoney, PositiveInt numberOfParts, List<decimal> distributed)
+            => TheSumOfThePartsIsEqualToTheTotal(distributed, someMoney.Get.Amount)
+               && TheNumberOfPartsIsCorrect(numberOfParts, distributed)
+               && TheIndividualPartsAreAtMostOneUnitApart(distributed, distributed.First());
 
         private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed, decimal first)
             => distributed.All(AtMostOneUnitLess(first, SwissMoney.SmallestCoin));
