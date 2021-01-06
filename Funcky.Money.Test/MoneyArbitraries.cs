@@ -5,7 +5,7 @@ namespace Funcky.Test
     internal class MoneyArbitraries
     {
         public static Arbitrary<Currency> ArbitraryCurrency()
-            => Arb.From(Gen.Elements<Currency>(Currency.AllCurrencies));
+             => Arb.From(Gen.Elements<Currency>(Currency.AllCurrencies));
 
         public static Arbitrary<Money> ArbitraryMoney()
             => GenerateMoney().ToArbitrary();
@@ -20,6 +20,6 @@ namespace Funcky.Test
 
         private static Gen<SwissMoney> GenerateSwissFranc()
             => from amount in Arb.Generate<PositiveInt>()
-               select new SwissMoney(Money.CHF(0.05m * amount.Get));
+               select new SwissMoney(Money.CHF(SwissMoney.SmallestCoin * amount.Get));
     }
 }

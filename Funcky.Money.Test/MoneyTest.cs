@@ -11,8 +11,6 @@ namespace Funcky.Test
 {
     public sealed class MoneyTest
     {
-        private const decimal SmallestCoin = 0.05m;
-
         public MoneyTest() =>
             Arb
                 .Register<MoneyArbitraries>();
@@ -22,7 +20,7 @@ namespace Funcky.Test
                 .Builder
                 .Default
                 .WithTargetCurrency(Currency.CHF)
-                .WithSmallestDistributionUnit(SmallestCoin)
+                .WithSmallestDistributionUnit(SwissMoney.SmallestCoin)
                 .Build();
 
         [Property]
@@ -248,10 +246,10 @@ namespace Funcky.Test
                 .Default
                 .WithTargetCurrency(Currency.CHF);
 
-            var precision05 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SmallestCoin)).Build());
+            var precision05 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SwissMoney.SmallestCoin)).Build());
             var precision002 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
 
-            Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3, SmallestCoin).First().Evaluate().RoundingStrategy);
+            Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3, SwissMoney.SmallestCoin).First().Evaluate().RoundingStrategy);
             Assert.Equal(precision002.RoundingStrategy, precision002.Distribute(3, 0.002m).First().Evaluate().RoundingStrategy);
         }
 
@@ -454,7 +452,7 @@ namespace Funcky.Test
         }
 
         private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed, decimal first)
-            => distributed.All(AtMostOneUnitLess(first, SmallestCoin));
+            => distributed.All(AtMostOneUnitLess(first, SwissMoney.SmallestCoin));
 
         private static Func<decimal, bool> AtMostOneUnitLess(decimal reference, decimal unit)
             => amount => amount == reference || amount == reference - unit;
