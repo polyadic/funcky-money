@@ -15,11 +15,11 @@ namespace Funcky.Test
 
         private static Gen<Money> GenerateMoney()
             => from currency in Arb.Generate<Currency>()
-               from amount in Arb.Generate<PositiveInt>()
-               select new Money(Power.OfATenth(currency.MinorUnitDigits) * amount.Get, currency);
+               from amount in Arb.Generate<int>()
+               select new Money(Power.OfATenth(currency.MinorUnitDigits) * amount, currency);
 
         private static Gen<SwissMoney> GenerateSwissFranc()
-            => from amount in Arb.Generate<PositiveInt>()
-               select new SwissMoney(Money.CHF(SwissMoney.SmallestCoin * amount.Get));
+            => from amount in Arb.Generate<int>()
+               select new SwissMoney(Money.CHF(SwissMoney.SmallestCoin * amount));
     }
 }
