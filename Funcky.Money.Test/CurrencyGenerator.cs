@@ -4,7 +4,7 @@ namespace Funcky.Test
 {
     internal class CurrencyGenerator
     {
-        public static Arbitrary<Currency> MyCurrency()
+        public static Arbitrary<Currency> Generate()
         {
             return Arb.From(
                 from int id in Gen.Choose(0, Currency.AllCurrencies.Count - 1)
