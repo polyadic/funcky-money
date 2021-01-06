@@ -10,7 +10,7 @@ namespace Funcky.Test
         public static Arbitrary<Money> ArbitraryMoney()
             => GenerateMoney().ToArbitrary();
 
-        public static Arbitrary<SwissMoney> ArbitrarySwissFrancs()
+        public static Arbitrary<SwissMoney> ArbitrarySwissMoney()
             => GenerateSwissFranc().ToArbitrary();
 
         private static Gen<Money> GenerateMoney()
