@@ -67,8 +67,18 @@ namespace Funcky.Test
         }
 
         [Property]
-        public Property DistributeMoneyEqually(SwissMoney someMoney, PositiveInt numberOfParts)
-            => DistributionLaws(someMoney, numberOfParts, Distributed(someMoney, numberOfParts))
+        public Property DistributeMoneyConservesTheTotal(SwissMoney someMoney, PositiveInt numberOfParts)
+            => TheSumOfThePartsIsEqualToTheTotal(someMoney.Get.Amount, Distributed(someMoney, numberOfParts.Get))
+                .ToProperty();
+
+        [Property]
+        public Property DistributeMoneyHasNumberOfParts(SwissMoney someMoney, PositiveInt numberOfParts)
+            => TheNumberOfPartsIsCorrect(numberOfParts.Get, Distributed(someMoney, numberOfParts.Get))
+                .ToProperty();
+
+        [Property]
+        public Property DistributeMoneyHasMinimalDifference(SwissMoney someMoney, PositiveInt numberOfParts)
+            => TheIndividualPartsAreAtMostOneUnitApart(Distributed(someMoney, numberOfParts.Get))
                 .ToProperty();
 
         [Theory]
@@ -462,28 +472,23 @@ namespace Funcky.Test
             Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
         }
 
-        private static List<decimal> Distributed(SwissMoney someMoney, PositiveInt numberOfParts)
+        private static List<decimal> Distributed(SwissMoney someMoney, int numberOfParts)
             => someMoney
                 .Get
-                .Distribute(numberOfParts.Get)
+                .Distribute(numberOfParts)
                 .Select(e => e.Evaluate(SwissRounding).Amount)
                 .ToList();
 
-        private static bool DistributionLaws(SwissMoney someMoney, PositiveInt numberOfParts, List<decimal> distributed)
-            => TheSumOfThePartsIsEqualToTheTotal(distributed, someMoney.Get.Amount)
-               && TheNumberOfPartsIsCorrect(numberOfParts, distributed)
-               && TheIndividualPartsAreAtMostOneUnitApart(distributed, distributed.First());
+        private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed)
+            => distributed.All(AtMostOneDistributionUnitLess(distributed.First()));
 
-        private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed, decimal first)
-            => distributed.All(AtMostOneUnitLess(first, SwissMoney.SmallestCoin));
+        private static Func<decimal, bool> AtMostOneDistributionUnitLess(decimal reference)
+            => amount => Math.Abs(amount - reference) <= SwissMoney.SmallestCoin;
 
-        private static Func<decimal, bool> AtMostOneUnitLess(decimal reference, decimal unit)
-            => amount => amount == reference || amount == reference - unit;
+        private static bool TheNumberOfPartsIsCorrect(int numberOfParts, ICollection distributed)
+            => distributed.Count == numberOfParts;
 
-        private static bool TheNumberOfPartsIsCorrect(PositiveInt numberOfParts, ICollection distributed)
-            => distributed.Count == numberOfParts.Get;
-
-        private static bool TheSumOfThePartsIsEqualToTheTotal(IEnumerable<decimal> distributed, decimal validAmount)
+        private static bool TheSumOfThePartsIsEqualToTheTotal(decimal validAmount, IEnumerable<decimal> distributed)
             => distributed.Sum() == validAmount;
 
         private static IMoneyExpression ComplexExpression()
