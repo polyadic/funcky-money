@@ -4,7 +4,6 @@
         <LangVersion>9.0</LangVersion>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <WarningsAsErrors />
         <RootNamespace>Funcky</RootNamespace>
         <Product>Funcky.Money</Product>
         <Description>Funcky.Money is the Money-Class you want to have.</Description>
