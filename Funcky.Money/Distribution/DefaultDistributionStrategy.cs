@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Funcky.Extensions;
 using Funcky.Monads;
@@ -23,15 +24,24 @@ namespace Funcky
                && RoundingStrategy(money).IsSameAfterRounding(ToDistribute(part, money));
 
         private decimal SliceAmount(MoneyDistributionPart part, Money money)
+            => Slice(part.Distribution, part.Index, money) + DistributeRest(part, money);
+
+        private decimal DistributeRest(MoneyDistributionPart part, Money money)
             => part.Index switch
             {
-                _ when Precision(part.Distribution, money) * (part.Index + 1) < ToDistribute(part, money) => Slice(part.Distribution, part.Index, money) + Precision(part.Distribution, money),
-                _ when Precision(part.Distribution, money) * part.Index < ToDistribute(part, money) => Slice(part.Distribution, part.Index, money) + ToDistribute(part, money) - AlreadyDistributed(part, money),
-                _ => Slice(part.Distribution, part.Index, money),
+                _ when AtLeastOneDistributionUnitLeft(part, money) => SignedPrecision(part.Distribution, money),
+                _ when BetweenZeroToOneDistributionUnitLeft(part, money) => ToDistribute(part, money) - AlreadyDistributed(part, money),
+                _ => 0.0m,
             };
 
+        private bool AtLeastOneDistributionUnitLeft(MoneyDistributionPart part, Money money)
+            => Precision(part.Distribution, money) * (part.Index + 1) < Math.Abs(ToDistribute(part, money));
+
+        private bool BetweenZeroToOneDistributionUnitLeft(MoneyDistributionPart part, Money money)
+            => Precision(part.Distribution, money) * part.Index < Math.Abs(ToDistribute(part, money));
+
         private decimal AlreadyDistributed(MoneyDistributionPart part, Money money)
-            => Precision(part.Distribution, money) * part.Index;
+            => SignedPrecision(part.Distribution, money) * part.Index;
 
         private IRoundingStrategy RoundingStrategy(Money money)
             => _context.Match(
@@ -53,6 +63,9 @@ namespace Funcky
 
         private static decimal ExactSlice(MoneyDistribution distribution, int index, Money money)
             => money.Amount / DistributionTotal(distribution) * distribution.Factors[index];
+
+        private decimal SignedPrecision(MoneyDistribution distribution, Money money)
+            => Precision(distribution, money).CopySign(money.Amount);
 
         // Order of evaluation: Distribution > Context Distribution > Context Currency > Money Currency
         private decimal Precision(MoneyDistribution distribution, Money money)

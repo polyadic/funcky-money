@@ -5,12 +5,8 @@
         <LangVersion>9.0</LangVersion>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <WarningsAsErrors />
-
         <IsPackable>false</IsPackable>
-
         <RootNamespace>Funcky.Test</RootNamespace>
-        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>

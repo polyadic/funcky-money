@@ -11,33 +11,28 @@ namespace Funcky.Test
 {
     public sealed class MoneyTest
     {
-        private const decimal SmallestCoin = 0.05m;
-
         public MoneyTest() =>
             Arb
-                .Register<CurrencyGenerator>();
+                .Register<MoneyArbitraries>();
 
         private static MoneyEvaluationContext SwissRounding
             => MoneyEvaluationContext
                 .Builder
                 .Default
                 .WithTargetCurrency(Currency.CHF)
-                .WithSmallestDistributionUnit(SmallestCoin)
+                .WithSmallestDistributionUnit(SwissMoney.SmallestCoin)
                 .Build();
 
         [Property]
-        public Property EvaluatingAMoneyInTheSameCurrencyDoesReturnTheSameAmount(decimal amount, Currency currency)
+        public Property EvaluatingAMoneyInTheSameCurrencyDoesReturnTheSameAmount(Money money)
         {
-            var money = new Money(ValidAmount(amount, currency), currency);
-
             return (money.Amount == money.Evaluate().Amount).ToProperty();
         }
 
         [Property]
-        public Property TheSumOfTwoMoneysIsCommutative(decimal amount1, decimal amount2, Currency currency)
+        public Property TheSumOfTwoMoneysIsCommutative(Money money1, Money money2)
         {
-            var money1 = new Money(ValidAmount(amount1, currency));
-            var money2 = new Money(ValidAmount(amount2, currency));
+            money2 = new Money(money2.Amount, money1.Currency);
 
             return (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
         }
@@ -56,34 +51,35 @@ namespace Funcky.Test
         [Property]
         public Property DollarsAreNotFrancs(decimal amount)
         {
-            var francs = Money.CHF(ValidAmount(amount, Currency.CHF));
-            var dollars = Money.USD(ValidAmount(amount, Currency.USD));
+            var francs = Money.CHF(amount);
+            var dollars = Money.USD(amount);
 
             return (francs != dollars).ToProperty();
         }
 
         [Property]
-        public Property MoneyCanBeMultipliedByConstantsFactors(decimal amount, decimal multiplier)
+        public Property MoneyCanBeMultipliedByConstantsFactors(Money someMoney, decimal multiplier)
         {
-            var someMoney = Money.CHF(amount);
-            var result = decimal.Round(amount * multiplier, someMoney.Currency.MinorUnitDigits)
+            var result = decimal.Round(someMoney.Amount * multiplier, someMoney.Currency.MinorUnitDigits)
                          == someMoney.Multiply(multiplier).Evaluate().Amount;
 
             return result.ToProperty();
         }
 
         [Property]
-        public Property DistributeMoneyEqually(decimal amount, PositiveInt numberOfParts)
-        {
-            var validAmount = SwissRounding.RoundingStrategy.Round(amount);
-            var someMoney = new Money(validAmount, SwissRounding);
-            var distributed = someMoney.Distribute(numberOfParts.Get).Select(e => e.Evaluate(SwissRounding).Amount).ToList();
-            var first = distributed.First();
+        public Property DistributeMoneyConservesTheTotal(SwissMoney someMoney, PositiveInt numberOfParts)
+            => TheSumOfThePartsIsEqualToTheTotal(someMoney.Get.Amount, Distributed(someMoney, numberOfParts.Get))
+                .ToProperty();
 
-            return (TheSumOfThePartsIsEqualToTheTotal(distributed, validAmount)
-                   && TheNumberOfPartsIsCorrect(numberOfParts, distributed)
-                   && TheIndividualPartsAreAtMostOneUnitApart(distributed, first)).ToProperty();
-        }
+        [Property]
+        public Property DistributeMoneyHasNumberOfParts(SwissMoney someMoney, PositiveInt numberOfParts)
+            => TheNumberOfPartsIsCorrect(numberOfParts.Get, Distributed(someMoney, numberOfParts.Get))
+                .ToProperty();
+
+        [Property]
+        public Property DistributeMoneyHasMinimalDifference(SwissMoney someMoney, PositiveInt numberOfParts)
+            => TheIndividualPartsAreAtMostOneUnitApart(Distributed(someMoney, numberOfParts.Get))
+                .ToProperty();
 
         [Theory]
         [MemberData(nameof(ProportionalDistributionData))]
@@ -100,6 +96,23 @@ namespace Funcky.Test
                 distributed,
                 item => Assert.Equal(expected1, item),
                 item => Assert.Equal(expected2, item));
+        }
+
+        [Theory]
+        [MemberData(nameof(ProportionalDistributionData))]
+        public void DistributeNegativeMoneyProportionally(int first, int second, decimal expected1, decimal expected2)
+        {
+            var fiftyCents = Money.EUR(-0.5m);
+            var sum = fiftyCents.Add(fiftyCents);
+            var distribution = sum.Distribute(new[] { first, second });
+
+            var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
+            Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
+
+            Assert.Collection(
+                distributed,
+                item => Assert.Equal(expected1 * -1, item),
+                item => Assert.Equal(expected2 * -1, item));
         }
 
         public static TheoryData<int, int, decimal, decimal> ProportionalDistributionData()
@@ -163,10 +176,8 @@ namespace Funcky.Test
         }
 
         [Property]
-        public Property TheMoneyNeutralElementWorksWithAnyCurrency(decimal amount, Currency currency)
+        public Property TheMoneyNeutralElementWorksWithAnyCurrency(Money money)
         {
-            var money = new Money(ValidAmount(amount, currency), currency);
-
             return (money == (money + Money.Zero).Evaluate()
                     && (money == (Money.Zero + money).Evaluate())).ToProperty().When(!money.IsZero);
         }
@@ -217,11 +228,9 @@ namespace Funcky.Test
         }
 
         [Property]
-        public Property WeCanParseTheStringsWeGenerate(decimal amount, Currency currency)
+        public Property WeCanParseTheStringsWeGenerate(Money money)
         {
-            var money = new Money(decimal.Round(amount, currency.MinorUnitDigits), currency);
-
-            return Money.ParseOrNone(money.ToString(), currency).Match(false, m => m == money).ToProperty();
+            return Money.ParseOrNone(money.ToString(), money.Currency).Match(false, m => m == money).ToProperty();
         }
 
         [Fact]
@@ -258,10 +267,10 @@ namespace Funcky.Test
                 .Default
                 .WithTargetCurrency(Currency.CHF);
 
-            var precision05 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SmallestCoin)).Build());
+            var precision05 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SwissMoney.SmallestCoin)).Build());
             var precision002 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
 
-            Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3, SmallestCoin).First().Evaluate().RoundingStrategy);
+            Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3, SwissMoney.SmallestCoin).First().Evaluate().RoundingStrategy);
             Assert.Equal(precision002.RoundingStrategy, precision002.Distribute(3, 0.002m).First().Evaluate().RoundingStrategy);
         }
 
@@ -463,19 +472,23 @@ namespace Funcky.Test
             Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
         }
 
-        private static decimal ValidAmount(decimal amount, Currency currency)
-            => decimal.Round(amount, currency.MinorUnitDigits);
+        private static List<decimal> Distributed(SwissMoney someMoney, int numberOfParts)
+            => someMoney
+                .Get
+                .Distribute(numberOfParts)
+                .Select(e => e.Evaluate(SwissRounding).Amount)
+                .ToList();
 
-        private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed, decimal first)
-            => distributed.All(AtMostOneUnitLess(first, SmallestCoin));
+        private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed)
+            => distributed.All(AtMostOneDistributionUnitLess(distributed.First()));
 
-        private static Func<decimal, bool> AtMostOneUnitLess(decimal reference, decimal unit)
-            => amount => amount == reference || amount == reference - unit;
+        private static Func<decimal, bool> AtMostOneDistributionUnitLess(decimal reference)
+            => amount => Math.Abs(amount - reference) <= SwissMoney.SmallestCoin;
 
-        private static bool TheNumberOfPartsIsCorrect(PositiveInt numberOfParts, ICollection distributed)
-            => distributed.Count == numberOfParts.Get;
+        private static bool TheNumberOfPartsIsCorrect(int numberOfParts, ICollection distributed)
+            => distributed.Count == numberOfParts;
 
-        private static bool TheSumOfThePartsIsEqualToTheTotal(IEnumerable<decimal> distributed, decimal validAmount)
+        private static bool TheSumOfThePartsIsEqualToTheTotal(decimal validAmount, IEnumerable<decimal> distributed)
             => distributed.Sum() == validAmount;
 
         private static IMoneyExpression ComplexExpression()
