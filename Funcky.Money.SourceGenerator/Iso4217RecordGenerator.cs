@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Funcky.Extensions;
+using Funcky.Monads;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using static System.Environment;
@@ -131,7 +133,7 @@ namespace Funcky.Money.SourceGenerator
                     .Where(f => f is not null)
                     .SelectMany(text => CreateXmlDocumentFromString(text!.ToString())
                         .SelectNodesAsEnumerable("//CcyNtry/Ccy/..")
-                        .Select(ReadIso4217RecordFromNode))
+                        .WhereSelect(ReadIso4217RecordFromNode))
                     .ToImmutableDictionary(r => r.AlphabeticCurrencyCode)
                     .Select(r => r.Value);
 
@@ -142,13 +144,33 @@ namespace Funcky.Money.SourceGenerator
             return document;
         }
 
-        private static Iso4217Record ReadIso4217RecordFromNode(XmlNode node)
-        {
-            var currencyName = node.SelectSingleNode(CurrencyNameNode)?.InnerText;
-            var alphabeticCurrencyName = node.SelectSingleNode(AlphabeticCurrencyCodeNode)?.InnerText;
-            var numericCurrencyCode = int.Parse(node.SelectSingleNode(NumericCurrencyCodeNode)?.InnerText);
-            var minorUnit = int.TryParse(node.SelectSingleNode(MinorUnitNode)?.InnerText, out var minorUnitTemp) ? (int?)minorUnitTemp : null;
-            return new Iso4217Record(currencyName, alphabeticCurrencyName, numericCurrencyCode, minorUnit);
-        }
+        private static Option<Iso4217Record> ReadIso4217RecordFromNode(XmlNode node)
+            => from currencyName in CurrencyName(node)
+               from alphabeticCurrencyName in AlphabeticCurrencyName(node)
+               from numericCurrencyCode in NumericCurrencyCode(node)
+               select new Iso4217Record(currencyName, alphabeticCurrencyName, numericCurrencyCode, MinorUnit(node));
+
+        private static Option<string> CurrencyName(XmlNode node)
+            => Option
+                .FromNullable(node.SelectSingleNode(CurrencyNameNode))
+                .AndThen(n => n.InnerText);
+
+        private static Option<string> AlphabeticCurrencyName(XmlNode node)
+            => Option
+                .FromNullable(node.SelectSingleNode(AlphabeticCurrencyCodeNode))
+                .AndThen(n => n.InnerText);
+
+        private static Option<int> NumericCurrencyCode(XmlNode node)
+            => Option
+                .FromNullable(node.SelectSingleNode(NumericCurrencyCodeNode))
+                .AndThen(n => n.InnerText)
+                .AndThen(s => s.TryParseInt());
+
+        private static int MinorUnit(XmlNode node)
+            => Option
+                .FromNullable(node.SelectSingleNode(MinorUnitNode))
+                .AndThen(n => n.InnerText)
+                .AndThen(s => s.TryParseInt())
+                .GetOrElse(0);
     }
 }
