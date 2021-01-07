@@ -151,26 +151,23 @@ namespace Funcky.Money.SourceGenerator
                select new Iso4217Record(currencyName, alphabeticCurrencyName, numericCurrencyCode, MinorUnit(node));
 
         private static Option<string> CurrencyName(XmlNode node)
-            => Option
-                .FromNullable(node.SelectSingleNode(CurrencyNameNode))
-                .AndThen(n => n.InnerText);
+            => GetInnerText(node, CurrencyNameNode);
 
         private static Option<string> AlphabeticCurrencyName(XmlNode node)
-            => Option
-                .FromNullable(node.SelectSingleNode(AlphabeticCurrencyCodeNode))
-                .AndThen(n => n.InnerText);
+            => GetInnerText(node, AlphabeticCurrencyCodeNode);
 
         private static Option<int> NumericCurrencyCode(XmlNode node)
-            => Option
-                .FromNullable(node.SelectSingleNode(NumericCurrencyCodeNode))
-                .AndThen(n => n.InnerText)
+            => GetInnerText(node, NumericCurrencyCodeNode)
                 .AndThen(s => s.TryParseInt());
 
         private static int MinorUnit(XmlNode node)
-            => Option
-                .FromNullable(node.SelectSingleNode(MinorUnitNode))
-                .AndThen(n => n.InnerText)
+            => GetInnerText(node, MinorUnitNode)
                 .AndThen(s => s.TryParseInt())
                 .GetOrElse(0);
+
+        private static Option<string> GetInnerText(XmlNode node, string nodeName)
+            => Option
+                .FromNullable(node.SelectSingleNode(nodeName))
+                .AndThen(n => n.InnerText);
     }
 }
