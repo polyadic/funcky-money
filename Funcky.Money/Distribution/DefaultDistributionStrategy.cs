@@ -65,7 +65,7 @@ namespace Funcky
             => money.Amount / DistributionTotal(distribution) * distribution.Factors[index];
 
         private decimal SignedPrecision(MoneyDistribution distribution, Money money)
-            => Precision(distribution, money).WithSignFrom(money.Amount);
+            => Precision(distribution, money).CopySign(money.Amount);
 
         // Order of evaluation: Distribution > Context Distribution > Context Currency > Money Currency
         private decimal Precision(MoneyDistribution distribution, Money money)
