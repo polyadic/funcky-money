@@ -3,10 +3,7 @@ namespace Funcky
     internal sealed class MoneyDistributionPart : IMoneyExpression
     {
         public MoneyDistributionPart(MoneyDistribution distribution, int index)
-        {
-            Distribution = distribution;
-            Index = index;
-        }
+            => (Distribution, Index) = (distribution, index);
 
         public MoneyDistribution Distribution { get; }
 

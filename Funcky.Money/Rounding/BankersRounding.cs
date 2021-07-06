@@ -9,19 +9,9 @@ namespace Funcky
         private readonly decimal _precision;
 
         public BankersRounding(decimal precision)
-        {
-            if (precision <= 0m)
-            {
-                throw new InvalidPrecisionException();
-            }
+            => _precision = ValidatePrecision(precision);
 
-            _precision = precision;
-        }
-
-        public BankersRounding(Currency currency)
-        {
-            _precision = Power.OfATenth(currency.MinorUnitDigits);
-        }
+        public BankersRounding(Currency currency) => _precision = Power.OfATenth(currency.MinorUnitDigits);
 
         public bool Equals(IRoundingStrategy? roundingStrategy)
             => roundingStrategy is BankersRounding bankersRounding
@@ -32,5 +22,10 @@ namespace Funcky
 
         public override string ToString()
             => $"BankersRounding {{ Precision: {_precision} }}";
+
+        private static decimal ValidatePrecision(decimal precision)
+            => precision > 0m
+                ? precision
+                : throw new InvalidPrecisionException();
     }
 }

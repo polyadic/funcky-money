@@ -13,9 +13,7 @@ namespace Funcky
         private Option<Currency> _emptyCurrency;
 
         public MoneyBag(Money money)
-        {
-            Add(money);
-        }
+            => Add(money);
 
         public MoneyBag Merge(MoneyBag moneyBag)
         {

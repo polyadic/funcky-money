@@ -3,10 +3,7 @@ namespace Funcky
     internal sealed record MoneySum : IMoneyExpression
     {
         public MoneySum(IMoneyExpression leftMoneyExpression, IMoneyExpression rightMoneyExpression)
-        {
-            Left = leftMoneyExpression;
-            Right = rightMoneyExpression;
-        }
+            => (Left, Right) = (leftMoneyExpression, rightMoneyExpression);
 
         public IMoneyExpression Left { get; }
 

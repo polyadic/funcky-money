@@ -8,10 +8,7 @@ namespace Funcky
         private readonly Option<MoneyEvaluationContext> _context;
 
         public EvaluationVisitor(IDistributionStrategy distributionStrategy, Option<MoneyEvaluationContext> context)
-        {
-            _distributionStrategy = distributionStrategy;
-            _context = context;
-        }
+            => (_distributionStrategy, _context) = (distributionStrategy, context);
 
         public MoneyBag Visit(Money money)
            => new(money);

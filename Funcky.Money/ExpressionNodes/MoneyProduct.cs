@@ -3,10 +3,7 @@ namespace Funcky
     internal sealed record MoneyProduct : IMoneyExpression
     {
         public MoneyProduct(IMoneyExpression moneyExpression, decimal factor)
-        {
-            Expression = moneyExpression;
-            Factor = factor;
-        }
+            => (Expression, Factor) = (moneyExpression, factor);
 
         public IMoneyExpression Expression { get; }
 

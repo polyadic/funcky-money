@@ -12,18 +12,12 @@ namespace Funcky
         public static readonly Money Zero = new(0m);
 
         public Money(decimal amount, Option<Currency> currency = default)
-        {
-            Amount = amount;
-            Currency = SelectCurrency(currency);
-            RoundingStrategy = Funcky.RoundingStrategy.Default(Currency);
-        }
+            => (Amount, Currency, RoundingStrategy)
+                = (amount, SelectCurrency(currency), Funcky.RoundingStrategy.Default(Currency));
 
         public Money(decimal amount, MoneyEvaluationContext context)
-        {
-            Amount = amount;
-            Currency = context.TargetCurrency;
-            RoundingStrategy = context.RoundingStrategy;
-        }
+            => (Amount, Currency, RoundingStrategy)
+                = (amount, context.TargetCurrency, context.RoundingStrategy);
 
         public Money(int amount, Option<Currency> currency = default)
             : this((decimal)amount, currency)
@@ -77,12 +71,13 @@ namespace Funcky
                => RemoveIsoCurrency(money).ParseDecimalOrNone();
 
         private static string RemoveIsoCurrency(string money)
-        {
-            var parts = money.Split(' ');
-            return parts.Length == 2 && parts[1].Length == 3
+            => RemoveIsoCurrencyPart(money.Split(' '))
+                .GetOrElse(money);
+
+        private static Option<string> RemoveIsoCurrencyPart(string[] parts)
+            => parts.Length == 2 && parts[1].Length == 3
                 ? parts[0]
-                : money;
-        }
+                : Option<string>.None();
 
         private static Func<IFormatProvider, Option<decimal>> ParseWithFormatProvider(string money)
             => formatProvider

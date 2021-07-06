@@ -9,14 +9,10 @@ namespace Funcky
         internal static readonly DefaultBank Empty = new();
 
         public DefaultBank(ImmutableDictionary<(Currency Source, Currency Target), decimal> exchangeRates)
-        {
-            ExchangeRates = exchangeRates;
-        }
+            => ExchangeRates = exchangeRates;
 
         private DefaultBank()
-        {
-            ExchangeRates = ImmutableDictionary<(Currency Source, Currency Target), decimal>.Empty;
-        }
+            => ExchangeRates = ImmutableDictionary<(Currency Source, Currency Target), decimal>.Empty;
 
         public ImmutableDictionary<(Currency Source, Currency Target), decimal> ExchangeRates { get; }
 

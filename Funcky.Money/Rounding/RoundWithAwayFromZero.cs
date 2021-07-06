@@ -7,19 +7,10 @@ namespace Funcky
     internal sealed record RoundWithAwayFromZero : IRoundingStrategy
     {
         public RoundWithAwayFromZero(decimal precision)
-        {
-            if (precision <= 0m)
-            {
-                throw new InvalidPrecisionException();
-            }
-
-            Precision = precision;
-        }
+            => Precision = ValidatePrecision(precision);
 
         public RoundWithAwayFromZero(Currency currency)
-        {
-            Precision = Power.OfATenth(currency.MinorUnitDigits);
-        }
+            => Precision = Power.OfATenth(currency.MinorUnitDigits);
 
         public decimal Precision { get; }
 
@@ -32,5 +23,10 @@ namespace Funcky
         public bool Equals(IRoundingStrategy? roundingStrategy)
             => roundingStrategy is RoundWithAwayFromZero roundWithAwayFromZero
                && Equals(roundWithAwayFromZero);
+
+        private decimal ValidatePrecision(decimal precision)
+            => precision > 0m
+                ? precision
+                : throw new InvalidPrecisionException();
     }
 }

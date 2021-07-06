@@ -44,20 +44,12 @@ namespace Funcky
             private readonly IBank _bank;
 
             private Builder()
-            {
-                _targetCurrency = default;
-                _roundingStrategy = default;
-                _distributionUnit = default;
-                _bank = DefaultBank.Empty;
-            }
+                => (_targetCurrency, _distributionUnit, _roundingStrategy, _bank)
+                    = (default, default, default, DefaultBank.Empty);
 
             private Builder(Option<Currency> currency, Option<decimal> distributionUnit, Option<IRoundingStrategy> roundingStrategy, IBank bank)
-            {
-                _targetCurrency = currency;
-                _distributionUnit = distributionUnit;
-                _roundingStrategy = roundingStrategy;
-                _bank = bank;
-            }
+                => (_targetCurrency, _distributionUnit, _roundingStrategy, _bank)
+                    = (currency, distributionUnit, roundingStrategy, bank);
 
             public MoneyEvaluationContext Build()
             {

@@ -25,7 +25,9 @@ namespace Funcky
 
         private static IEnumerable<CultureInfo> AllCultures()
             => CultureInfo.GetCultures(CultureTypes.AllCultures)
-                .Where(x => !x.Equals(CultureInfo.InvariantCulture))
-                .Where(x => !x.IsNeutralCulture);
+                .Where(ValidCurrencyCulture);
+
+        private static bool ValidCurrencyCulture(CultureInfo culture)
+            => !(culture.Equals(CultureInfo.InvariantCulture) || culture.IsNeutralCulture);
     }
 }
