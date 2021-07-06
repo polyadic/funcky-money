@@ -158,11 +158,11 @@ namespace Funcky.Money.SourceGenerator
 
         private static Option<int> NumericCurrencyCode(XmlNode node)
             => GetInnerText(node, NumericCurrencyCodeNode)
-                .AndThen(s => s.TryParseInt());
+                .AndThen(s => s.ParseIntOrNone());
 
         private static int MinorUnit(XmlNode node)
             => GetInnerText(node, MinorUnitNode)
-                .AndThen(s => s.TryParseInt())
+                .AndThen(s => s.ParseIntOrNone())
                 .GetOrElse(0);
 
         private static Option<string> GetInnerText(XmlNode node, string nodeName)

@@ -74,7 +74,7 @@ namespace Funcky
 
         private static Func<Option<decimal>> ParseManually(string money)
             => ()
-               => RemoveIsoCurrency(money).TryParseDecimal();
+               => RemoveIsoCurrency(money).ParseDecimalOrNone();
 
         private static string RemoveIsoCurrency(string money)
         {
@@ -86,7 +86,7 @@ namespace Funcky
 
         private static Func<IFormatProvider, Option<decimal>> ParseWithFormatProvider(string money)
             => formatProvider
-                => money.TryParseDecimal(NumberStyles.Currency, formatProvider);
+                => money.ParseDecimalOrNone(NumberStyles.Currency, formatProvider);
 
         public override string ToString()
             => CurrencyCulture.FormatProviderFromCurrency(Currency).Match(
