@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Funcky;
 
 internal class ToHumanReadableVisitor : IMoneyExpressionVisitor<string>

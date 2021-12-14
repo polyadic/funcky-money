@@ -5,6 +5,7 @@
 		<PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/polyadic/funcky</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/polyadic/funcky</RepositoryUrl>
+		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Messerli.CodeStyle" PrivateAssets="all" />
