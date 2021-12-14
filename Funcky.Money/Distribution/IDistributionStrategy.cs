@@ -1,7 +1,6 @@
-namespace Funcky
+namespace Funcky;
+
+internal interface IDistributionStrategy
 {
-    internal interface IDistributionStrategy
-    {
-        Money Distribute(MoneyDistributionPart part, Money total);
-    }
+    Money Distribute(MoneyDistributionPart part, Money total);
 }

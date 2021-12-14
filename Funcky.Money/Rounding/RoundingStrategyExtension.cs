@@ -1,8 +1,7 @@
-namespace Funcky
+namespace Funcky;
+
+internal static class RoundingStrategyExtension
 {
-    internal static class RoundingStrategyExtension
-    {
-        public static bool IsSameAfterRounding(this IRoundingStrategy roundingStrategy, decimal amount)
-            => roundingStrategy.Round(amount) == amount;
-    }
+    public static bool IsSameAfterRounding(this IRoundingStrategy roundingStrategy, decimal amount)
+        => roundingStrategy.Round(amount) == amount;
 }

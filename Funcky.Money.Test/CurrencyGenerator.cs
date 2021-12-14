@@ -1,14 +1,13 @@
 using FsCheck;
 
-namespace Funcky.Test
+namespace Funcky.Test;
+
+internal class CurrencyGenerator
 {
-    internal class CurrencyGenerator
+    public static Arbitrary<Currency> Generate()
     {
-        public static Arbitrary<Currency> Generate()
-        {
-            return Arb.From(
-                from int id in Gen.Choose(0, Currency.AllCurrencies.Count - 1)
-                select Currency.AllCurrencies[id]);
-        }
+        return Arb.From(
+            from int id in Gen.Choose(0, Currency.AllCurrencies.Count - 1)
+            select Currency.AllCurrencies[id]);
     }
 }
