@@ -1,8 +1,7 @@
-namespace Funcky
+namespace Funcky;
+
+public static class MoneySubtractionExtension
 {
-    public static class MoneySubtractionExtension
-    {
-        public static IMoneyExpression Subtract(this IMoneyExpression minuend, IMoneyExpression subtrahend)
-            => new MoneySum(minuend, new MoneyProduct(subtrahend, -1));
-    }
+    public static IMoneyExpression Subtract(this IMoneyExpression minuend, IMoneyExpression subtrahend)
+        => new MoneySum(minuend, new MoneyProduct(subtrahend, -1));
 }
