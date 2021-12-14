@@ -1,9 +1,8 @@
 using System;
 
-namespace Funcky
+namespace Funcky;
+
+public interface IRoundingStrategy : IEquatable<IRoundingStrategy>
 {
-    public interface IRoundingStrategy : IEquatable<IRoundingStrategy>
-    {
-        public decimal Round(decimal value);
-    }
+    public decimal Round(decimal value);
 }
