@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace Funcky;
 
 public static class ToHumanReadableExtension

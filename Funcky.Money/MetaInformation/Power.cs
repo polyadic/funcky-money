@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace Funcky;
 
 internal static class Power

@@ -1,4 +1,3 @@
-using System.Linq;
 using Funcky.Extensions;
 using Funcky.Monads;
 

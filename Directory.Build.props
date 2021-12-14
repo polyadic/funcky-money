@@ -9,4 +9,7 @@
 	<ItemGroup>
 		<PackageReference Include="Messerli.CodeStyle" PrivateAssets="all" />
 	</ItemGroup>
+	<PropertyGroup Label="C# Settings">
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 </Project>

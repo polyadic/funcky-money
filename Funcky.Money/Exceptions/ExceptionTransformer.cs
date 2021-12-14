@@ -1,5 +1,3 @@
-using System;
-
 namespace Funcky;
 
 internal static class ExceptionTransformer<TException>
