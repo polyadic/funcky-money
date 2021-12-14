@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30711.63
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Funcky.Money", "Funcky.Money\Funcky.Money.csproj", "{0B14CD14-3B9E-4CF1-8F0F-8255E5061E9D}"
 EndProject
@@ -20,11 +20,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Config", "Build Config", "{7C94C568-EB85-4962-947A-A75E0C594193}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		FrameworkFeatureConstants.props = FrameworkFeatureConstants.props
 		global.json = global.json
 		Packages.props = Packages.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Funcky.Money.SourceGenerator", "Funcky.Money.SourceGenerator\Funcky.Money.SourceGenerator.csproj", "{A5B8FAE1-86B6-4868-87DF-F7B20C1C04F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Funcky.Money.SourceGenerator", "Funcky.Money.SourceGenerator\Funcky.Money.SourceGenerator.csproj", "{A5B8FAE1-86B6-4868-87DF-F7B20C1C04F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
