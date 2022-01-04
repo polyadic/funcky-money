@@ -158,15 +158,18 @@ public sealed class Iso4217RecordGenerator : ISourceGenerator
 
     private static Option<int> NumericCurrencyCode(XmlNode node)
         => GetInnerText(node, NumericCurrencyCodeNode)
-            .AndThen(s => s.TryParseInt());
+            .AndThen(ToInt);
 
     private static int MinorUnit(XmlNode node)
         => GetInnerText(node, MinorUnitNode)
-            .AndThen(s => s.TryParseInt())
+            .AndThen(ToInt)
             .GetOrElse(0);
 
     private static Option<string> GetInnerText(XmlNode node, string nodeName)
         => Option
             .FromNullable(node.SelectSingleNode(nodeName))
             .AndThen(n => n.InnerText);
+
+    private static Option<int> ToInt(string s)
+        => s.ParseIntOrNone();
 }

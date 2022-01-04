@@ -21,7 +21,7 @@ internal sealed class DefaultBank : IBank
 
     public decimal ExchangeRate(Currency source, Currency target)
         => ExchangeRates
-            .TryGetValue(key: (source, target))
+            .GetValueOrNone(key: (source, target))
             .GetOrElse(() => throw new NotSupportedException($"No exchange rate for {source} => {target}"));
 
     internal DefaultBank AddExchangeRate(Currency source, Currency target, decimal sellRate)
