@@ -1,7 +1,10 @@
+using Funcky.Extensions;
+
 namespace Funcky;
 
 internal class ToHumanReadableVisitor : IMoneyExpressionVisitor<string>
 {
+    private const string DistributionSeparator = ", ";
     private static readonly Lazy<ToHumanReadableVisitor> LazyInstance = new(() => new());
 
     public static ToHumanReadableVisitor Instance
@@ -17,11 +20,8 @@ internal class ToHumanReadableVisitor : IMoneyExpressionVisitor<string>
         => $"({product.Factor} * {Accept(product.Expression)})";
 
     public string Visit(MoneyDistributionPart part)
-        => $"{Accept(part.Distribution.Expression)}.Distribute({FormatFactors(part.Distribution.Factors)})[{part.Index}]";
+        => $"{Accept(part.Distribution.Expression)}.Distribute({part.Distribution.Factors.JoinToString(DistributionSeparator)})[{part.Index}]";
 
     private string Accept(IMoneyExpression expression)
         => expression.Accept(this);
-
-    private string FormatFactors(IEnumerable<int> factors)
-        => string.Join(", ", factors);
 }
