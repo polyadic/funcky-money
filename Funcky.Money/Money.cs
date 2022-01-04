@@ -38,38 +38,6 @@ public sealed partial record Money : IMoneyExpression
     public bool IsZero
         => Amount == 0m;
 
-    public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
-        => CurrencyCulture
-            .FormatProviderFromCurrency(SelectCurrency(currency))
-            .Match(
-                none: ParseManually(money),
-                some: ParseWithFormatProvider(money))
-            .AndThen(amount => new Money(amount, SelectCurrency(currency)));
-
-    private static Func<Option<decimal>> ParseManually(string money)
-        => ()
-           => RemoveIsoCurrency(money).TryParseDecimal();
-
-    private static string RemoveIsoCurrency(string money)
-    {
-        var parts = money.Split(' ');
-        return parts.Length == 2 && parts[1].Length == 3
-            ? parts[0]
-            : money;
-    }
-
-    private static Func<IFormatProvider, Option<decimal>> ParseWithFormatProvider(string money)
-        => formatProvider
-            => money.TryParseDecimal(NumberStyles.Currency, formatProvider);
-
-    public override string ToString()
-        => CurrencyCulture.FormatProviderFromCurrency(Currency).Match(
-            none: () => string.Format($"{{0:N{Currency.MinorUnitDigits}}} {{1}}", Amount, Currency.AlphabeticCurrencyCode),
-            some: formatProvider => string.Format(formatProvider, $"{{0:C{Currency.MinorUnitDigits}}}", Amount));
-
-    TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
-        => visitor.Visit(this);
-
     // These operators supports the operators on IMoneyExpression, because Money + Money or Money * factor does not work otherwise without a cast.
     public static IMoneyExpression operator +(Money augend, IMoneyExpression addend)
         => augend.Add(addend);
@@ -95,4 +63,35 @@ public sealed partial record Money : IMoneyExpression
     private static Currency SelectCurrency(Option<Currency> currency)
         => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
 
+    public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
+        => CurrencyCulture
+            .FormatProviderFromCurrency(SelectCurrency(currency))
+            .Match(
+                none: ParseManually(money),
+                some: ParseWithFormatProvider(money))
+            .AndThen(amount => new Money(amount, SelectCurrency(currency)));
+
+    private static Func<Option<decimal>> ParseManually(string money)
+        => ()
+           => RemoveIsoCurrency(money).ParseDecimalOrNone();
+
+    private static string RemoveIsoCurrency(string money)
+    {
+        var parts = money.Split(' ');
+        return parts.Length == 2 && parts[1].Length == 3
+            ? parts[0]
+            : money;
+    }
+
+    private static Func<IFormatProvider, Option<decimal>> ParseWithFormatProvider(string money)
+        => formatProvider
+            => money.ParseDecimalOrNone(NumberStyles.Currency, formatProvider);
+
+    public override string ToString()
+        => CurrencyCulture.FormatProviderFromCurrency(Currency).Match(
+            none: () => string.Format($"{{0:N{Currency.MinorUnitDigits}}} {{1}}", Amount, Currency.AlphabeticCurrencyCode),
+            some: formatProvider => string.Format(formatProvider, $"{{0:C{Currency.MinorUnitDigits}}}", Amount));
+
+    TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
+        => visitor.Visit(this);
 }

@@ -2,5 +2,5 @@ namespace Funcky;
 
 public interface IRoundingStrategy : IEquatable<IRoundingStrategy>
 {
-    public decimal Round(decimal value);
+    decimal Round(decimal value);
 }
