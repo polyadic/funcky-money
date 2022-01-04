@@ -2,6 +2,6 @@ namespace Funcky;
 
 public static class MoneyDivisionExtension
 {
-    public static IMoneyExpression Divide(this IMoneyExpression dividend, decimal divisor)
-        => new MoneyProduct(dividend, 1.0m / divisor);
+    public static MoneyExpression Divide(this MoneyExpression dividend, decimal divisor)
+        => new MoneyExpression.MoneyProduct(dividend, 1.0m / divisor);
 }

@@ -1,7 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using FsCheck;
 using FsCheck.Xunit;
 using Funcky.Xunit;
@@ -24,15 +21,15 @@ public sealed class MoneyTest
             .Build();
 
     [Property]
-    public Property EvaluatingAMoneyInTheSameCurrencyDoesReturnTheSameAmount(Money money)
+    public Property EvaluatingAMoneyInTheSameCurrencyDoesReturnTheSameAmount(MoneyExpression.Money money)
     {
         return (money.Amount == money.Evaluate().Amount).ToProperty();
     }
 
     [Property]
-    public Property TheSumOfTwoMoneysIsCommutative(Money money1, Money money2)
+    public Property TheSumOfTwoMoneysIsCommutative(MoneyExpression.Money money1, MoneyExpression.Money money2)
     {
-        money2 = new Money(money2.Amount, money1.Currency);
+        money2 = new MoneyExpression.Money(money2.Amount, money1.Currency);
 
         return (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
     }
@@ -40,8 +37,8 @@ public sealed class MoneyTest
     [Fact]
     public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAnEvaluationContext()
     {
-        var fiveFrancs = new Money(5, Currency.CHF);
-        var tenDollars = new Money(10, Currency.USD);
+        var fiveFrancs = new MoneyExpression.Money(5, Currency.CHF);
+        var tenDollars = new MoneyExpression.Money(10, Currency.USD);
 
         var sum = fiveFrancs.Add(tenDollars);
 
@@ -58,7 +55,7 @@ public sealed class MoneyTest
     }
 
     [Property]
-    public Property MoneyCanBeMultipliedByConstantsFactors(Money someMoney, decimal multiplier)
+    public Property MoneyCanBeMultipliedByConstantsFactors(MoneyExpression.Money someMoney, decimal multiplier)
     {
         var result = decimal.Round(someMoney.Amount * multiplier, someMoney.Currency.MinorUnitDigits)
                      == someMoney.Multiply(multiplier).Evaluate().Amount;
@@ -145,9 +142,9 @@ public sealed class MoneyTest
     [Fact]
     public void WeCanEvaluateASumOfDifferentCurrenciesWithAContextWhichDefinesExchangeRates()
     {
-        var fiveFrancs = new Money(5, Currency.CHF);
-        var tenDollars = new Money(10, Currency.USD);
-        var fiveEuros = new Money(5, Currency.EUR);
+        var fiveFrancs = Money.Create(5, Currency.CHF);
+        var tenDollars = Money.Create(10, Currency.USD);
+        var fiveEuros = Money.Create(5, Currency.EUR);
 
         var sum = fiveFrancs.Add(tenDollars).Add(fiveEuros).Multiply(2);
 
@@ -176,7 +173,7 @@ public sealed class MoneyTest
     }
 
     [Property]
-    public Property TheMoneyNeutralElementWorksWithAnyCurrency(Money money)
+    public Property TheMoneyNeutralElementWorksWithAnyCurrency(MoneyExpression.Money money)
     {
         return (money == (money + Money.Zero).Evaluate()
                 && (money == (Money.Zero + money).Evaluate())).ToProperty().When(!money.IsZero);
@@ -185,7 +182,7 @@ public sealed class MoneyTest
     [Property]
     public Property InASumOfMultipleZerosWithDifferentCurrenciesTheEvaluationHasTheSameCurrencyAsTheFirstMoneyInTheExpression(Currency c1, Currency c2, Currency c3)
     {
-        var sum = new Money(0m, c1) + new Money(0m, c2) + new Money(0m, c3) + new Money(0m, c2);
+        var sum = Money.Create(0m, c1) + Money.Create(0m, c2) + Money.Create(0m, c3) + Money.Create(0m, c2);
 
         return (sum.Evaluate().Currency == c1).ToProperty();
     }
@@ -204,13 +201,13 @@ public sealed class MoneyTest
     public void MoneyParsesCorrectlyFromString()
     {
         var r1 = FunctionalAssert.IsSome(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
-        Assert.Equal(new Money(-1000, Currency.CHF), r1);
+        Assert.Equal(Money.Create(-1000, Currency.CHF), r1);
 
         var r2 = FunctionalAssert.IsSome(Money.ParseOrNone("-$1,000.00", Currency.USD));
-        Assert.Equal(new Money(-1000, Currency.USD), r2);
+        Assert.Equal(Money.Create(-1000, Currency.USD), r2);
 
         var r3 = FunctionalAssert.IsSome(Money.ParseOrNone("1000", Currency.CHF));
-        Assert.Equal(new Money(1000, Currency.CHF), r3);
+        Assert.Equal(Money.Create(1000, Currency.CHF), r3);
     }
 
     [Fact]
@@ -224,11 +221,11 @@ public sealed class MoneyTest
         Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
 
         var money = FunctionalAssert.IsSome(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
-        Assert.Equal(new Money(9585, Currency.XAU), money);
+        Assert.Equal(Money.Create(9585, Currency.XAU), money);
     }
 
     [Property]
-    public Property WeCanParseTheStringsWeGenerate(Money money)
+    public Property WeCanParseTheStringsWeGenerate(MoneyExpression.Money money)
     {
         return Money.ParseOrNone(money.ToString(), money.Currency).Match(false, m => m == money).ToProperty();
     }
@@ -236,8 +233,8 @@ public sealed class MoneyTest
     [Fact]
     public void ThePrecisionCanBeSetToSomethingOtherThanAPowerOfTen()
     {
-        var precision05 = new Money(1m, SwissRounding);
-        var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
+        var precision05 = Money.Create(1m, SwissRounding);
+        var precision002 = Money.Create(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
 
         Assert.Collection(
             precision05.Distribute(3, 0.05m).Select(e => e.Evaluate().Amount),
@@ -251,7 +248,7 @@ public sealed class MoneyTest
             item => Assert.Equal(0.334m, item),
             item => Assert.Equal(0.332m, item));
 
-        var francs = new Money(0.10m, SwissRounding);
+        var francs = Money.Create(0.10m, SwissRounding);
         Assert.Collection(
             francs.Distribute(3, 0.05m).Select(e => e.Evaluate().Amount),
             item => Assert.Equal(0.05m, item),
@@ -267,8 +264,8 @@ public sealed class MoneyTest
             .Default
             .WithTargetCurrency(Currency.CHF);
 
-        var precision05 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SwissMoney.SmallestCoin)).Build());
-        var precision002 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
+        var precision05 = Money.Create(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SwissMoney.SmallestCoin)).Build());
+        var precision002 = Money.Create(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
 
         Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3, SwissMoney.SmallestCoin).First().Evaluate().RoundingStrategy);
         Assert.Equal(precision002.RoundingStrategy, precision002.Distribute(3, 0.002m).First().Evaluate().RoundingStrategy);
@@ -277,7 +274,7 @@ public sealed class MoneyTest
     [Fact]
     public void DistributionMustDistributeExactlyTheGivenAmount()
     {
-        var francs = new Money(0.08m, SwissRounding);
+        var francs = Money.Create(0.08m, SwissRounding);
 
         Assert.Throws<ImpossibleDistributionException>(()
             => francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
@@ -286,7 +283,7 @@ public sealed class MoneyTest
     [Fact]
     public void DefaultRoundingStrategyIsBankersRounding()
     {
-        var francs = new Money(1m, SwissRounding);
+        var francs = Money.Create(1m, SwissRounding);
         var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF);
 
         Assert.Equal(new BankersRounding(0.05m), francs.RoundingStrategy);
@@ -296,9 +293,9 @@ public sealed class MoneyTest
     [Fact]
     public void WeCanDelegateTheExchangeRatesToABank()
     {
-        var fiveFrancs = new Money(5, Currency.CHF);
-        var tenDollars = new Money(10, Currency.USD);
-        var fiveEuros = new Money(5, Currency.EUR);
+        var fiveFrancs = Money.Create(5, Currency.CHF);
+        var tenDollars = Money.Create(10, Currency.USD);
+        var fiveEuros = Money.Create(5, Currency.EUR);
 
         var sum = (fiveFrancs + tenDollars + fiveEuros) * 1.5m;
 
@@ -315,7 +312,7 @@ public sealed class MoneyTest
     [Fact]
     public void EvaluationOnZeroMoniesWorks()
     {
-        var sum = (Money.Zero + Money.Zero) * 1.5m;
+        var sum = (Money.Zero + MoneyExpression.Money.Zero) * 1.5m;
 
         var context = MoneyEvaluationContext
             .Builder
@@ -341,8 +338,8 @@ public sealed class MoneyTest
         var normalFrancs = francs.WithRounding(RoundingStrategy.BankersRounding(0.05m));
         var preciseFrancs = francs.WithRounding(RoundingStrategy.BankersRounding(0.001m));
 
-        var two = new Money(2, normalFrancs.Build());
-        var oneHalf = new Money(0.5m, preciseFrancs.Build());
+        var two = Money.Create(2, normalFrancs.Build());
+        var oneHalf = Money.Create(0.5m, preciseFrancs.Build());
         var sum = (two + oneHalf) * 0.01m;
 
         Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
@@ -360,8 +357,8 @@ public sealed class MoneyTest
         var normalFrancs = francs.WithRounding(RoundingStrategy.RoundWithAwayFromZero(0.05m));
         var preciseFrancs = francs.WithRounding(RoundingStrategy.BankersRounding(0.001m));
 
-        var two = new Money(2, normalFrancs.Build());
-        var oneHalf = new Money(0.5m, preciseFrancs.Build());
+        var two = Money.Create(2, normalFrancs.Build());
+        var oneHalf = Money.Create(0.5m, preciseFrancs.Build());
         var sum = (two + oneHalf) * 0.05m;
 
         Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
@@ -371,7 +368,7 @@ public sealed class MoneyTest
     [Fact]
     public void RoundingIsOnlyDoneAtTheEndOfTheEvaluation()
     {
-        var francs = new Money(0.01m, SwissRounding);
+        var francs = Money.Create(0.01m, SwissRounding);
         var noRounding = MoneyEvaluationContext
             .Builder
             .Default
@@ -387,7 +384,7 @@ public sealed class MoneyTest
     [Fact]
     public void AllNecessaryOperatorsAreDefined()
     {
-        var francs = new Money(0.50m, SwissRounding);
+        var francs = Money.Create(0.50m, SwissRounding);
 
         var allOperators = -((((francs * 2) + francs) / 2) - +(francs * 2));
 
@@ -421,7 +418,7 @@ public sealed class MoneyTest
     {
         using var cultureSwitch = new TemporaryCultureSwitch(culture);
 
-        var money = new Money(5);
+        var money = Money.Create(5);
 
         Assert.Equal(currency, money.Currency);
     }
@@ -441,7 +438,7 @@ public sealed class MoneyTest
     {
         using var cultureSwitch = new TemporaryCultureSwitch("en-UK");
 
-        Assert.Throws<NotSupportedException>(() => new Money(5));
+        Assert.Throws<NotSupportedException>(() => Money.Create(5));
     }
 
     [Fact]
@@ -491,11 +488,11 @@ public sealed class MoneyTest
     private static bool TheSumOfThePartsIsEqualToTheTotal(decimal validAmount, IEnumerable<decimal> distributed)
         => distributed.Sum() == validAmount;
 
-    private static IMoneyExpression ComplexExpression()
+    private static MoneyExpression ComplexExpression()
     {
-        var v1 = new Money(0.50m, SwissRounding);
-        var v2 = new Money(7m, SwissRounding);
-        var v3 = new Money(2.50m, SwissRounding);
+        var v1 = new MoneyExpression.Money(0.50m, SwissRounding);
+        var v2 = new MoneyExpression.Money(7m, SwissRounding);
+        var v3 = new MoneyExpression.Money(2.50m, SwissRounding);
 
         return v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1))
             .Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));

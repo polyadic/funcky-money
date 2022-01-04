@@ -121,8 +121,8 @@ public sealed class Iso4217RecordGenerator : ISourceGenerator
     {
         var identifier = Identifier(record.AlphabeticCurrencyCode);
 
-        return $"{Indent}{Indent}/// <summary>Creates a new <see cref=\"Money\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>{NewLine}" +
-            $"{Indent}{Indent}public static Money {identifier}(decimal amount){NewLine}" +
+        return $"{Indent}{Indent}/// <summary>Creates a new <see cref=\"MoneyExpression.Money\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>{NewLine}" +
+            $"{Indent}{Indent}public static MoneyExpression.Money {identifier}(decimal amount){NewLine}" +
             $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());";
     }
 
@@ -158,11 +158,11 @@ public sealed class Iso4217RecordGenerator : ISourceGenerator
 
     private static Option<int> NumericCurrencyCode(XmlNode node)
         => GetInnerText(node, NumericCurrencyCodeNode)
-            .AndThen(s => s.TryParseInt());
+            .AndThen(s => s.ParseIntOrNone());
 
     private static int MinorUnit(XmlNode node)
         => GetInnerText(node, MinorUnitNode)
-            .AndThen(s => s.TryParseInt())
+            .AndThen(s => s.ParseIntOrNone())
             .GetOrElse(0);
 
     private static Option<string> GetInnerText(XmlNode node, string nodeName)

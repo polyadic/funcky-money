@@ -2,5 +2,5 @@ namespace Funcky;
 
 internal interface IDistributionStrategy
 {
-    Money Distribute(MoneyDistributionPart part, Money total);
+    MoneyExpression.Money Distribute(MoneyExpression.MoneyDistributionPart part, MoneyExpression.Money total);
 }

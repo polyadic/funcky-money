@@ -2,6 +2,6 @@ namespace Funcky;
 
 public static class MoneySubtractionExtension
 {
-    public static IMoneyExpression Subtract(this IMoneyExpression minuend, IMoneyExpression subtrahend)
-        => new MoneySum(minuend, new MoneyProduct(subtrahend, -1));
+    public static MoneyExpression Subtract(this MoneyExpression minuend, MoneyExpression subtrahend)
+        => new MoneyExpression.MoneySum(minuend, new MoneyExpression.MoneyProduct(subtrahend, -1));
 }
