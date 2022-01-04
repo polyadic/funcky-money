@@ -20,7 +20,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Funcky" />
-        <PackageReference Include="Funcky.DiscriminatedUnion" />
+        <PackageReference Include="Funcky.DiscriminatedUnion" PrivateAssets="all" />
         <PackageReference Include="IsExternalInit" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
