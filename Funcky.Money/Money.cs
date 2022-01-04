@@ -38,6 +38,31 @@ public sealed partial record Money : IMoneyExpression
     public bool IsZero
         => Amount == 0m;
 
+    // These operators supports the operators on IMoneyExpression, because Money + Money or Money * factor does not work otherwise without a cast.
+    public static IMoneyExpression operator +(Money augend, IMoneyExpression addend)
+        => augend.Add(addend);
+
+    public static IMoneyExpression operator +(Money money)
+        => money;
+
+    public static IMoneyExpression operator -(Money minuend, IMoneyExpression subtrahend)
+        => minuend.Subtract(subtrahend);
+
+    public static Money operator -(Money money)
+        => money with { Amount = -money.Amount };
+
+    public static IMoneyExpression operator *(Money multiplicand, decimal multiplier)
+        => multiplicand.Multiply(multiplier);
+
+    public static IMoneyExpression operator *(decimal multiplier, Money multiplicand)
+        => multiplicand.Multiply(multiplier);
+
+    public static IMoneyExpression operator /(Money dividend, decimal divisor)
+        => dividend.Divide(divisor);
+
+    private static Currency SelectCurrency(Option<Currency> currency)
+        => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
+
     public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
         => CurrencyCulture
             .FormatProviderFromCurrency(SelectCurrency(currency))
@@ -69,30 +94,4 @@ public sealed partial record Money : IMoneyExpression
 
     TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
         => visitor.Visit(this);
-
-    // These operators supports the operators on IMoneyExpression, because Money + Money or Money * factor does not work otherwise without a cast.
-    public static IMoneyExpression operator +(Money augend, IMoneyExpression addend)
-        => augend.Add(addend);
-
-    public static IMoneyExpression operator +(Money money)
-        => money;
-
-    public static IMoneyExpression operator -(Money minuend, IMoneyExpression subtrahend)
-        => minuend.Subtract(subtrahend);
-
-    public static Money operator -(Money money)
-        => money with { Amount = -money.Amount };
-
-    public static IMoneyExpression operator *(Money multiplicand, decimal multiplier)
-        => multiplicand.Multiply(multiplier);
-
-    public static IMoneyExpression operator *(decimal multiplier, Money multiplicand)
-        => multiplicand.Multiply(multiplier);
-
-    public static IMoneyExpression operator /(Money dividend, decimal divisor)
-        => dividend.Divide(divisor);
-
-    private static Currency SelectCurrency(Option<Currency> currency)
-        => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
-
 }
