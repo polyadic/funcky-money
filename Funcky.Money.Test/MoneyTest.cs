@@ -218,7 +218,7 @@ public sealed class MoneyTest
     {
         // XAU is gold and therefore has no format provider, any decimal or thousand separator is therefore arbitrary.
         // Funcky therefore chooses the current culture to format such currencies, that is why we set a specific one here.
-        using var cultureSwitch = new TemporaryCultureSwitch("CHF");
+        using var cultureSwitch = new TemporaryCultureSwitch("de-CH");
 
         var currencyWithoutFormatProvider = Money.XAU(9585);
         Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
