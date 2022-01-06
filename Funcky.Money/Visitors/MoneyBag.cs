@@ -62,7 +62,8 @@ internal sealed class MoneyBag
         => _currencies
             .Values
             .Select(c => c.Aggregate(MoneySum(context)))
-            .Aggregate(new Money(0m, context), ToSingleCurrency(context));
+            .Select(ExchangeToTargetCurrency(context))
+            .Aggregate(new Money(0m, context), MoneySum);
 
     private Money AggregateWithoutEvaluationContext()
         => ExceptionTransformer<InvalidOperationException>.Transform(
@@ -94,10 +95,6 @@ internal sealed class MoneyBag
         }
     }
 
-    private static Func<Money, Money, Money> ToSingleCurrency(MoneyEvaluationContext context)
-        => (moneySum, money)
-            => moneySum with { Amount = moneySum.Amount + ExchangeToTargetCurrency(money, context).Amount };
-
     private void CreateMoneyBagByCurrency(Currency currency)
     {
         if (!_currencies.ContainsKey(currency))
@@ -113,8 +110,8 @@ internal sealed class MoneyBag
         => (currentSum, money)
             => new Money(currentSum.Amount + money.Amount, context);
 
-    private static Money ExchangeToTargetCurrency(Money money, MoneyEvaluationContext context)
-        => money.Currency == context.TargetCurrency
+    private static Func<Money, Money> ExchangeToTargetCurrency(MoneyEvaluationContext context)
+        => money => money.Currency == context.TargetCurrency
             ? money
             : money with { Amount = money.Amount * context.Bank.ExchangeRate(money.Currency, context.TargetCurrency), Currency = context.TargetCurrency };
 }
