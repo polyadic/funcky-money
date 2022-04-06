@@ -7,8 +7,8 @@
 		<PackageReference Update="Funcky.DiscriminatedUnion" Version="0.1.0" />
 		<PackageReference Update="Messerli.CodeStyle" Version="2.1.0 " />
 		<PackageReference Update="IsExternalInit" Version="[1.0.0, 2.0.0)" />
-		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
-		<PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.1" />
+		<PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
+		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
 	</ItemGroup>
 	<ItemGroup Label="Test Dependencies">
 		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="[17.0.0, 18.0.0)" />
