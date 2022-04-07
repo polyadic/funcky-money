@@ -1,7 +1,4 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using Funcky.Extensions;
@@ -14,7 +11,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Funcky.Money.SourceGenerator;
 
 [Generator]
-public sealed class Iso4217RecordGenerator : ISourceGenerator
+public sealed class Iso4217RecordGenerator : IIncrementalGenerator
 {
     private const string RootNamespace = "Funcky";
     private const string Indent = "    ";
@@ -23,13 +20,15 @@ public sealed class Iso4217RecordGenerator : ISourceGenerator
     private const string NumericCurrencyCodeNode = "CcyNbr";
     private const string MinorUnitNode = "CcyMnrUnts";
 
-    public void Initialize(GeneratorInitializationContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var xmlFiles = context.AdditionalTextsProvider.Where(f => Path.GetExtension(f.Path) == ".xml").Collect();
+        context.RegisterSourceOutput(xmlFiles, GenerateSource);
     }
 
-    public void Execute(GeneratorExecutionContext context)
+    private static void GenerateSource(SourceProductionContext context, ImmutableArray<AdditionalText> xmlFiles)
     {
-        var records = ReadIso4217RecordsFromAdditionalFiles(context).ToImmutableArray();
+        var records = ReadIso4217RecordsFromAdditionalFiles(xmlFiles, context.CancellationToken).ToImmutableArray();
         context.AddSource("CurrencyCode.Generated", SourceText.From(GenerateCurrencyClass(records), Encoding.UTF8));
         context.AddSource("Money.Generated", SourceText.From(GenerateMoneyClass(records), Encoding.UTF8));
     }
@@ -126,16 +125,17 @@ public sealed class Iso4217RecordGenerator : ISourceGenerator
             $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());";
     }
 
-    private static IEnumerable<Iso4217Record> ReadIso4217RecordsFromAdditionalFiles(GeneratorExecutionContext context)
-        => context.AdditionalFiles
-                .Where(f => Path.GetExtension(f.Path) == ".xml")
-                .Select(f => f.GetText(context.CancellationToken))
-                .Where(f => f is not null)
-                .SelectMany(text => CreateXmlDocumentFromString(text!.ToString())
-                    .SelectNodesAsEnumerable("//CcyNtry/Ccy/..")
-                    .WhereSelect(ReadIso4217RecordFromNode))
-                .ToImmutableDictionary(r => r.AlphabeticCurrencyCode)
-                .Select(r => r.Value);
+    private static IEnumerable<Iso4217Record> ReadIso4217RecordsFromAdditionalFiles(
+        ImmutableArray<AdditionalText> additionalTexts,
+        CancellationToken cancellationToken)
+        => additionalTexts
+            .Select(f => f.GetText(cancellationToken))
+            .Where(f => f is not null)
+            .SelectMany(text => CreateXmlDocumentFromString(text!.ToString())
+                .SelectNodesAsEnumerable("//CcyNtry/Ccy/..")
+                .WhereSelect(ReadIso4217RecordFromNode))
+            .ToImmutableDictionary(r => r.AlphabeticCurrencyCode)
+            .Select(r => r.Value);
 
     private static XmlDocument CreateXmlDocumentFromString(string xml)
     {
