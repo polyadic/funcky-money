@@ -1,16 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk; Microsoft.Build.CentralPackageVersions">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
-        <LangVersion>10.0</LangVersion>
-        <Nullable>enable</Nullable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <RootNamespace>Funcky</RootNamespace>
         <Product>Funcky.Money</Product>
-        <Description>Funcky.Money is the Money-Class you want to have.</Description>
+        <Description>Funcky.Money is based on Kent Beck's TDD exercise but with more features.</Description>
         <PackageTags>Functional Money</PackageTags>
-        <Version>1.0.1</Version>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <IsPackable>true</IsPackable>
+        <Version>1.1.0</Version>
     </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="$(AssemblyName).Test" />

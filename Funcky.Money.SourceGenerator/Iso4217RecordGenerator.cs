@@ -56,7 +56,7 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
             switchCases.AppendLine($"{Indent}{Indent}{Indent}  {Literal(record.AlphabeticCurrencyCode)} => {Identifier(record.AlphabeticCurrencyCode)},");
         }
 
-        switchCases.AppendLine($"{Indent}{Indent}{Indent}  _ => Option<Currency>.None(),");
+        switchCases.AppendLine($"{Indent}{Indent}{Indent}  _ => Option<Currency>.None,");
 
         return $"{Indent}{Indent}public static partial Option<Currency> ParseOrNone(string input){NewLine}" +
                $"{Indent}{Indent}  => input switch{NewLine}" +
@@ -171,5 +171,5 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
             .AndThen(n => n.InnerText);
 
     private static Option<int> ToInt(string s)
-        => s.ParseIntOrNone();
+        => s.ParseInt32OrNone();
 }
