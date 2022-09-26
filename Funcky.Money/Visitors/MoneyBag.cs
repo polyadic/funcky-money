@@ -83,7 +83,7 @@ internal sealed class MoneyBag
             .Aggregate(MoneySum);
 
     private void CheckEvaluationRules(Money money)
-        => _roundingStrategy.Match(
+        => _roundingStrategy.Switch(
             none: () => _roundingStrategy = Option.Some(money.RoundingStrategy),
             some: r => CheckRoundingStrategy(money, r));
 
