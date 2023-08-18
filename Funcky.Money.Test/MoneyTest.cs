@@ -38,7 +38,7 @@ public sealed class MoneyTest
     }
 
     [Fact]
-    public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAnEvaluationContext()
+    public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAnEvaluationContextWithDefinedExchangeRates()
     {
         var fiveFrancs = new Money(5, Currency.CHF);
         var tenDollars = new Money(10, Currency.USD);
@@ -46,6 +46,7 @@ public sealed class MoneyTest
         var sum = fiveFrancs.Add(tenDollars);
 
         Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
+        Assert.Throws<MissingExchangeRateException>(() => sum.Evaluate(SwissRounding));
     }
 
     [Property]
@@ -470,6 +471,26 @@ public sealed class MoneyTest
         Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.Default(0.0m));
         Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.BankersRounding(0.0m));
         Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
+    }
+
+    [Fact]
+    public void WeCanCalculateADimensionlessFactorByDividingAMoneyByAnother()
+    {
+        Assert.Equal(2.5m, Money.CHF(5) / Money.CHF(2));
+        Assert.Equal(0.75m, Money.USD(3).Divide(Money.USD(4)));
+    }
+
+    [Fact]
+    public void DividingTwoMoneysOnlyWorksIfTheyAreOfTheSameCurrency()
+    {
+        Assert.ThrowsAny<MissingExchangeRateException>(() => Money.CHF(5) / Money.USD(2));
+    }
+
+    [Fact]
+    public void DividingTwoMoneysOnlyWorksIfTheDivisorIsNonZero()
+    {
+        Assert.Throws<DivideByZeroException>(() => Money.CHF(5) / Money.Zero);
+        Assert.Throws<DivideByZeroException>(() => Money.USD(3).Divide(Money.USD(0)));
     }
 
     private static List<decimal> Distributed(SwissMoney someMoney, int numberOfParts)

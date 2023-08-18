@@ -112,13 +112,14 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Money distribution has a precision member, use that instead of the contrived Precision on Rounding.
 * [x] Add unary and binary minus and the division operator.
 * [x] The context has a smallest distribution unit.
-
+* [ ] We can calculate c dimensionless factor by dividing two money objects.
 ### Decisions
 
 * We construct `Money` objects only from `decimal` and `int`. The decision how to handle external rounding problems should be done before construction of a `Money` object.
 * We keep Add, Multiply,etc because no all supported frameworks allow default implementations on the interface.
 * We prepare a distribution strategy but do not make it chosable at this point.
 * We support the following operators: unary + and -, and the binary operators ==, !=, +, -, * and /.
+* If you want to divide two different currencies you have to first Evaluate one to convert it to the other. Otherwise you will get a MissingExchangeRateException.
 
 ### Open Decisions
 
