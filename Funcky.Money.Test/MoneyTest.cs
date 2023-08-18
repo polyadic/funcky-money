@@ -1,10 +1,6 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using FsCheck;
 using FsCheck.Xunit;
-using Funcky.Extensions;
 using Xunit;
 
 namespace Funcky.Test;
@@ -303,14 +299,7 @@ public sealed class MoneyTest
 
         var sum = (fiveFrancs + tenDollars + fiveEuros) * 1.5m;
 
-        var context = MoneyEvaluationContext
-            .Builder
-            .Default
-            .WithTargetCurrency(Currency.CHF)
-            .WithBank(OneToOneBank.Instance)
-            .Build();
-
-        Assert.Equal(30m, sum.Evaluate(context).Amount);
+        Assert.Equal(30m, sum.Evaluate(OneToOneContext(Currency.CHF)).Amount);
     }
 
     [Fact]
@@ -318,12 +307,7 @@ public sealed class MoneyTest
     {
         var sum = (Money.Zero + Money.Zero) * 1.5m;
 
-        var context = MoneyEvaluationContext
-            .Builder
-            .Default
-            .WithTargetCurrency(Currency.JPY)
-            .WithBank(OneToOneBank.Instance)
-            .Build();
+        var context = OneToOneContext(Currency.JPY);
 
         Assert.True(Money.Zero.Evaluate(context).IsZero);
         Assert.True(sum.Evaluate(context).IsZero);
@@ -487,6 +471,12 @@ public sealed class MoneyTest
     }
 
     [Fact]
+    public void DividingTwoMoneysWithDifferentCurrenciesNeedAnEvaluationContext()
+    {
+        Assert.Equal(0.8m, Money.CHF(4).Divide(Money.USD(5), OneToOneContext(Currency.USD)));
+    }
+
+    [Fact]
     public void DividingTwoMoneysOnlyWorksIfTheDivisorIsNonZero()
     {
         Assert.Throws<DivideByZeroException>(() => Money.CHF(5) / Money.Zero);
@@ -521,4 +511,12 @@ public sealed class MoneyTest
         return v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1))
             .Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
     }
+
+    private static MoneyEvaluationContext OneToOneContext(Currency targetCurrency)
+        => MoneyEvaluationContext
+            .Builder
+            .Default
+            .WithTargetCurrency(targetCurrency)
+            .WithBank(OneToOneBank.Instance)
+            .Build();
 }
