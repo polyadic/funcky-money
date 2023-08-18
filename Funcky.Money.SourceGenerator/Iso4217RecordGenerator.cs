@@ -158,11 +158,11 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
 
     private static Option<int> NumericCurrencyCode(XmlNode node)
         => GetInnerText(node, NumericCurrencyCodeNode)
-            .AndThen(ParseExtensions.ParseInt32OrNone);
+            .SelectMany(ParseExtensions.ParseInt32OrNone);
 
     private static int MinorUnit(XmlNode node)
         => GetInnerText(node, MinorUnitNode)
-            .AndThen(ParseExtensions.ParseInt32OrNone)
+            .SelectMany(ParseExtensions.ParseInt32OrNone)
             .GetOrElse(0);
 
     private static Option<string> GetInnerText(XmlNode node, string nodeName)
