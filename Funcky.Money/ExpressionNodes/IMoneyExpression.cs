@@ -12,6 +12,9 @@ public interface IMoneyExpression
     public static IMoneyExpression operator /(IMoneyExpression dividend, decimal divisor)
         => dividend.Divide(divisor);
 
+    public static decimal operator /(IMoneyExpression dividend, IMoneyExpression divisor)
+        => dividend.Divide(divisor);
+
     public static IMoneyExpression operator +(IMoneyExpression augend, IMoneyExpression addend)
         => augend.Add(addend);
 

@@ -1,4 +1,5 @@
 using Funcky.Monads;
+using static Funcky.Functional;
 
 namespace Funcky;
 
@@ -8,8 +9,7 @@ public sealed class MoneyEvaluationContext
     {
         TargetCurrency = targetCurrency;
         DistributionUnit = distributionUnit;
-        RoundingStrategy = roundingStrategy
-            .GetOrElse(Funcky.RoundingStrategy.Default(distributionUnit.GetOrElse(Power.OfATenth(TargetCurrency.MinorUnitDigits))));
+        RoundingStrategy = roundingStrategy.GetOrElse(Funcky.RoundingStrategy.Default(distributionUnit.GetOrElse(Power.OfATenth(TargetCurrency.MinorUnitDigits))));
         Bank = bank;
     }
 
@@ -60,14 +60,9 @@ public sealed class MoneyEvaluationContext
         }
 
         public MoneyEvaluationContext Build()
-        {
-            if (CompatibleRounding().Match(none: false, some: Negate))
-            {
-                throw new IncompatibleRoundingException($"The roundingStrategy {_roundingStrategy} is incompatible with the smallest possible distribution unit {_distributionUnit}.");
-            }
-
-            return CreateContext();
-        }
+            => CompatibleRounding().Match(none: false, some: Not<bool>(Identity))
+                ? throw new IncompatibleRoundingException($"The rounding strategy {_roundingStrategy} is incompatible with the smallest possible distribution unit {_distributionUnit}.")
+                : CreateContext();
 
         public Builder WithTargetCurrency(Currency currency)
             => With(targetCurrency: currency);
@@ -104,13 +99,9 @@ public sealed class MoneyEvaluationContext
 
         private MoneyEvaluationContext CreateContext()
             => new(
-                _targetCurrency.GetOrElse(()
-                    => throw new InvalidMoneyEvaluationContextBuilderException("Money evaluation context has no target currency set.")),
+                _targetCurrency.GetOrElse(() => throw new InvalidMoneyEvaluationContextBuilderException("Money evaluation context has no target currency set.")),
                 _distributionUnit,
                 _roundingStrategy,
                 _bank);
-
-        private bool Negate(bool c)
-            => !c;
     }
 }

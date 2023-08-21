@@ -60,6 +60,9 @@ public sealed partial record Money : IMoneyExpression
     public static IMoneyExpression operator /(Money dividend, decimal divisor)
         => dividend.Divide(divisor);
 
+    public static decimal operator /(Money dividend, IMoneyExpression divisor)
+        => dividend.Divide(divisor);
+
     private static Currency SelectCurrency(Option<Currency> currency)
         => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
 

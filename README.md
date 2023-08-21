@@ -112,6 +112,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Money distribution has a precision member, use that instead of the contrived Precision on Rounding.
 * [x] Add unary and binary minus and the division operator.
 * [x] The context has a smallest distribution unit.
+* [x] A dimensionless factor can be calculated by dividing two money objects.
 
 ### Decisions
 
@@ -119,6 +120,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * We keep Add, Multiply,etc because no all supported frameworks allow default implementations on the interface.
 * We prepare a distribution strategy but do not make it chosable at this point.
 * We support the following operators: unary + and -, and the binary operators ==, !=, +, -, * and /.
+* You can divide two different currencies only with the `Divide(IMoneyExpression, IMoneyExpression, Option<MoneyEvaluationContext>)` method where you have to give a `MoneyEvaluationContext` with the necessary exchange rates.
 
 ### Open Decisions
 
