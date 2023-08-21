@@ -22,7 +22,7 @@ internal sealed class DefaultBank : IBank
     public decimal ExchangeRate(Currency source, Currency target)
         => ExchangeRates
             .GetValueOrNone(key: (source, target))
-            .GetOrElse(() => throw new MissingExchangeRateException($"No exchange rate for {source.AlphabeticCurrencyCode} => {target.AlphabeticCurrencyCode}"));
+            .GetOrElse(() => throw new MissingExchangeRateException($"No exchange rate for {source.AlphabeticCurrencyCode} => {target.AlphabeticCurrencyCode}."));
 
     internal DefaultBank AddExchangeRate(Currency source, Currency target, decimal sellRate)
         => new(ExchangeRates.Add((source, target), sellRate));
