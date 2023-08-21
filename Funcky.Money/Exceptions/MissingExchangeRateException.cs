@@ -5,7 +5,7 @@ namespace Funcky;
 public class MissingExchangeRateException : Exception
 {
     public MissingExchangeRateException()
-        : base("if you calculate with more than one currency, you have to define the exchange rate and target in the evaluation context.")
+        : base("If you calculate with more than one currency, you have to define the exchange rate and target in the evaluation context.")
     {
     }
 
