@@ -112,7 +112,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Money distribution has a precision member, use that instead of the contrived Precision on Rounding.
 * [x] Add unary and binary minus and the division operator.
 * [x] The context has a smallest distribution unit.
-* [x] We can calculate a dimensionless factor by dividing two money objects.
+* [x] A dimensionless factor can be calculated by dividing two money objects.
 
 ### Decisions
 
