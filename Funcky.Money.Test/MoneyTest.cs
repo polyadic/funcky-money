@@ -303,7 +303,7 @@ public sealed class MoneyTest
     }
 
     [Fact]
-    public void EvaluationOnZeroMoniesWorks()
+    public void EvaluationOnZeroMoneysWorks()
     {
         var sum = (Money.Zero + Money.Zero) * 1.5m;
 
