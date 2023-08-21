@@ -61,7 +61,7 @@ public sealed class MoneyEvaluationContext
 
         public MoneyEvaluationContext Build()
             => CompatibleRounding().Match(none: false, some: Not<bool>(Identity))
-                ? throw new IncompatibleRoundingException($"The roundingStrategy {_roundingStrategy} is incompatible with the smallest possible distribution unit {_distributionUnit}.")
+                ? throw new IncompatibleRoundingException($"The rounding strategy {_roundingStrategy} is incompatible with the smallest possible distribution unit {_distributionUnit}.")
                 : CreateContext();
 
         public Builder WithTargetCurrency(Currency currency)
