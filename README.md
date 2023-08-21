@@ -117,7 +117,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 ### Decisions
 
 * We construct `Money` objects only from `decimal` and `int`. The decision how to handle external rounding problems should be done before construction of a `Money` object.
-* We keep Add, Multiply,etc because no all supported frameworks allow default implementations on the interface.
+* We keep Add, Multiply, etc because no all supported frameworks allow default implementations on the interface.
 * We prepare a distribution strategy but do not make it chosable at this point.
 * We support the following operators: unary + and -, and the binary operators ==, !=, +, -, * and /.
 * You can divide two different currencies only with the `Divide(IMoneyExpression, IMoneyExpression, Option<MoneyEvaluationContext>)` method where you have to give a `MoneyEvaluationContext` with the necessary exchange rates.
