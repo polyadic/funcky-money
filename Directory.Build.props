@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
 	<PropertyGroup Label="Common Settings">
-		<LangVersion>10.0</LangVersion>
+		<LangVersion>11.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<IsPackable>false</IsPackable>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
 	<PropertyGroup Label="Shared NuGet Metadata">
 		<Authors>Polyadic</Authors>

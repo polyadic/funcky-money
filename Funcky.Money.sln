@@ -21,8 +21,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Config", "Build Confi
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		FrameworkFeatureConstants.props = FrameworkFeatureConstants.props
+		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
-		Packages.props = Packages.props
+		nuget.config = nuget.config
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Funcky.Money.SourceGenerator", "Funcky.Money.SourceGenerator\Funcky.Money.SourceGenerator.csproj", "{A5B8FAE1-86B6-4868-87DF-F7B20C1C04F0}"
