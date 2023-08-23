@@ -200,13 +200,13 @@ public sealed class MoneyTest
     [Fact]
     public void MoneyParsesCorrectlyFromString()
     {
-        var r1 = FunctionalAssert.IsSome(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
+        var r1 = FunctionalAssert.Some(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
         Assert.Equal(new Money(-1000, Currency.CHF), r1);
 
-        var r2 = FunctionalAssert.IsSome(Money.ParseOrNone("-$1,000.00", Currency.USD));
+        var r2 = FunctionalAssert.Some(Money.ParseOrNone("-$1,000.00", Currency.USD));
         Assert.Equal(new Money(-1000, Currency.USD), r2);
 
-        var r3 = FunctionalAssert.IsSome(Money.ParseOrNone("1000", Currency.CHF));
+        var r3 = FunctionalAssert.Some(Money.ParseOrNone("1000", Currency.CHF));
         Assert.Equal(new Money(1000, Currency.CHF), r3);
     }
 
@@ -220,7 +220,7 @@ public sealed class MoneyTest
         var currencyWithoutFormatProvider = Money.XAU(9585);
         Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
 
-        var money = FunctionalAssert.IsSome(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
+        var money = FunctionalAssert.Some(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
         Assert.Equal(new Money(9585, Currency.XAU), money);
     }
 
