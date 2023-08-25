@@ -5,11 +5,11 @@ namespace Funcky;
 
 public sealed class MoneyEvaluationContext
 {
-    private MoneyEvaluationContext(Currency targetCurrency, Option<decimal> distributionUnit, Option<IRoundingStrategy> roundingStrategy, IBank bank)
+    private MoneyEvaluationContext(Currency targetCurrency, Option<decimal> distributionUnit, Option<IRoundingStrategy<decimal>> roundingStrategy, IBank bank)
     {
         TargetCurrency = targetCurrency;
         DistributionUnit = distributionUnit;
-        RoundingStrategy = roundingStrategy.GetOrElse(Funcky.RoundingStrategy.Default(distributionUnit.GetOrElse(Power.OfATenth(TargetCurrency.MinorUnitDigits))));
+        RoundingStrategy = roundingStrategy.GetOrElse(Funcky.RoundingStrategy.Default(distributionUnit.GetOrElse(Power<decimal>.OfATenth(TargetCurrency.MinorUnitDigits))));
         Bank = bank;
     }
 
@@ -27,7 +27,7 @@ public sealed class MoneyEvaluationContext
     /// <summary>
     /// Defines how we round amounts in the evaluation.
     /// </summary>
-    public IRoundingStrategy RoundingStrategy { get; }
+    public IRoundingStrategy<decimal> RoundingStrategy { get; }
 
     /// <summary>
     /// Source for exchange rates.
@@ -40,7 +40,7 @@ public sealed class MoneyEvaluationContext
 
         private readonly Option<Currency> _targetCurrency;
         private readonly Option<decimal> _distributionUnit;
-        private readonly Option<IRoundingStrategy> _roundingStrategy;
+        private readonly Option<IRoundingStrategy<decimal>> _roundingStrategy;
         private readonly IBank _bank;
 
         private Builder()
@@ -51,7 +51,7 @@ public sealed class MoneyEvaluationContext
             _bank = DefaultBank.Empty;
         }
 
-        private Builder(Option<Currency> currency, Option<decimal> distributionUnit, Option<IRoundingStrategy> roundingStrategy, IBank bank)
+        private Builder(Option<Currency> currency, Option<decimal> distributionUnit, Option<IRoundingStrategy<decimal>> roundingStrategy, IBank bank)
         {
             _targetCurrency = currency;
             _distributionUnit = distributionUnit;
@@ -67,7 +67,7 @@ public sealed class MoneyEvaluationContext
         public Builder WithTargetCurrency(Currency currency)
             => With(targetCurrency: currency);
 
-        public Builder WithRounding(IRoundingStrategy roundingStrategy)
+        public Builder WithRounding(IRoundingStrategy<decimal> roundingStrategy)
             => With(roundingStrategy: Option.Some(roundingStrategy));
 
         public Builder WithExchangeRate(Currency currency, decimal sellRate)
@@ -81,7 +81,7 @@ public sealed class MoneyEvaluationContext
         public Builder WithSmallestDistributionUnit(decimal distributionUnit)
             => With(distributionUnit: distributionUnit);
 
-        private Builder With(Option<Currency> targetCurrency = default, Option<decimal> distributionUnit = default, Option<IRoundingStrategy> roundingStrategy = default, Option<IBank> bank = default)
+        private Builder With(Option<Currency> targetCurrency = default, Option<decimal> distributionUnit = default, Option<IRoundingStrategy<decimal>> roundingStrategy = default, Option<IBank> bank = default)
             => new(
                 targetCurrency.OrElse(_targetCurrency),
                 distributionUnit.OrElse(_distributionUnit),

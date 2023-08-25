@@ -1,16 +1,14 @@
 using System.Diagnostics;
 using System.Globalization;
-using System.Numerics;
 using Funcky.Extensions;
 using Funcky.Monads;
 
 namespace Funcky;
 
 [DebuggerDisplay("{Amount} {Currency.AlphabeticCurrencyCode,nq}")]
-public sealed record Money<TUnderlyingType> : IMoneyExpression<TUnderlyingType>
-    where TUnderlyingType : INumberBase<TUnderlyingType>
+public sealed partial record Money : IMoneyExpression
 {
-    public static readonly Money<TUnderlyingType> Zero = new(0m);
+    public static readonly Money Zero = new(0m);
 
     public Money(decimal amount, Option<Currency> currency = default)
     {
@@ -35,46 +33,46 @@ public sealed record Money<TUnderlyingType> : IMoneyExpression<TUnderlyingType>
 
     public Currency Currency { get; init; }
 
-    public IRoundingStrategy RoundingStrategy { get; }
+    public IRoundingStrategy<decimal> RoundingStrategy { get; }
 
     public bool IsZero
         => Amount == 0m;
 
     // These operators supports the operators on IMoneyExpression, because Money + Money or Money * factor does not work otherwise without a cast.
-    public static IMoneyExpression<TUnderlyingType> operator +(Money<TUnderlyingType> augend, IMoneyExpression<TUnderlyingType> addend)
+    public static IMoneyExpression operator +(Money augend, IMoneyExpression addend)
         => augend.Add(addend);
 
-    public static IMoneyExpression<TUnderlyingType> operator +(Money<TUnderlyingType> money)
+    public static IMoneyExpression operator +(Money money)
         => money;
 
-    public static IMoneyExpression<TUnderlyingType> operator -(Money<TUnderlyingType> minuend, IMoneyExpression<TUnderlyingType> subtrahend)
+    public static IMoneyExpression operator -(Money minuend, IMoneyExpression subtrahend)
         => minuend.Subtract(subtrahend);
 
-    public static Money<TUnderlyingType> operator -(Money<TUnderlyingType> money)
+    public static Money operator -(Money money)
         => money with { Amount = -money.Amount };
 
-    public static IMoneyExpression<TUnderlyingType> operator *(Money<TUnderlyingType> multiplicand, decimal multiplier)
+    public static IMoneyExpression operator *(Money multiplicand, decimal multiplier)
         => multiplicand.Multiply(multiplier);
 
-    public static IMoneyExpression<TUnderlyingType> operator *(decimal multiplier, Money<TUnderlyingType> multiplicand)
+    public static IMoneyExpression operator *(decimal multiplier, Money multiplicand)
         => multiplicand.Multiply(multiplier);
 
-    public static IMoneyExpression<TUnderlyingType> operator /(Money<TUnderlyingType> dividend, decimal divisor)
+    public static IMoneyExpression operator /(Money dividend, decimal divisor)
         => dividend.Divide(divisor);
 
-    public static decimal operator /(Money<TUnderlyingType> dividend, IMoneyExpression<TUnderlyingType> divisor)
+    public static decimal operator /(Money dividend, IMoneyExpression divisor)
         => dividend.Divide(divisor);
 
     private static Currency SelectCurrency(Option<Currency> currency)
         => currency.GetOrElse(CurrencyCulture.CurrentCurrency);
 
-    public static Option<Money<TUnderlyingType>> ParseOrNone(string money, Option<Currency> currency = default)
+    public static Option<Money> ParseOrNone(string money, Option<Currency> currency = default)
         => CurrencyCulture
             .FormatProviderFromCurrency(SelectCurrency(currency))
             .Match(
                 none: ParseManually(money),
                 some: ParseWithFormatProvider(money))
-            .AndThen(amount => new Money<TUnderlyingType>(amount, SelectCurrency(currency)));
+            .AndThen(amount => new Money(amount, SelectCurrency(currency)));
 
     private static Func<Option<decimal>> ParseManually(string money)
         => ()
@@ -94,6 +92,6 @@ public sealed record Money<TUnderlyingType> : IMoneyExpression<TUnderlyingType>
             none: () => string.Format($"{{0:N{Currency.MinorUnitDigits}}} {{1}}", Amount, Currency.AlphabeticCurrencyCode),
             some: formatProvider => string.Format(formatProvider, $"{{0:C{Currency.MinorUnitDigits}}}", Amount));
 
-    TState IMoneyExpression<TUnderlyingType>.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
+    TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
         => visitor.Visit(this);
 }

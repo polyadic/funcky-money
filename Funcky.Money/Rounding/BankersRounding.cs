@@ -1,15 +1,17 @@
 using System.Diagnostics;
+using System.Numerics;
 
 namespace Funcky;
 
 [DebuggerDisplay("{ToString()}")]
-internal sealed record BankersRounding : IRoundingStrategy
+internal sealed record BankersRounding<TUnderlyingType> : IRoundingStrategy<TUnderlyingType>
+    where TUnderlyingType : INumberBase<TUnderlyingType>, IFloatingPoint<TUnderlyingType>
 {
-    private readonly decimal _precision;
+    private readonly TUnderlyingType _precision;
 
-    public BankersRounding(decimal precision)
+    public BankersRounding(TUnderlyingType precision)
     {
-        if (precision <= 0m)
+        if (precision <= TUnderlyingType.Zero)
         {
             throw new InvalidPrecisionException();
         }
@@ -19,15 +21,15 @@ internal sealed record BankersRounding : IRoundingStrategy
 
     public BankersRounding(Currency currency)
     {
-        _precision = Power.OfATenth(currency.MinorUnitDigits);
+        _precision = Power<TUnderlyingType>.OfATenth(currency.MinorUnitDigits);
     }
 
-    public bool Equals(IRoundingStrategy? roundingStrategy)
-        => roundingStrategy is BankersRounding bankersRounding
+    public bool Equals(IRoundingStrategy<TUnderlyingType>? roundingStrategy)
+        => roundingStrategy is BankersRounding<TUnderlyingType> bankersRounding
            && Equals(bankersRounding);
 
-    public decimal Round(decimal value)
-        => Math.Round(value / _precision, MidpointRounding.ToEven) * _precision;
+    public TUnderlyingType Round(TUnderlyingType value)
+        => TUnderlyingType.Round(value / _precision, MidpointRounding.ToEven) * _precision;
 
     public override string ToString()
         => $"BankersRounding {{ Precision: {_precision} }}";

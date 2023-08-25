@@ -1,6 +1,6 @@
 namespace Funcky;
 
-public interface IRoundingStrategy : IEquatable<IRoundingStrategy>
+public interface IRoundingStrategy<TUnderlyingType> : IEquatable<IRoundingStrategy<TUnderlyingType>>
 {
-    decimal Round(decimal value);
+    TUnderlyingType Round(TUnderlyingType value);
 }

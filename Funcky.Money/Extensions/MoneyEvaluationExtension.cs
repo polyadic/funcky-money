@@ -26,7 +26,7 @@ public static class MoneyEvaluationExtension
     private static IDistributionStrategy CreateDistributionStrategy(Option<MoneyEvaluationContext> context)
         => new DefaultDistributionStrategy(context);
 
-    private static IRoundingStrategy FindRoundingStrategy(Money money, Option<MoneyEvaluationContext> context)
+    private static IRoundingStrategy<decimal> FindRoundingStrategy(Money money, Option<MoneyEvaluationContext> context)
         => context
             .AndThen(c => c.RoundingStrategy)
             .GetOrElse(money.RoundingStrategy);

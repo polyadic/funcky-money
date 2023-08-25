@@ -16,7 +16,7 @@ internal class MoneyArbitraries
     private static Gen<Money> GenerateMoney()
         => from currency in Arb.Generate<Currency>()
            from amount in Arb.Generate<int>()
-           select new Money(Power.OfATenth(currency.MinorUnitDigits) * amount, currency);
+           select new Money(Power<decimal>.OfATenth(currency.MinorUnitDigits) * amount, currency);
 
     private static Gen<SwissMoney> GenerateSwissFranc()
         => from amount in Arb.Generate<int>()

@@ -286,8 +286,8 @@ public sealed class MoneyTest
         var francs = new Money(1m, SwissRounding);
         var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF);
 
-        Assert.Equal(new BankersRounding(0.05m), francs.RoundingStrategy);
-        Assert.Equal(new BankersRounding(0.01m), francs.Evaluate(evaluationContext.Build()).RoundingStrategy);
+        Assert.Equal(new BankersRounding<decimal>(0.05m), francs.RoundingStrategy);
+        Assert.Equal(new BankersRounding<decimal>(0.01m), francs.Evaluate(evaluationContext.Build()).RoundingStrategy);
     }
 
     [Fact]

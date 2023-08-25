@@ -6,7 +6,7 @@ namespace Funcky;
 internal sealed class MoneyBag
 {
     private readonly Dictionary<Currency, List<Money>> _currencies = new();
-    private Option<IRoundingStrategy> _roundingStrategy;
+    private Option<IRoundingStrategy<decimal>> _roundingStrategy;
     private Option<Currency> _emptyCurrency;
 
     public MoneyBag(Money money)
@@ -87,7 +87,7 @@ internal sealed class MoneyBag
             none: () => _roundingStrategy = Option.Some(money.RoundingStrategy),
             some: r => CheckRoundingStrategy(money, r));
 
-    private static void CheckRoundingStrategy(Money money, IRoundingStrategy roundingStrategy)
+    private static void CheckRoundingStrategy(Money money, IRoundingStrategy<decimal> roundingStrategy)
     {
         if (!money.RoundingStrategy.Equals(roundingStrategy))
         {

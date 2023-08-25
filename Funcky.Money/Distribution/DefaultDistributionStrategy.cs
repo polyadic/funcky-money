@@ -41,7 +41,7 @@ internal class DefaultDistributionStrategy : IDistributionStrategy
     private decimal AlreadyDistributed(MoneyDistributionPart part, Money money)
         => SignedPrecision(part.Distribution, money) * part.Index;
 
-    private IRoundingStrategy RoundingStrategy(Money money)
+    private IRoundingStrategy<decimal> RoundingStrategy(Money money)
         => _context.Match(
             some: c => c.RoundingStrategy,
             none: money.RoundingStrategy);
@@ -70,7 +70,7 @@ internal class DefaultDistributionStrategy : IDistributionStrategy
         => distribution
             .Precision
             .OrElse(_context.AndThen(c => c.DistributionUnit))
-            .GetOrElse(Power.OfATenth(MinorUnitDigits(money)));
+            .GetOrElse(Power<decimal>.OfATenth(MinorUnitDigits(money)));
 
     private int MinorUnitDigits(Money money)
         => _context.Match(
