@@ -5,7 +5,7 @@ namespace Funcky;
 
 public sealed class MoneyEvaluationContext
 {
-    private MoneyEvaluationContext(Currency targetCurrency, Option<decimal> distributionUnit, Option<IRoundingStrategy<decimal>> roundingStrategy, IBank bank)
+    private MoneyEvaluationContext(Currency targetCurrency, Option<decimal> distributionUnit, Option<IRoundingStrategy<decimal>> roundingStrategy, IBank<decimal> bank)
     {
         TargetCurrency = targetCurrency;
         DistributionUnit = distributionUnit;
@@ -32,7 +32,7 @@ public sealed class MoneyEvaluationContext
     /// <summary>
     /// Source for exchange rates.
     /// </summary>
-    public IBank Bank { get; }
+    public IBank<decimal> Bank { get; }
 
     public sealed class Builder
     {
@@ -41,17 +41,17 @@ public sealed class MoneyEvaluationContext
         private readonly Option<Currency> _targetCurrency;
         private readonly Option<decimal> _distributionUnit;
         private readonly Option<IRoundingStrategy<decimal>> _roundingStrategy;
-        private readonly IBank _bank;
+        private readonly IBank<decimal> _bank;
 
         private Builder()
         {
             _targetCurrency = default;
             _roundingStrategy = default;
             _distributionUnit = default;
-            _bank = DefaultBank.Empty;
+            _bank = DefaultBank<decimal>.Empty;
         }
 
-        private Builder(Option<Currency> currency, Option<decimal> distributionUnit, Option<IRoundingStrategy<decimal>> roundingStrategy, IBank bank)
+        private Builder(Option<Currency> currency, Option<decimal> distributionUnit, Option<IRoundingStrategy<decimal>> roundingStrategy, IBank<decimal> bank)
         {
             _targetCurrency = currency;
             _distributionUnit = distributionUnit;
@@ -71,17 +71,17 @@ public sealed class MoneyEvaluationContext
             => With(roundingStrategy: Option.Some(roundingStrategy));
 
         public Builder WithExchangeRate(Currency currency, decimal sellRate)
-            => _bank is DefaultBank bank
+            => _bank is DefaultBank<decimal> bank
                 ? With(bank: bank.AddExchangeRate(currency, GetTargetCurrencyOrException(), sellRate))
                 : throw new InvalidMoneyEvaluationContextBuilderException("You can either use WithExchangeRate or WithBank, but not both.");
 
-        public Builder WithBank(IBank bank)
+        public Builder WithBank(IBank<decimal> bank)
             => With(bank: Option.Some(bank));
 
         public Builder WithSmallestDistributionUnit(decimal distributionUnit)
             => With(distributionUnit: distributionUnit);
 
-        private Builder With(Option<Currency> targetCurrency = default, Option<decimal> distributionUnit = default, Option<IRoundingStrategy<decimal>> roundingStrategy = default, Option<IBank> bank = default)
+        private Builder With(Option<Currency> targetCurrency = default, Option<decimal> distributionUnit = default, Option<IRoundingStrategy<decimal>> roundingStrategy = default, Option<IBank<decimal>> bank = default)
             => new(
                 targetCurrency.OrElse(_targetCurrency),
                 distributionUnit.OrElse(_distributionUnit),

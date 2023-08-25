@@ -517,6 +517,6 @@ public sealed class MoneyTest
             .Builder
             .Default
             .WithTargetCurrency(targetCurrency)
-            .WithBank(OneToOneBank.Instance)
+            .WithBank(OneToOneBank<decimal>.Instance)
             .Build();
 }
