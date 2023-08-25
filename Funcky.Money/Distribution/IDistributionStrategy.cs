@@ -1,6 +1,9 @@
+using System.Numerics;
+
 namespace Funcky;
 
-internal interface IDistributionStrategy
+internal interface IDistributionStrategy<TUnderlyingType>
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
-    Money Distribute(MoneyDistributionPart part, Money total);
+    Money<TUnderlyingType> Distribute(MoneyDistributionPart<TUnderlyingType> part, Money<TUnderlyingType> total);
 }

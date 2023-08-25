@@ -1,17 +1,20 @@
+using System.Numerics;
+
 namespace Funcky;
 
-internal sealed record MoneyProduct : IMoneyExpression
+internal sealed record MoneyProduct<TUnderlyingType> : IMoneyExpression<TUnderlyingType>
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
-    public MoneyProduct(IMoneyExpression moneyExpression, decimal factor)
+    public MoneyProduct(IMoneyExpression<TUnderlyingType> moneyExpression, TUnderlyingType factor)
     {
         Expression = moneyExpression;
         Factor = factor;
     }
 
-    public IMoneyExpression Expression { get; }
+    public IMoneyExpression<TUnderlyingType> Expression { get; }
 
-    public decimal Factor { get; }
+    public TUnderlyingType Factor { get; }
 
-    TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
+    TState IMoneyExpression<TUnderlyingType>.Accept<TState>(IMoneyExpressionVisitor<TUnderlyingType, TState> visitor)
         => visitor.Visit(this);
 }

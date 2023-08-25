@@ -1,10 +1,17 @@
+using System.Numerics;
+
 namespace Funcky;
 
-internal static class Power
+internal static class Power<TUnderlyingType>
+    where TUnderlyingType : INumberBase<TUnderlyingType>
 {
-    public static decimal OfTen(int exponent)
-        => Enumerable.Repeat(10m, exponent).Aggregate(1m, (p, b) => b * p);
+    public static TUnderlyingType OfATenth(int exponent)
+        => Exp(TUnderlyingType.CreateChecked(0.1m), exponent);
 
-    public static decimal OfATenth(int exponent)
-        => Enumerable.Repeat(0.1m, exponent).Aggregate(1m, (p, b) => b * p);
+    private static TUnderlyingType Exp(TUnderlyingType @base, int exponent)
+        => Enumerable.Repeat(@base, exponent)
+            .Aggregate(TUnderlyingType.One, Multiply);
+
+    private static TUnderlyingType Multiply(TUnderlyingType multiplicand, TUnderlyingType multiplier)
+        => multiplicand * multiplier;
 }

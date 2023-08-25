@@ -1,6 +1,6 @@
 namespace Funcky;
 
-public interface IBank
+public interface IBank<TUnderlyingType>
 {
-    decimal ExchangeRate(Currency source, Currency target);
+    TUnderlyingType ExchangeRate(Currency source, Currency target);
 }

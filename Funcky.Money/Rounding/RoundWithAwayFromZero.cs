@@ -1,13 +1,15 @@
 using System.Diagnostics;
+using System.Numerics;
 
 namespace Funcky;
 
 [DebuggerDisplay("{ToString()}")]
-internal sealed record RoundWithAwayFromZero : IRoundingStrategy
+internal sealed record RoundWithAwayFromZero<TUnderlyingType> : IRoundingStrategy<TUnderlyingType>
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
-    public RoundWithAwayFromZero(decimal precision)
+    public RoundWithAwayFromZero(TUnderlyingType precision)
     {
-        if (precision <= 0m)
+        if (precision <= TUnderlyingType.Zero)
         {
             throw new InvalidPrecisionException();
         }
@@ -17,18 +19,18 @@ internal sealed record RoundWithAwayFromZero : IRoundingStrategy
 
     public RoundWithAwayFromZero(Currency currency)
     {
-        Precision = Power.OfATenth(currency.MinorUnitDigits);
+        Precision = Power<TUnderlyingType>.OfATenth(currency.MinorUnitDigits);
     }
 
-    public decimal Precision { get; }
+    public TUnderlyingType Precision { get; }
 
-    public decimal Round(decimal value)
-        => Math.Round(value / Precision, MidpointRounding.AwayFromZero) * Precision;
+    public TUnderlyingType Round(TUnderlyingType value)
+        => TUnderlyingType.Round(value / Precision, MidpointRounding.AwayFromZero) * Precision;
 
     public override string ToString()
         => $"Round {{ MidpointRounding: AwayFromZero, Precision: {Precision} }}";
 
-    public bool Equals(IRoundingStrategy? roundingStrategy)
-        => roundingStrategy is RoundWithAwayFromZero roundWithAwayFromZero
+    public bool Equals(IRoundingStrategy<TUnderlyingType>? roundingStrategy)
+        => roundingStrategy is RoundWithAwayFromZero<TUnderlyingType> roundWithAwayFromZero
            && Equals(roundWithAwayFromZero);
 }

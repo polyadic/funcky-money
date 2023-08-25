@@ -1,13 +1,16 @@
+using System.Numerics;
+
 namespace Funcky;
 
-internal interface IMoneyExpressionVisitor<out TState>
+internal interface IMoneyExpressionVisitor<TUnderlyingType, out TState>
     where TState : notnull
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
-    TState Visit(Money money);
+    TState Visit(Money<TUnderlyingType> money);
 
-    TState Visit(MoneySum sum);
+    TState Visit(MoneySum<TUnderlyingType> sum);
 
-    TState Visit(MoneyProduct product);
+    TState Visit(MoneyProduct<TUnderlyingType> product);
 
-    TState Visit(MoneyDistributionPart part);
+    TState Visit(MoneyDistributionPart<TUnderlyingType> part);
 }

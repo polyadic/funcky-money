@@ -1,7 +1,10 @@
+using System.Numerics;
+
 namespace Funcky;
 
 public static class MoneySubtractionExtension
 {
-    public static IMoneyExpression Subtract(this IMoneyExpression minuend, IMoneyExpression subtrahend)
-        => new MoneySum(minuend, new MoneyProduct(subtrahend, -1));
+    public static IMoneyExpression<TUnderlyingType> Subtract<TUnderlyingType>(this IMoneyExpression<TUnderlyingType> minuend, IMoneyExpression<TUnderlyingType> subtrahend)
+        where TUnderlyingType : IFloatingPoint<TUnderlyingType>
+        => new MoneySum<TUnderlyingType>(minuend, new MoneyProduct<TUnderlyingType>(subtrahend, TUnderlyingType.NegativeOne));
 }

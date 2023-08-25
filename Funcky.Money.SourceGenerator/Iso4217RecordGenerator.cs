@@ -5,7 +5,6 @@ using Funcky.Extensions;
 using Funcky.Monads;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using static System.Environment;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Funcky.Money.SourceGenerator;
@@ -34,18 +33,18 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
     }
 
     private static string GenerateCurrencyClass(IReadOnlyList<Iso4217Record> records)
-        => $"using System.Collections.Generic;{NewLine}" +
-           $"using System.Collections.Immutable;{NewLine}" +
-           $"using Funcky.Monads;{NewLine}" +
-           $"namespace {RootNamespace}{NewLine}" +
-           $"{{{NewLine}" +
-           $"{Indent}public partial record Currency{NewLine}" +
-           $"{Indent}{{{NewLine}" +
+        => $"using System.Collections.Generic;\n" +
+           $"using System.Collections.Immutable;\n" +
+           $"using Funcky.Monads;\n" +
+           $"namespace {RootNamespace}\n" +
+           $"{{\n" +
+           $"{Indent}public partial record Currency\n" +
+           $"{Indent}{{\n" +
            $"{GenerateCurrencyProperties(records)}" +
            $"{GenerateAllCurrenciesProperty(records)}" +
            $"{GenerateParseMethod(records)}" +
-           $"{Indent}}}{NewLine}" +
-           $"}}{NewLine}";
+           $"{Indent}}}\n" +
+           $"}}\n";
 
     private static string GenerateParseMethod(IEnumerable<Iso4217Record> records)
     {
@@ -58,11 +57,11 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
 
         switchCases.AppendLine($"{Indent}{Indent}{Indent}  _ => Option<Currency>.None,");
 
-        return $"{Indent}{Indent}public static partial Option<Currency> ParseOrNone(string input){NewLine}" +
-               $"{Indent}{Indent}  => input switch{NewLine}" +
-               $"{Indent}{Indent}  {{{NewLine}" +
+        return $"{Indent}{Indent}public static partial Option<Currency> ParseOrNone(string input)\n" +
+               $"{Indent}{Indent}  => input switch\n" +
+               $"{Indent}{Indent}  {{\n" +
                switchCases +
-               $"{Indent}{Indent}  }};{NewLine}";
+               $"{Indent}{Indent}  }};\n";
     }
 
     private static string GenerateCurrencyProperties(IEnumerable<Iso4217Record> records)
@@ -101,14 +100,14 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
     }
 
     private static string GenerateMoneyClass(IEnumerable<Iso4217Record> records)
-        => $"using Funcky.Monads;{NewLine}" +
-           $"namespace {RootNamespace}{NewLine}" +
-           $"{{{NewLine}" +
-           $"{Indent}public partial record Money{NewLine}" +
-           $"{Indent}{{{NewLine}" +
+        => $"using Funcky.Monads;\n" +
+           $"namespace {RootNamespace}\n" +
+           $"{{\n" +
+           $"{Indent}public partial record Money<TUnderlyingType>\n" +
+           $"{Indent}{{\n" +
            $"{GenerateMoneyFactoryMethods(records)}" +
-           $"{Indent}}}{NewLine}" +
-           $"}}{NewLine}";
+           $"{Indent}}}\n" +
+           $"}}\n";
 
     private static string GenerateMoneyFactoryMethods(IEnumerable<Iso4217Record> records)
         => records.Aggregate(new StringBuilder(), AppendCurrencyFactory).ToString();
@@ -120,9 +119,9 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
     {
         var identifier = Identifier(record.AlphabeticCurrencyCode);
 
-        return $"{Indent}{Indent}/// <summary>Creates a new <see cref=\"Money\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>{NewLine}" +
-            $"{Indent}{Indent}public static Money {identifier}(decimal amount){NewLine}" +
-            $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());";
+        return $"{Indent}{Indent}/// <summary>Creates a new <see cref=\"Money{{TUnderlyingType}}\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>\n" +
+            $"{Indent}{Indent}public static Money<TUnderlyingType> {identifier}(TUnderlyingType amount)\n" +
+            $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext<TUnderlyingType>.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());";
     }
 
     private static IEnumerable<Iso4217Record> ReadIso4217RecordsFromAdditionalFiles(
