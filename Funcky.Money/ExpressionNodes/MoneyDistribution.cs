@@ -1,12 +1,14 @@
 using System.Collections;
+using System.Numerics;
 using Funcky.Extensions;
 using Funcky.Monads;
 
 namespace Funcky;
 
-internal sealed class MoneyDistribution : IEnumerable<IMoneyExpression>
+internal sealed class MoneyDistribution<TUnderlyingType> : IEnumerable<IMoneyExpression<TUnderlyingType>>
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
-    public MoneyDistribution(IMoneyExpression moneyExpression, IEnumerable<int> factors, Option<decimal> precision)
+    public MoneyDistribution(IMoneyExpression<TUnderlyingType> moneyExpression, IEnumerable<int> factors, Option<TUnderlyingType> precision)
     {
         Expression = moneyExpression;
         Factors = factors.ToList();
@@ -18,16 +20,16 @@ internal sealed class MoneyDistribution : IEnumerable<IMoneyExpression>
         }
     }
 
-    public IMoneyExpression Expression { get; }
+    public IMoneyExpression<TUnderlyingType> Expression { get; }
 
     public List<int> Factors { get; }
 
-    public Option<decimal> Precision { get; }
+    public Option<TUnderlyingType> Precision { get; }
 
-    public IEnumerator<IMoneyExpression> GetEnumerator()
+    public IEnumerator<IMoneyExpression<TUnderlyingType>> GetEnumerator()
         => Factors
             .WithIndex()
-            .Select(f => (IMoneyExpression)new MoneyDistributionPart(this, f.Index))
+            .Select(f => (IMoneyExpression<TUnderlyingType>)new MoneyDistributionPart<TUnderlyingType>(this, f.Index))
             .GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator()

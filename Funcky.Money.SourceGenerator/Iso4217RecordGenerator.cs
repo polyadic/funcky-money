@@ -103,7 +103,7 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
         => $"using Funcky.Monads;\n" +
            $"namespace {RootNamespace}\n" +
            $"{{\n" +
-           $"{Indent}public partial record Money\n" +
+           $"{Indent}public partial record Money<TUnderlyingType>\n" +
            $"{Indent}{{\n" +
            $"{GenerateMoneyFactoryMethods(records)}" +
            $"{Indent}}}\n" +
@@ -119,9 +119,9 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
     {
         var identifier = Identifier(record.AlphabeticCurrencyCode);
 
-        return $"{Indent}{Indent}/// <summary>Creates a new <see cref=\"Money\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>\n" +
-            $"{Indent}{Indent}public static Money {identifier}(decimal amount)\n" +
-            $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());";
+        return $"{Indent}{Indent}/// <summary>Creates a new <see cref=\"Money{{TUnderlyingType}}\" /> instance using the <see cref=\"Currency.{identifier}\" /> currency.</summary>\n" +
+            $"{Indent}{Indent}public static Money<TUnderlyingType> {identifier}(TUnderlyingType amount)\n" +
+            $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext<TUnderlyingType>.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());";
     }
 
     private static IEnumerable<Iso4217Record> ReadIso4217RecordsFromAdditionalFiles(

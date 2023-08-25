@@ -5,7 +5,7 @@ namespace Funcky;
 
 [DebuggerDisplay("{ToString()}")]
 internal sealed record RoundWithAwayFromZero<TUnderlyingType> : IRoundingStrategy<TUnderlyingType>
-    where TUnderlyingType : INumberBase<TUnderlyingType>, IFloatingPoint<TUnderlyingType>
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
     public RoundWithAwayFromZero(TUnderlyingType precision)
     {

@@ -1,20 +1,22 @@
+using System.Numerics;
 using Funcky.Extensions;
 using Funcky.Monads;
 
 namespace Funcky;
 
-internal sealed class MoneyBag
+internal sealed class MoneyBag<TUnderlyingType>
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
-    private readonly Dictionary<Currency, List<Money>> _currencies = new();
-    private Option<IRoundingStrategy<decimal>> _roundingStrategy;
+    private readonly Dictionary<Currency, List<Money<TUnderlyingType>>> _currencies = new();
+    private Option<IRoundingStrategy<TUnderlyingType>> _roundingStrategy;
     private Option<Currency> _emptyCurrency;
 
-    public MoneyBag(Money money)
+    public MoneyBag(Money<TUnderlyingType> money)
     {
         Add(money);
     }
 
-    public MoneyBag Merge(MoneyBag moneyBag)
+    public MoneyBag<TUnderlyingType> Merge(MoneyBag<TUnderlyingType> moneyBag)
     {
         moneyBag
             ._currencies
@@ -24,7 +26,7 @@ internal sealed class MoneyBag
         return this;
     }
 
-    public MoneyBag Multiply(decimal factor)
+    public MoneyBag<TUnderlyingType> Multiply(TUnderlyingType factor)
     {
         _currencies
             .ForEach(kv => _currencies[kv.Key] = MultiplyBag(factor, kv.Value));
@@ -32,12 +34,12 @@ internal sealed class MoneyBag
         return this;
     }
 
-    public Money CalculateTotal(Option<MoneyEvaluationContext> context)
+    public Money<TUnderlyingType> CalculateTotal(Option<MoneyEvaluationContext<TUnderlyingType>> context)
         => context.Match(
             none: AggregateWithoutEvaluationContext,
             some: AggregateWithEvaluationContext);
 
-    private void Add(Money money)
+    private void Add(Money<TUnderlyingType> money)
     {
         if (money.IsZero)
         {
@@ -53,41 +55,41 @@ internal sealed class MoneyBag
         }
     }
 
-    private static List<Money> MultiplyBag(decimal factor, IEnumerable<Money> bag)
+    private static List<Money<TUnderlyingType>> MultiplyBag(TUnderlyingType factor, IEnumerable<Money<TUnderlyingType>> bag)
         => bag
             .Select(m => m with { Amount = m.Amount * factor })
             .ToList();
 
-    private Money AggregateWithEvaluationContext(MoneyEvaluationContext context)
+    private Money<TUnderlyingType> AggregateWithEvaluationContext(MoneyEvaluationContext<TUnderlyingType> context)
         => _currencies
             .Values
             .Select(c => c.Aggregate(MoneySum(context)))
             .Select(ExchangeToTargetCurrency(context))
-            .Aggregate(new Money(0m, context), MoneySum);
+            .Aggregate(new Money<TUnderlyingType>(TUnderlyingType.Zero, context), MoneySum);
 
-    private Money AggregateWithoutEvaluationContext()
+    private Money<TUnderlyingType> AggregateWithoutEvaluationContext()
         => ExceptionTransformer<InvalidOperationException>.Transform(
             AggregateSingleMoneyBag,
             exception => throw new MissingEvaluationContextException("Different currencies cannot be evaluated without an evaluation context.", exception));
 
-    private Money AggregateSingleMoneyBag()
+    private Money<TUnderlyingType> AggregateSingleMoneyBag()
         => _currencies
             .SingleOrNone() // Single or None throws an InvalidOperationException if we have more than one currency in the Bag
             .Match(
-                none: () => _emptyCurrency.Match(Money.Zero, c => Money.Zero with { Currency = c }),
+                none: () => _emptyCurrency.Match(Money<TUnderlyingType>.Zero, c => Money<TUnderlyingType>.Zero with { Currency = c }),
                 some: m => CheckAndAggregateBag(m.Value));
 
-    private Money CheckAndAggregateBag(IEnumerable<Money> bag)
+    private Money<TUnderlyingType> CheckAndAggregateBag(IEnumerable<Money<TUnderlyingType>> bag)
         => bag
             .Inspect(CheckEvaluationRules)
             .Aggregate(MoneySum);
 
-    private void CheckEvaluationRules(Money money)
+    private void CheckEvaluationRules(Money<TUnderlyingType> money)
         => _roundingStrategy.Switch(
             none: () => _roundingStrategy = Option.Some(money.RoundingStrategy),
             some: r => CheckRoundingStrategy(money, r));
 
-    private static void CheckRoundingStrategy(Money money, IRoundingStrategy<decimal> roundingStrategy)
+    private static void CheckRoundingStrategy(Money<TUnderlyingType> money, IRoundingStrategy<TUnderlyingType> roundingStrategy)
     {
         if (!money.RoundingStrategy.Equals(roundingStrategy))
         {
@@ -103,14 +105,14 @@ internal sealed class MoneyBag
         }
     }
 
-    private static Money MoneySum(Money currentSum, Money money)
+    private static Money<TUnderlyingType> MoneySum(Money<TUnderlyingType> currentSum, Money<TUnderlyingType> money)
         => currentSum with { Amount = currentSum.Amount + money.Amount };
 
-    private static Func<Money, Money, Money> MoneySum(MoneyEvaluationContext context)
+    private static Func<Money<TUnderlyingType>, Money<TUnderlyingType>, Money<TUnderlyingType>> MoneySum(MoneyEvaluationContext<TUnderlyingType> context)
         => (currentSum, money)
-            => new Money(currentSum.Amount + money.Amount, context);
+            => new Money<TUnderlyingType>(currentSum.Amount + money.Amount, context);
 
-    private static Func<Money, Money> ExchangeToTargetCurrency(MoneyEvaluationContext context)
+    private static Func<Money<TUnderlyingType>, Money<TUnderlyingType>> ExchangeToTargetCurrency(MoneyEvaluationContext<TUnderlyingType> context)
         => money => money.Currency == context.TargetCurrency
             ? money
             : money with { Amount = money.Amount * context.Bank.ExchangeRate(money.Currency, context.TargetCurrency), Currency = context.TargetCurrency };

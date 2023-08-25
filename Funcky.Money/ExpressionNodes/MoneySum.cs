@@ -1,17 +1,20 @@
+using System.Numerics;
+
 namespace Funcky;
 
-internal sealed record MoneySum : IMoneyExpression
+internal sealed record MoneySum<TUnderlyingType> : IMoneyExpression<TUnderlyingType>
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
-    public MoneySum(IMoneyExpression leftMoneyExpression, IMoneyExpression rightMoneyExpression)
+    public MoneySum(IMoneyExpression<TUnderlyingType> leftMoneyExpression, IMoneyExpression<TUnderlyingType> rightMoneyExpression)
     {
         Left = leftMoneyExpression;
         Right = rightMoneyExpression;
     }
 
-    public IMoneyExpression Left { get; }
+    public IMoneyExpression<TUnderlyingType> Left { get; }
 
-    public IMoneyExpression Right { get; }
+    public IMoneyExpression<TUnderlyingType> Right { get; }
 
-    TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
+    TState IMoneyExpression<TUnderlyingType>.Accept<TState>(IMoneyExpressionVisitor<TUnderlyingType, TState> visitor)
         => visitor.Visit(this);
 }

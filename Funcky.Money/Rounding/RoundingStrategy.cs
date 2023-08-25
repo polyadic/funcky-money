@@ -1,25 +1,28 @@
+using System.Numerics;
+
 namespace Funcky;
 
-public static class RoundingStrategy
+public static class RoundingStrategy<TUnderlyingType>
+    where TUnderlyingType : IFloatingPoint<TUnderlyingType>
 {
-    public static IRoundingStrategy<decimal> NoRounding()
-        => new NoRounding<decimal>();
+    public static IRoundingStrategy<TUnderlyingType> NoRounding()
+        => new NoRounding<TUnderlyingType>();
 
-    public static IRoundingStrategy<decimal> BankersRounding(decimal precision)
-        => new BankersRounding<decimal>(precision);
+    public static IRoundingStrategy<TUnderlyingType> BankersRounding(TUnderlyingType precision)
+        => new BankersRounding<TUnderlyingType>(precision);
 
-    public static IRoundingStrategy<decimal> BankersRounding(Currency currency)
-        => new BankersRounding<decimal>(currency);
+    public static IRoundingStrategy<TUnderlyingType> BankersRounding(Currency currency)
+        => new BankersRounding<TUnderlyingType>(currency);
 
-    public static IRoundingStrategy<decimal> RoundWithAwayFromZero(decimal precision)
-        => new RoundWithAwayFromZero<decimal>(precision);
+    public static IRoundingStrategy<TUnderlyingType> RoundWithAwayFromZero(TUnderlyingType precision)
+        => new RoundWithAwayFromZero<TUnderlyingType>(precision);
 
-    public static IRoundingStrategy<decimal> RoundWithAwayFromZero(Currency currency)
-        => new RoundWithAwayFromZero<decimal>(currency);
+    public static IRoundingStrategy<TUnderlyingType> RoundWithAwayFromZero(Currency currency)
+        => new RoundWithAwayFromZero<TUnderlyingType>(currency);
 
-    internal static IRoundingStrategy<decimal> Default(decimal precision)
+    internal static IRoundingStrategy<TUnderlyingType> Default(TUnderlyingType precision)
         => BankersRounding(precision);
 
-    internal static IRoundingStrategy<decimal> Default(Currency currency)
+    internal static IRoundingStrategy<TUnderlyingType> Default(Currency currency)
         => BankersRounding(currency);
 }
