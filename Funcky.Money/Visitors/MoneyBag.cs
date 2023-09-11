@@ -7,7 +7,6 @@ internal sealed class MoneyBag
 {
     private readonly Dictionary<Currency, List<Money>> _currencies = new();
     private Option<IRoundingStrategy> _roundingStrategy;
-    private Option<Currency> _emptyCurrency;
 
     public MoneyBag(Money money)
     {
@@ -39,18 +38,8 @@ internal sealed class MoneyBag
 
     private void Add(Money money)
     {
-        if (money.IsZero)
-        {
-            if (_currencies.None())
-            {
-                _emptyCurrency = money.Currency;
-            }
-        }
-        else
-        {
-            CreateMoneyBagByCurrency(money.Currency);
-            _currencies[money.Currency].Add(money);
-        }
+        CreateMoneyBagByCurrency(money.Currency);
+        _currencies[money.Currency].Add(money);
     }
 
     private static List<Money> MultiplyBag(decimal factor, IEnumerable<Money> bag)
@@ -74,7 +63,7 @@ internal sealed class MoneyBag
         => _currencies
             .SingleOrNone() // Single or None throws an InvalidOperationException if we have more than one currency in the Bag
             .Match(
-                none: () => _emptyCurrency.Match(Money.Zero, c => Money.Zero with { Currency = c }),
+                none: () => throw new Exception("fubar"),
                 some: m => CheckAndAggregateBag(m.Value));
 
     private Money CheckAndAggregateBag(IEnumerable<Money> bag)

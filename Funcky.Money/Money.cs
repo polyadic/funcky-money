@@ -8,8 +8,6 @@ namespace Funcky;
 [DebuggerDisplay("{Amount} {Currency.AlphabeticCurrencyCode,nq}")]
 public sealed partial record Money : IMoneyExpression
 {
-    public static readonly Money Zero = new(0m);
-
     public Money(decimal amount, Option<Currency> currency = default)
     {
         Amount = amount;

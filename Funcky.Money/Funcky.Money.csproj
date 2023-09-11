@@ -6,7 +6,7 @@
         <Description>Funcky.Money is based on Kent Beck's TDD exercise but with more features.</Description>
         <PackageTags>Functional Money</PackageTags>
         <IsPackable>true</IsPackable>
-        <Version>1.2.0</Version>
+        <Version>1.3.0</Version>
     </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="$(AssemblyName).Test" />

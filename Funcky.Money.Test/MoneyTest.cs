@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
@@ -172,21 +173,6 @@ public sealed class MoneyTest
         Assert.Equal(Money.USD(30), product.Evaluate());
     }
 
-    [Property]
-    public Property TheMoneyNeutralElementWorksWithAnyCurrency(Money money)
-    {
-        return (money == (money + Money.Zero).Evaluate()
-                && (money == (Money.Zero + money).Evaluate())).ToProperty().When(!money.IsZero);
-    }
-
-    [Property]
-    public Property InASumOfMultipleZerosWithDifferentCurrenciesTheEvaluationHasTheSameCurrencyAsTheFirstMoneyInTheExpression(Currency c1, Currency c2, Currency c3)
-    {
-        var sum = new Money(0m, c1) + new Money(0m, c2) + new Money(0m, c3) + new Money(0m, c2);
-
-        return (sum.Evaluate().Currency == c1).ToProperty();
-    }
-
     [Fact]
     public void MoneyFormatsCorrectlyAccordingToTheCurrency()
     {
@@ -300,19 +286,6 @@ public sealed class MoneyTest
         var sum = (fiveFrancs + tenDollars + fiveEuros) * 1.5m;
 
         Assert.Equal(30m, sum.Evaluate(OneToOneContext(Currency.CHF)).Amount);
-    }
-
-    [Fact]
-    public void EvaluationOnZeroMoneysWorks()
-    {
-        var sum = (Money.Zero + Money.Zero) * 1.5m;
-
-        var context = OneToOneContext(Currency.JPY);
-
-        Assert.True(Money.Zero.Evaluate(context).IsZero);
-        Assert.True(sum.Evaluate(context).IsZero);
-        Assert.True(Money.Zero.Evaluate().IsZero);
-        Assert.True(sum.Evaluate().IsZero);
     }
 
     [Fact]
@@ -479,7 +452,7 @@ public sealed class MoneyTest
     [Fact]
     public void DividingTwoMoneysOnlyWorksIfTheDivisorIsNonZero()
     {
-        Assert.Throws<DivideByZeroException>(() => Money.CHF(5) / Money.Zero);
+        Assert.Throws<DivideByZeroException>(() => Money.CHF(5) / Money.CHF(0.0m));
         Assert.Throws<DivideByZeroException>(() => Money.USD(3).Divide(Money.USD(0)));
     }
 
