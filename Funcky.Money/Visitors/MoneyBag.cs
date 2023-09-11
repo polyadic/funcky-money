@@ -63,7 +63,7 @@ internal sealed class MoneyBag
         => _currencies
             .SingleOrNone() // Single or None throws an InvalidOperationException if we have more than one currency in the Bag
             .Match(
-                none: () => throw new Exception("fubar"),
+                none: () => throw new Exception("nothing to Aggregate"),
                 some: m => CheckAndAggregateBag(m.Value));
 
     private Money CheckAndAggregateBag(IEnumerable<Money> bag)
