@@ -85,7 +85,6 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Every construction of `Money` currently rounds to two digits, while this is interesting for 5.7f, it has bad effects in evaluation. We should remove the rounding again.
 * [x] The default `MidpointRounding` mechanism is bankers rounding (`MidpointRounding.ToEven`).
 * [x] Multiply a `Money` with a real number (`int`, and `decimal`).
-* [x] There is a neutral `Money` element (`Zero`).
 * [x] Distribute `Money` equally into n slices (1CHF into 3 slices: [0.33, 0.33, 0.34]).
 * [x] Distribute `Money` proportionally (1 CHF in 1:5 -> [0.17, 0.83]).
 * [x] Extract distribution of money into a strategy which is injected.
@@ -121,6 +120,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * We prepare a distribution strategy but do not make it chosable at this point.
 * We support the following operators: unary + and -, and the binary operators ==, !=, +, -, * and /.
 * You can divide two different currencies only with the `Divide(IMoneyExpression, IMoneyExpression, Option<MoneyEvaluationContext>)` method where you have to give a `MoneyEvaluationContext` with the necessary exchange rates.
+* We removed the neutral `Money` element (`Zero`), there are too many unsolved problems. If we add it again we should probaly make a NeutralElement : `IMoneyExpression`.
 
 ### Open Decisions
 
