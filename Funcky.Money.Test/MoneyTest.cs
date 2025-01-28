@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Globalization;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
@@ -8,9 +7,8 @@ namespace Funcky.Test;
 
 public sealed class MoneyTest
 {
-    public MoneyTest() =>
-        Arb
-            .Register<MoneyArbitraries>();
+    public MoneyTest()
+        => Arb.Register<MoneyArbitraries>();
 
     private static MoneyEvaluationContext SwissRounding
         => MoneyEvaluationContext
