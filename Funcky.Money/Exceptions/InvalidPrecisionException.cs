@@ -1,4 +1,6 @@
+#if NETSTANDARD2_0
 using System.Runtime.Serialization;
+#endif
 
 namespace Funcky;
 
@@ -20,8 +22,10 @@ public class InvalidPrecisionException : Exception
     {
     }
 
+#if NETSTANDARD2_0
     protected InvalidPrecisionException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
     }
+#endif
 }

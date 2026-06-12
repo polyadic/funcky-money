@@ -1,4 +1,6 @@
+#if NETSTANDARD2_0
 using System.Runtime.Serialization;
+#endif
 
 namespace Funcky;
 
@@ -19,8 +21,10 @@ public class MissingExchangeRateException : Exception
     {
     }
 
+#if NETSTANDARD2_0
     protected MissingExchangeRateException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
     }
+#endif
 }

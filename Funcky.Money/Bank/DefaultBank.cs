@@ -3,21 +3,17 @@ using Funcky.Extensions;
 
 namespace Funcky;
 
-internal sealed class DefaultBank : IBank
+internal sealed class DefaultBank(ImmutableDictionary<(Currency Source, Currency Target), decimal> exchangeRates)
+    : IBank
 {
     internal static readonly DefaultBank Empty = new();
 
-    public DefaultBank(ImmutableDictionary<(Currency Source, Currency Target), decimal> exchangeRates)
-    {
-        ExchangeRates = exchangeRates;
-    }
-
     private DefaultBank()
+        : this(ImmutableDictionary<(Currency Source, Currency Target), decimal>.Empty)
     {
-        ExchangeRates = ImmutableDictionary<(Currency Source, Currency Target), decimal>.Empty;
     }
 
-    public ImmutableDictionary<(Currency Source, Currency Target), decimal> ExchangeRates { get; }
+    public ImmutableDictionary<(Currency Source, Currency Target), decimal> ExchangeRates { get; } = exchangeRates;
 
     public decimal ExchangeRate(Currency source, Currency target)
         => ExchangeRates
