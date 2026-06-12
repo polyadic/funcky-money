@@ -2,15 +2,15 @@ namespace Funcky;
 
 internal sealed record MoneySum : IMoneyExpression
 {
-    public MoneySum(IMoneyExpression leftMoneyExpression, IMoneyExpression rightMoneyExpression)
+    public MoneySum(IMoneyExpression augend, IMoneyExpression addend)
     {
-        Left = leftMoneyExpression;
-        Right = rightMoneyExpression;
+        Augend = augend;
+        Addend = addend;
     }
 
-    public IMoneyExpression Left { get; }
+    public IMoneyExpression Augend { get; }
 
-    public IMoneyExpression Right { get; }
+    public IMoneyExpression Addend { get; }
 
     TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
         => visitor.Visit(this);

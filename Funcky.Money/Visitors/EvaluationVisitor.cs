@@ -17,8 +17,12 @@ internal sealed class EvaluationVisitor : IMoneyExpressionVisitor<MoneyBag>
        => new(money);
 
     public MoneyBag Visit(MoneySum sum)
-        => Accept(sum.Left)
-            .Merge(Accept(sum.Right));
+        => Accept(sum.Augend)
+            .Merge(Accept(sum.Addend));
+
+    public MoneyBag Visit(MoneyDifference difference)
+        => Accept(difference.Minuend)
+            .Subtract(Accept(difference.Subtrahend));
 
     public MoneyBag Visit(MoneyProduct product)
         => Accept(product.Expression)

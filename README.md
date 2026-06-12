@@ -113,6 +113,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] The context has a smallest distribution unit.
 * [x] A dimensionless factor can be calculated by dividing two money objects.
 * [x] 76CHF * 0.6666 / 0.6666 should yield the same result. A quotient can lead to a more exact result; that's why we want to implement a MoneyQuotient too.
+* [x] Implement MoneyDifference for symmetry reasons.
 
 ### Decisions
 

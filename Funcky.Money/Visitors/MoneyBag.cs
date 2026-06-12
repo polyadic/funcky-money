@@ -23,6 +23,16 @@ internal sealed class MoneyBag
         return this;
     }
 
+    public MoneyBag Subtract(MoneyBag moneyBag)
+    {
+        moneyBag
+            ._currencies
+            .SelectMany(kv => kv.Value)
+            .ForEach(money => Add(money with { Amount = -money.Amount }));
+
+        return this;
+    }
+
     public MoneyBag Multiply(decimal factor)
     {
         _currencies

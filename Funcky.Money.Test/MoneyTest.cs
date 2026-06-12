@@ -410,14 +410,13 @@ public sealed class MoneyTest
         var difference = Money.CHF(200) - Money.JPY(500);
         var quotient = Money.CHF(500) / 2;
 
-        // this also shows a few quirks of the Expression-Tree (subtraction and division are only convenience)
-        Assert.Equal("(((2.50CHF + ((1.5 * 7.00CHF) + 0.50CHF)) + ((2 * 7.00CHF) + 0.50CHF)) + ((2.50CHF + (((0.5 * 7.00CHF) + 0.50CHF) + (-1 * 7.00CHF))) + (7.00CHF + 0.50CHF)))", ComplexExpression().ToHumanReadable());
-        Assert.Equal("(0.5 * ((3 * (1.50CHF + 2.50EUR)).Distribute(3, 1, 3, 2)[2] + (2 * 2.99USD)))", expression.ToHumanReadable());
+        Assert.Equal("(((2.50CHF + ((1.5 * 7.00CHF) + 0.50CHF)) + ((2 * 7.00CHF) + 0.50CHF)) + ((2.50CHF + (((7.00CHF / 2) + 0.50CHF) - 7.00CHF)) + (7.00CHF + 0.50CHF)))", ComplexExpression().ToHumanReadable());
+        Assert.Equal("(((3 * (1.50CHF + 2.50EUR)).Distribute(3, 1, 3, 2)[2] + (2 * 2.99USD)) / 2)", expression.ToHumanReadable());
 
         Assert.Equal("(30.00CHF + 500JPY)", sum.ToHumanReadable());
         Assert.Equal("(2.5 * 100.00CHF)", product.ToHumanReadable());
-        Assert.Equal("(200.00CHF + (-1 * 500JPY))", difference.ToHumanReadable());
-        Assert.Equal("(0.5 * 500.00CHF)", quotient.ToHumanReadable());
+        Assert.Equal("(200.00CHF - 500JPY)", difference.ToHumanReadable());
+        Assert.Equal("(500.00CHF / 2)", quotient.ToHumanReadable());
     }
 
     [Fact]
