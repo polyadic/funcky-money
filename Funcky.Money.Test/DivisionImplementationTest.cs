@@ -8,9 +8,6 @@ namespace Funcky.Test;
 [Properties(Arbitrary = [typeof(MoneyArbitraries)])]
 public sealed class DivisionImplementationTest
 {
-    public DivisionImplementationTest()
-        => Arb.Register<MoneyArbitraries>();
-
     [Fact]
     public void ReferenceTestWhichFailsWithInversionInsteadOfDivide()
     {

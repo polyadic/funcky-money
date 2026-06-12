@@ -22,13 +22,21 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var xmlFiles = context.AdditionalTextsProvider.Where(f => Path.GetExtension(f.Path) == ".xml").Collect();
-        context.RegisterSourceOutput(xmlFiles, GenerateSource);
+        var currencies = context.AdditionalTextsProvider
+            .Where(static file => Path.GetExtension(file.Path) == ".xml")
+
+            // Parse each file into value-equatable records so this step is cached per file
+            // and only re-runs when that file's content actually changes.
+            .Select(static (file, cancellationToken) => ReadIso4217Records(file.GetText(cancellationToken)).AsEquatableArray())
+            .Collect()
+            .Select(static (recordsPerFile, _) => Deduplicate(recordsPerFile));
+
+        context.RegisterSourceOutput(currencies, GenerateSource);
     }
 
-    private static void GenerateSource(SourceProductionContext context, ImmutableArray<AdditionalText> xmlFiles)
+    private static void GenerateSource(SourceProductionContext context, EquatableArray<Iso4217Record> currencies)
     {
-        var records = ReadIso4217RecordsFromAdditionalFiles(xmlFiles, context.CancellationToken).ToImmutableArray();
+        var records = currencies.AsImmutableArray();
         context.AddSource("CurrencyCode.Generated", SourceText.From(GenerateCurrencyClass(records), Encoding.UTF8));
         context.AddSource("Money.Generated", SourceText.From(GenerateMoneyClass(records), Encoding.UTF8));
     }
@@ -125,17 +133,21 @@ public sealed class Iso4217RecordGenerator : IIncrementalGenerator
             $"{Indent}{Indent}  => new(amount, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.{identifier}).Build());";
     }
 
-    private static IEnumerable<Iso4217Record> ReadIso4217RecordsFromAdditionalFiles(
-        ImmutableArray<AdditionalText> additionalTexts,
-        CancellationToken cancellationToken)
-        => additionalTexts
-            .Select(f => f.GetText(cancellationToken))
-            .Where(f => f is not null)
-            .SelectMany(text => CreateXmlDocumentFromString(text!.ToString())
+    private static ImmutableArray<Iso4217Record> ReadIso4217Records(SourceText? text)
+        => text is null
+            ? ImmutableArray<Iso4217Record>.Empty
+            : CreateXmlDocumentFromString(text.ToString())
                 .SelectNodesAsEnumerable("//CcyNtry/Ccy/..")
-                .WhereSelect(ReadIso4217RecordFromNode))
+                .WhereSelect(ReadIso4217RecordFromNode)
+                .ToImmutableArray();
+
+    private static EquatableArray<Iso4217Record> Deduplicate(ImmutableArray<EquatableArray<Iso4217Record>> recordsPerFile)
+        => recordsPerFile
+            .SelectMany(records => records.AsImmutableArray())
             .ToImmutableDictionary(r => r.AlphabeticCurrencyCode)
-            .Select(r => r.Value);
+            .Select(r => r.Value)
+            .ToImmutableArray()
+            .AsEquatableArray();
 
     private static XmlDocument CreateXmlDocumentFromString(string xml)
     {
