@@ -9,9 +9,7 @@ internal sealed class MoneyBag
     private Option<IRoundingStrategy> _roundingStrategy;
 
     public MoneyBag(Money money)
-    {
-        Add(money);
-    }
+        => Add(money);
 
     public MoneyBag Merge(MoneyBag moneyBag)
     {

@@ -9,9 +9,7 @@ public partial record Currency
     private readonly Iso4217Record _currencyInformation;
 
     internal Currency(Iso4217Record currencyInformation)
-    {
-        _currencyInformation = currencyInformation;
-    }
+        => _currencyInformation = currencyInformation;
 
     public string CurrencyName
         => _currencyInformation.CurrencyName;

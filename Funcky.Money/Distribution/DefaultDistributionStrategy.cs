@@ -3,7 +3,7 @@ using Funcky.Monads;
 
 namespace Funcky;
 
-internal class DefaultDistributionStrategy(Option<MoneyEvaluationContext> context) : IDistributionStrategy
+internal sealed class DefaultDistributionStrategy(Option<MoneyEvaluationContext> context) : IDistributionStrategy
 {
     public Money Distribute(MoneyDistributionPart part, Money total)
         => IsDistributable(part, total)

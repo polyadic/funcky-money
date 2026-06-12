@@ -2,7 +2,7 @@ using Funcky.Extensions;
 
 namespace Funcky;
 
-internal class ToHumanReadableVisitor : IMoneyExpressionVisitor<string>
+internal sealed class ToHumanReadableVisitor : IMoneyExpressionVisitor<string>
 {
     private const string DistributionSeparator = ", ";
     private static readonly Lazy<ToHumanReadableVisitor> LazyInstance = new(() => new());
