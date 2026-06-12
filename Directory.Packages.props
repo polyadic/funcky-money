@@ -2,6 +2,7 @@
 <Project>
 	<PropertyGroup>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
 	</PropertyGroup>
 	<ItemGroup Label="Runtime Dependencies">
 		<PackageVersion Include="Funcky" Version="[3.0.0, 4.0.0)" />
@@ -21,5 +22,9 @@
 		<PackageVersion Include="Funcky.Xunit" Version="1.0.0" />
 		<PackageVersion Include="FsCheck.Xunit" Version="2.16.3" />
 		<PackageVersion Include="coverlet.collector" Version="[1.0.0, 2.0.0)" />
+	</ItemGroup>
+	<ItemGroup Label="Transitive Pins (security)">
+		<PackageVersion Include="System.Text.Encodings.Web" Version="8.0.0" />
+		<PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 </Project>
