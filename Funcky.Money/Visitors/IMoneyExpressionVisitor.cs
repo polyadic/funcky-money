@@ -7,7 +7,11 @@ internal interface IMoneyExpressionVisitor<out TState>
 
     TState Visit(MoneySum sum);
 
+    TState Visit(MoneyDifference difference);
+
     TState Visit(MoneyProduct product);
+
+    TState Visit(MoneyQuotient quotient);
 
     TState Visit(MoneyDistributionPart part);
 }
