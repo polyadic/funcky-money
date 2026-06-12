@@ -2,17 +2,11 @@ using Funcky.Monads;
 
 namespace Funcky;
 
-internal sealed class EvaluationVisitor : IMoneyExpressionVisitor<MoneyBag>
+internal sealed class EvaluationVisitor(
+    IDistributionStrategy distributionStrategy,
+    Option<MoneyEvaluationContext> context)
+    : IMoneyExpressionVisitor<MoneyBag>
 {
-    private readonly IDistributionStrategy _distributionStrategy;
-    private readonly Option<MoneyEvaluationContext> _context;
-
-    public EvaluationVisitor(IDistributionStrategy distributionStrategy, Option<MoneyEvaluationContext> context)
-    {
-        _distributionStrategy = distributionStrategy;
-        _context = context;
-    }
-
     public MoneyBag Visit(Money money)
        => new(money);
 
@@ -33,7 +27,7 @@ internal sealed class EvaluationVisitor : IMoneyExpressionVisitor<MoneyBag>
             .Divide(quotient.Divisor);
 
     public MoneyBag Visit(MoneyDistributionPart part)
-        => new(_distributionStrategy.Distribute(part, CalculateTotal(part)));
+        => new(distributionStrategy.Distribute(part, CalculateTotal(part)));
 
     private MoneyBag Accept(IMoneyExpression expression)
         => expression
@@ -41,5 +35,5 @@ internal sealed class EvaluationVisitor : IMoneyExpressionVisitor<MoneyBag>
 
     private Money CalculateTotal(MoneyDistributionPart part)
         => Accept(part.Distribution.Expression)
-            .CalculateTotal(_context);
+            .CalculateTotal(context);
 }

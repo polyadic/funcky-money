@@ -3,15 +3,8 @@ using Funcky.Monads;
 
 namespace Funcky;
 
-internal class DefaultDistributionStrategy : IDistributionStrategy
+internal class DefaultDistributionStrategy(Option<MoneyEvaluationContext> context) : IDistributionStrategy
 {
-    private readonly Option<MoneyEvaluationContext> _context;
-
-    public DefaultDistributionStrategy(Option<MoneyEvaluationContext> context)
-    {
-        _context = context;
-    }
-
     public Money Distribute(MoneyDistributionPart part, Money total)
         => IsDistributable(part, total)
             ? total with { Amount = SliceAmount(part, total), Currency = total.Currency }
@@ -42,7 +35,7 @@ internal class DefaultDistributionStrategy : IDistributionStrategy
         => SignedPrecision(part.Distribution, money) * part.Index;
 
     private IRoundingStrategy RoundingStrategy(Money money)
-        => _context.Match(
+        => context.Match(
             some: c => c.RoundingStrategy,
             none: money.RoundingStrategy);
 
@@ -69,11 +62,11 @@ internal class DefaultDistributionStrategy : IDistributionStrategy
     private decimal Precision(MoneyDistribution distribution, Money money)
         => distribution
             .Precision
-            .OrElse(_context.AndThen(c => c.DistributionUnit))
+            .OrElse(context.AndThen(c => c.DistributionUnit))
             .GetOrElse(Power.OfATenth(MinorUnitDigits(money)));
 
     private int MinorUnitDigits(Money money)
-        => _context.Match(
+        => context.Match(
             none: money.Currency.MinorUnitDigits,
             some: c => c.TargetCurrency.MinorUnitDigits);
 

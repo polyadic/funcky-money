@@ -1,16 +1,10 @@
 namespace Funcky;
 
-internal sealed class MoneyDistributionPart : IMoneyExpression
+internal sealed class MoneyDistributionPart(MoneyDistribution distribution, int index) : IMoneyExpression
 {
-    public MoneyDistributionPart(MoneyDistribution distribution, int index)
-    {
-        Distribution = distribution;
-        Index = index;
-    }
+    public MoneyDistribution Distribution { get; } = distribution;
 
-    public MoneyDistribution Distribution { get; }
-
-    public int Index { get; }
+    public int Index { get; } = index;
 
     TState IMoneyExpression.Accept<TState>(IMoneyExpressionVisitor<TState> visitor)
         => visitor.Visit(this);
