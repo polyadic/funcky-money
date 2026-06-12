@@ -1,4 +1,5 @@
 using FsCheck;
+using FsCheck.Fluent;
 
 namespace Funcky.Test;
 
@@ -14,11 +15,11 @@ internal class MoneyArbitraries
         => GenerateSwissFranc().ToArbitrary();
 
     private static Gen<Money> GenerateMoney()
-        => from currency in Arb.Generate<Currency>()
-           from amount in Arb.Generate<int>()
+        => from currency in ArbitraryCurrency().Generator
+           from amount in ArbMap.Default.GeneratorFor<int>()
            select new Money(Power.OfATenth(currency.MinorUnitDigits) * amount, currency);
 
     private static Gen<SwissMoney> GenerateSwissFranc()
-        => from amount in Arb.Generate<int>()
+        => from amount in ArbMap.Default.GeneratorFor<int>()
            select new SwissMoney(Money.CHF(SwissMoney.SmallestCoin * amount));
 }

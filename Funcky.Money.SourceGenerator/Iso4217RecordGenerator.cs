@@ -5,7 +5,6 @@ using Funcky.Extensions;
 using Funcky.Monads;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using static System.Environment;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Funcky.Money.SourceGenerator;
@@ -13,6 +12,7 @@ namespace Funcky.Money.SourceGenerator;
 [Generator]
 public sealed class Iso4217RecordGenerator : IIncrementalGenerator
 {
+    private const string NewLine = "\n";
     private const string RootNamespace = "Funcky";
     private const string Indent = "    ";
     private const string CurrencyNameNode = "CcyNm";

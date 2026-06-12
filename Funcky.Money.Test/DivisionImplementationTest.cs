@@ -1,9 +1,11 @@
 using FsCheck;
+using FsCheck.Fluent;
 using FsCheck.Xunit;
 using Xunit;
 
 namespace Funcky.Test;
 
+[Properties(Arbitrary = new[] { typeof(MoneyArbitraries) })]
 public sealed class DivisionImplementationTest
 {
     public DivisionImplementationTest()
