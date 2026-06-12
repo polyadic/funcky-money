@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Funcky.Test;
 
-[Properties(Arbitrary = new[] { typeof(MoneyArbitraries) })]
+[Properties(Arbitrary = [typeof(MoneyArbitraries)])]
 public sealed class MoneyTest
 {
     private static MoneyEvaluationContext SwissRounding
@@ -82,7 +82,7 @@ public sealed class MoneyTest
     {
         var fiftyCents = Money.EUR(0.5m);
         var sum = fiftyCents.Add(fiftyCents);
-        var distribution = sum.Distribute(new[] { first, second });
+        var distribution = sum.Distribute([first, second]);
 
         var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
         Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
@@ -99,7 +99,7 @@ public sealed class MoneyTest
     {
         var fiftyCents = Money.EUR(-0.5m);
         var sum = fiftyCents.Add(fiftyCents);
-        var distribution = sum.Distribute(new[] { first, second });
+        var distribution = sum.Distribute([first, second]);
 
         var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
         Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
@@ -402,7 +402,7 @@ public sealed class MoneyTest
     [Fact]
     public void ToHumanReadableExtensionTransformsExpressionsCorrectly()
     {
-        var distribution = ((Money.CHF(1.5m) + Money.EUR(2.5m)) * 3).Distribute(new[] { 3, 1, 3, 2 });
+        var distribution = ((Money.CHF(1.5m) + Money.EUR(2.5m)) * 3).Distribute([3, 1, 3, 2]);
         var expression = (distribution.Skip(2).First() + (Money.USD(2.99m) * 2)) / 2;
         var sum = Money.CHF(30) + Money.JPY(500);
         var product = Money.CHF(100) * 2.5m;

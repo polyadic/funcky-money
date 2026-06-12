@@ -111,7 +111,7 @@ internal sealed class MoneyBag
     {
         if (!_currencies.ContainsKey(currency))
         {
-            _currencies.Add(currency, new());
+            _currencies.Add(currency, []);
         }
     }
 

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Funcky.Test;
 
-[Properties(Arbitrary = new[] { typeof(MoneyArbitraries) })]
+[Properties(Arbitrary = [typeof(MoneyArbitraries)])]
 public sealed class DivisionImplementationTest
 {
     public DivisionImplementationTest()
