@@ -31,6 +31,14 @@ internal sealed class MoneyBag
         return this;
     }
 
+    public MoneyBag Divide(decimal factor)
+    {
+        _currencies
+            .ForEach(kv => _currencies[kv.Key] = DivideBag(factor, kv.Value));
+
+        return this;
+    }
+
     public Money CalculateTotal(Option<MoneyEvaluationContext> context)
         => context.Match(
             none: AggregateWithoutEvaluationContext,
@@ -45,6 +53,11 @@ internal sealed class MoneyBag
     private static List<Money> MultiplyBag(decimal factor, IEnumerable<Money> bag)
         => bag
             .Select(m => m with { Amount = m.Amount * factor })
+            .ToList();
+
+    private static List<Money> DivideBag(decimal factor, IEnumerable<Money> bag)
+        => bag
+            .Select(m => m with { Amount = m.Amount / factor })
             .ToList();
 
     private Money AggregateWithEvaluationContext(MoneyEvaluationContext context)

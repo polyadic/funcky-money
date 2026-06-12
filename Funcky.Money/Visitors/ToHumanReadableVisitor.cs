@@ -19,6 +19,9 @@ internal class ToHumanReadableVisitor : IMoneyExpressionVisitor<string>
     public string Visit(MoneyProduct product)
         => $"({product.Factor} * {Accept(product.Expression)})";
 
+    public string Visit(MoneyQuotient quotient)
+        => $"({Accept(quotient.Expression)} / {quotient.Factor})";
+
     public string Visit(MoneyDistributionPart part)
         => $"{Accept(part.Distribution.Expression)}.Distribute({part.Distribution.Factors.JoinToString(DistributionSeparator)})[{part.Index}]";
 

@@ -24,6 +24,10 @@ internal sealed class EvaluationVisitor : IMoneyExpressionVisitor<MoneyBag>
         => Accept(product.Expression)
             .Multiply(product.Factor);
 
+    public MoneyBag Visit(MoneyQuotient quotient)
+        => Accept(quotient.Expression)
+            .Divide(quotient.Factor);
+
     public MoneyBag Visit(MoneyDistributionPart part)
         => new(_distributionStrategy.Distribute(part, CalculateTotal(part)));
 

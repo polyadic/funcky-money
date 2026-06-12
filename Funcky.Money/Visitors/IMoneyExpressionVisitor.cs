@@ -9,5 +9,7 @@ internal interface IMoneyExpressionVisitor<out TState>
 
     TState Visit(MoneyProduct product);
 
+    TState Visit(MoneyQuotient quotient);
+
     TState Visit(MoneyDistributionPart part);
 }
