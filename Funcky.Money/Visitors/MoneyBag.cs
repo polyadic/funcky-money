@@ -31,10 +31,10 @@ internal sealed class MoneyBag
         return this;
     }
 
-    public MoneyBag Divide(decimal factor)
+    public MoneyBag Divide(decimal divisor)
     {
         _currencies
-            .ForEach(kv => _currencies[kv.Key] = DivideBag(factor, kv.Value));
+            .ForEach(kv => _currencies[kv.Key] = DivideBag(divisor, kv.Value));
 
         return this;
     }
@@ -55,9 +55,9 @@ internal sealed class MoneyBag
             .Select(m => m with { Amount = m.Amount * factor })
             .ToList();
 
-    private static List<Money> DivideBag(decimal factor, IEnumerable<Money> bag)
+    private static List<Money> DivideBag(decimal divisor, IEnumerable<Money> bag)
         => bag
-            .Select(m => m with { Amount = m.Amount / factor })
+            .Select(m => m with { Amount = m.Amount / divisor })
             .ToList();
 
     private Money AggregateWithEvaluationContext(MoneyEvaluationContext context)
