@@ -112,7 +112,7 @@ These is the evolving list of TDD requirements which led to the implementation.
 * [x] Add unary and binary minus and the division operator.
 * [x] The context has a smallest distribution unit.
 * [x] A dimensionless factor can be calculated by dividing two money objects.
-* [x] 76CHF * 0.6666 / 0.6666 should be the same. A Quotient can lead to a more exact result, thats why we want to Implement a MoneyQuotient too.
+* [x] 76CHF * 0.6666 / 0.6666 should yield the same result. A quotient can lead to a more exact result; that's why we want to implement a MoneyQuotient too.
 
 ### Decisions
 
