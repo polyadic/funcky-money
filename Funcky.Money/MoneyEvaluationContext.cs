@@ -56,15 +56,27 @@ public sealed record MoneyEvaluationContext
         public Builder WithBank(IBank bank)
             => this with { Bank = Option.Some(bank) };
 
+        /// <exception cref="InvalidMoneyEvaluationContextBuilderException">No target currency was set.</exception>
+        /// <exception cref="IncompatibleRoundingException">The rounding strategy would change amounts distributed in the smallest distribution unit.</exception>
         public MoneyEvaluationContext Build()
         {
             var targetCurrency = TargetCurrency.GetOrElse(() => throw new InvalidMoneyEvaluationContextBuilderException("Target currency must be set."));
+            var roundingStrategy = RoundingStrategy.GetOrElse(() => DefaultRounding(targetCurrency));
 
             return new(
                 targetCurrency,
-                SmallestDistributionUnit,
-                RoundingStrategy.GetOrElse(() => DefaultRounding(targetCurrency)),
+                SmallestDistributionUnit.Inspect(unit => EnsureCompatibleRounding(roundingStrategy, unit)),
+                roundingStrategy,
                 Bank.GetOrElse(() => new DefaultBank(targetCurrency, ExchangeRates)));
+        }
+
+        private static void EnsureCompatibleRounding(IRoundingStrategy roundingStrategy, decimal smallestDistributionUnit)
+        {
+            // Distributed amounts are multiples of the smallest unit; rounding must leave those untouched.
+            if (roundingStrategy.Round(smallestDistributionUnit) != smallestDistributionUnit)
+            {
+                throw new IncompatibleRoundingException(roundingStrategy, smallestDistributionUnit);
+            }
         }
 
         private IRoundingStrategy DefaultRounding(Currency targetCurrency)
