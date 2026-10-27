@@ -66,10 +66,10 @@ public sealed class MoneyTest
         => TheSumOfThePartsIsEqualToTheTotal(someMoney.Get.Amount, Distributed(someMoney, numberOfParts.Get))
             .ToProperty();
 
-    //[Property]
-    //public Property DistributeMoneyHasNumberOfParts(SwissMoney someMoney, PositiveInt numberOfParts)
-    //    => TheNumberOfPartsIsCorrect(numberOfParts.Get, Distributed(someMoney, numberOfParts.Get))
-    //        .ToProperty();
+    [Property]
+    public Property DistributeMoneyHasNumberOfParts(SwissMoney someMoney, PositiveInt numberOfParts)
+        => TheNumberOfPartsIsCorrect(numberOfParts.Get, Distributed(someMoney, numberOfParts.Get))
+            .ToProperty();
 
     //[Property]
     //public Property DistributeMoneyHasMinimalDifference(SwissMoney someMoney, PositiveInt numberOfParts)
