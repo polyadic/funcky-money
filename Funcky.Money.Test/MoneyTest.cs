@@ -193,19 +193,19 @@ public sealed class MoneyTest
         Assert.Equal(new Money(1000, Currency.CHF), r3);
     }
 
-    //[Fact]
-    //public void CurrenciesWithoutFormatProviders()
-    //{
-    //    // XAU is gold and therefore has no format provider, any decimal or thousand separator is therefore arbitrary.
-    //    // Funcky therefore chooses the current culture to format such currencies, that is why we set a specific one here.
-    //    using var cultureSwitch = new TemporaryCultureSwitch("de-CH");
+    [Fact]
+    public void CurrenciesWithoutFormatProviders()
+    {
+        // XAU is gold and therefore has no format provider, any decimal or thousand separator is therefore arbitrary.
+        // Funcky therefore chooses the current culture to format such currencies, that is why we set a specific one here.
+        using var cultureSwitch = new TemporaryCultureSwitch("de-CH");
 
-    //    var currencyWithoutFormatProvider = Money.XAU(9585);
-    //    Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
+        var currencyWithoutFormatProvider = Money.XAU(9585);
+        Assert.Equal("9’585 XAU", currencyWithoutFormatProvider.ToString());
 
-    //    var money = FunctionalAssert.Some(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
-    //    Assert.Equal(new Money(9585, Currency.XAU), money);
-    //}
+        var money = FunctionalAssert.Some(Money.ParseOrNone("9’585.00 XAU", Currency.XAU));
+        Assert.Equal(new Money(9585, Currency.XAU), money);
+    }
 
     //[Property]
     //public Property WeCanParseTheStringsWeGenerate(Money money)
