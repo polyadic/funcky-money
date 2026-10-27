@@ -43,14 +43,14 @@ public sealed class MoneyTest
         Assert.Throws<MissingExchangeRateException>(() => sum.Evaluate(SwissRounding));
     }
 
-    //[Property]
-    //public Property DollarsAreNotFrancs(decimal amount)
-    //{
-    //    var francs = Money.CHF(amount);
-    //    var dollars = Money.USD(amount);
+    [Property]
+    public Property DollarsAreNotFrancs(decimal amount)
+    {
+        var francs = Money.CHF(amount);
+        var dollars = Money.USD(amount);
 
-    //    return (francs != dollars).ToProperty();
-    //}
+        return (francs != dollars).ToProperty();
+    }
 
     //[Property]
     //public Property MoneyCanBeMultipliedByConstantsFactors(Money someMoney, decimal multiplier)
