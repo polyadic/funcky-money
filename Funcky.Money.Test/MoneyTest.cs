@@ -213,31 +213,31 @@ public sealed class MoneyTest
         return Money.ParseOrNone(money.ToString(), money.Currency).Match(false, m => m == money).ToProperty();
     }
 
-    //[Fact]
-    //public void ThePrecisionCanBeSetToSomethingOtherThanAPowerOfTen()
-    //{
-    //    var precision05 = new Money(1m, SwissRounding);
-    //    var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
+    [Fact]
+    public void ThePrecisionCanBeSetToSomethingOtherThanAPowerOfTen()
+    {
+        var precision05 = new Money(1m, SwissRounding);
+        var precision002 = new Money(1m, MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF).WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
 
-    //    Assert.Collection(
-    //        precision05.Distribute(3, 0.05m).Select(e => e.Evaluate().Amount),
-    //        item => Assert.Equal(0.35m, item),
-    //        item => Assert.Equal(0.35m, item),
-    //        item => Assert.Equal(0.30m, item));
+        Assert.Collection(
+            precision05.Distribute(3, 0.05m).Select(e => e.Evaluate().Amount),
+            item => Assert.Equal(0.35m, item),
+            item => Assert.Equal(0.35m, item),
+            item => Assert.Equal(0.30m, item));
 
-    //    Assert.Collection(
-    //        precision002.Distribute(3, 0.002m).Select(e => e.Evaluate().Amount),
-    //        item => Assert.Equal(0.334m, item),
-    //        item => Assert.Equal(0.334m, item),
-    //        item => Assert.Equal(0.332m, item));
+        Assert.Collection(
+            precision002.Distribute(3, 0.002m).Select(e => e.Evaluate().Amount),
+            item => Assert.Equal(0.334m, item),
+            item => Assert.Equal(0.334m, item),
+            item => Assert.Equal(0.332m, item));
 
-    //    var francs = new Money(0.10m, SwissRounding);
-    //    Assert.Collection(
-    //        francs.Distribute(3, 0.05m).Select(e => e.Evaluate().Amount),
-    //        item => Assert.Equal(0.05m, item),
-    //        item => Assert.Equal(0.05m, item),
-    //        item => Assert.Equal(0m, item));
-    //}
+        var francs = new Money(0.10m, SwissRounding);
+        Assert.Collection(
+            francs.Distribute(3, 0.05m).Select(e => e.Evaluate().Amount),
+            item => Assert.Equal(0.05m, item),
+            item => Assert.Equal(0.05m, item),
+            item => Assert.Equal(0m, item));
+    }
 
     //[Fact]
     //public void TheRoundingStrategyIsCorrectlyPassedThrough()
