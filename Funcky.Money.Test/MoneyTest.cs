@@ -157,18 +157,18 @@ public sealed class MoneyTest
         Assert.Equal(38.72m, sum.Evaluate(context).Amount);
     }
 
-    //[Fact]
-    //public void WeCanDefineMoneyExpressionsWithOperators()
-    //{
-    //    var fiveDollars = Money.USD(5);
-    //    var tenDollars = Money.USD(10);
+    [Fact]
+    public void WeCanDefineMoneyExpressionsWithOperators()
+    {
+        var fiveDollars = Money.USD(5);
+        var tenDollars = Money.USD(10);
 
-    //    var sum = fiveDollars + tenDollars + fiveDollars;
-    //    var product = 3.00m * tenDollars;
+        var sum = fiveDollars + tenDollars + fiveDollars;
+        var product = 3.00m * tenDollars;
 
-    //    Assert.Equal(Money.USD(20), sum.Evaluate());
-    //    Assert.Equal(Money.USD(30), product.Evaluate());
-    //}
+        Assert.Equal(Money.USD(20), sum.Evaluate());
+        Assert.Equal(Money.USD(30), product.Evaluate());
+    }
 
     //[Fact]
     //public void MoneyFormatsCorrectlyAccordingToTheCurrency()
