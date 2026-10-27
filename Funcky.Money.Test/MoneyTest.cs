@@ -123,19 +123,19 @@ public sealed class MoneyTest
             { 1, 98, 0.02m, 0.98m },
         };
 
-    //[Fact]
-    //public void InputValuesGetRoundedDuringEvaluation()
-    //{
-    //    var fiveDollarsSeventy = Money.USD(5.7m);
-    //    var midpoint1 = Money.USD(5.715m);
-    //    var midpoint2 = Money.USD(5.725m);
-    //    var pi = Money.USD((decimal)Math.PI);
+    [Fact]
+    public void InputValuesGetRoundedDuringEvaluation()
+    {
+        var fiveDollarsSeventy = Money.USD(5.7m);
+        var midpoint1 = Money.USD(5.715m);
+        var midpoint2 = Money.USD(5.725m);
+        var pi = Money.USD((decimal)Math.PI);
 
-    //    Assert.Equal(5.70m, fiveDollarsSeventy.Evaluate().Amount);
-    //    Assert.Equal(5.72m, midpoint1.Evaluate().Amount);
-    //    Assert.Equal(5.72m, midpoint2.Evaluate().Amount);
-    //    Assert.Equal(3.14m, pi.Evaluate().Amount);
-    //}
+        Assert.Equal(5.70m, fiveDollarsSeventy.Evaluate().Amount);
+        Assert.Equal(5.72m, midpoint1.Evaluate().Amount);
+        Assert.Equal(5.72m, midpoint2.Evaluate().Amount);
+        Assert.Equal(3.14m, pi.Evaluate().Amount);
+    }
 
     //[Fact]
     //public void WeCanEvaluateASumOfDifferentCurrenciesWithAContextWhichDefinesExchangeRates()
