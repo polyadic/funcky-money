@@ -273,17 +273,17 @@ public sealed class MoneyTest
         Assert.Equal(new BankersRounding(0.01m), francs.Evaluate(evaluationContext.Build()).RoundingStrategy);
     }
 
-    //[Fact]
-    //public void WeCanDelegateTheExchangeRatesToABank()
-    //{
-    //    var fiveFrancs = new Money(5, Currency.CHF);
-    //    var tenDollars = new Money(10, Currency.USD);
-    //    var fiveEuros = new Money(5, Currency.EUR);
+    [Fact]
+    public void WeCanDelegateTheExchangeRatesToABank()
+    {
+        var fiveFrancs = new Money(5, Currency.CHF);
+        var tenDollars = new Money(10, Currency.USD);
+        var fiveEuros = new Money(5, Currency.EUR);
 
-    //    var sum = (fiveFrancs + tenDollars + fiveEuros) * 1.5m;
+        var sum = (fiveFrancs + tenDollars + fiveEuros) * 1.5m;
 
-    //    Assert.Equal(30m, sum.Evaluate(OneToOneContext(Currency.CHF)).Amount);
-    //}
+        Assert.Equal(30m, sum.Evaluate(OneToOneContext(Currency.CHF)).Amount);
+    }
 
     //[Fact]
     //public void DifferentPrecisionsCannotBeEvaluatedWithoutAnEvaluationContext()
@@ -481,11 +481,11 @@ public sealed class MoneyTest
     //        .Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
     //}
 
-    //private static MoneyEvaluationContext OneToOneContext(Currency targetCurrency)
-    //    => MoneyEvaluationContext
-    //        .Builder
-    //        .Default
-    //        .WithTargetCurrency(targetCurrency)
-    //        .WithBank(OneToOneBank.Instance)
-    //        .Build();
+    private static MoneyEvaluationContext OneToOneContext(Currency targetCurrency)
+        => MoneyEvaluationContext
+            .Builder
+            .Default
+            .WithTargetCurrency(targetCurrency)
+            .WithBank(OneToOneBank.Instance)
+            .Build();
 }
