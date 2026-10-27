@@ -7,4 +7,6 @@ public interface IMoneyExpressionVisitor<out TResult>
     TResult Visit(MoneySum sum);
 
     TResult Visit(MoneyProduct product);
+
+    TResult Visit(MoneyDistributionPart part);
 }

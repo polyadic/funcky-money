@@ -2,12 +2,13 @@ namespace Funcky;
 
 public sealed record MoneyEvaluationContext
 {
-    private MoneyEvaluationContext(Currency targetCurrency, decimal smallestDistributionUnit)
+    private MoneyEvaluationContext(Currency targetCurrency, Option<decimal> smallestDistributionUnit)
         => (TargetCurrency, SmallestDistributionUnit) = (targetCurrency, smallestDistributionUnit);
 
     public Currency TargetCurrency { get; }
 
-    public decimal SmallestDistributionUnit { get; }
+    /// <summary>The unit in which money gets distributed; the minor unit of the currency when not set.</summary>
+    public Option<decimal> SmallestDistributionUnit { get; }
 
     public sealed record Builder
     {
@@ -30,6 +31,6 @@ public sealed record MoneyEvaluationContext
         public MoneyEvaluationContext Build()
             => new(
                 TargetCurrency.GetOrElse(() => throw new InvalidMoneyEvaluationContextBuilderException("Target currency must be set.")),
-                SmallestDistributionUnit.GetOrElse(0.01m));
+                SmallestDistributionUnit);
     }
 }

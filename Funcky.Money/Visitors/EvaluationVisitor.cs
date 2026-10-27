@@ -11,8 +11,19 @@ internal sealed class EvaluationVisitor(Option<MoneyEvaluationContext> context) 
     public Money Visit(MoneyProduct product)
         => Multiply(product.Expression.Accept(this), product.Factor);
 
+    public Money Visit(MoneyDistributionPart part)
+        => Distribute(part.Distribution.Expression.Accept(this), part);
+
     private static Money Multiply(Money money, decimal factor)
         => money with { Amount = money.Amount * factor };
+
+    private Money Distribute(Money total, MoneyDistributionPart part)
+        => total with { Amount = DefaultDistributionStrategy.Part(total.Amount, part.Distribution.Factors, part.Index, DistributionPrecision(part.Distribution, total.Currency)) };
+
+    private decimal DistributionPrecision(MoneyDistribution distribution, Currency currency)
+        => distribution.Precision
+            .OrElse(context.SelectMany(c => c.SmallestDistributionUnit))
+            .GetOrElse(Power.OfATenth(currency.MinorUnitDigits));
 
     private Money Add(Money left, Money right)
         => left.Currency == right.Currency
