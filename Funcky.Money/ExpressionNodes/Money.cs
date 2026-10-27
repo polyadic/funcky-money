@@ -3,8 +3,32 @@ using Funcky.Extensions;
 
 namespace Funcky;
 
-public sealed partial record Money(decimal Amount, Currency Currency) : IMoneyExpression
+/// <summary>
+/// An amount of a currency. Two moneys are equal if they have the same amount and currency; the rounding strategy
+/// only influences evaluation.
+/// </summary>
+public sealed partial record Money : IMoneyExpression
 {
+    public Money(decimal amount, Currency currency)
+        : this(amount, currency, Funcky.RoundingStrategy.Default(currency))
+    {
+    }
+
+    /// <summary>Creates a money in the target currency of the context, which also provides the rounding strategy.</summary>
+    public Money(decimal amount, MoneyEvaluationContext context)
+        : this(amount, context.TargetCurrency, context.RoundingStrategy)
+    {
+    }
+
+    internal Money(decimal amount, Currency currency, IRoundingStrategy roundingStrategy)
+        => (Amount, Currency, RoundingStrategy) = (amount, currency, roundingStrategy);
+
+    public decimal Amount { get; init; }
+
+    public Currency Currency { get; init; }
+
+    public IRoundingStrategy RoundingStrategy { get; init; }
+
     /// <summary>Parses a money in the format produced by <see cref="ToString"/> for the given currency.</summary>
     public static Option<Money> ParseOrNone(string money, Currency currency)
         => CurrencyCulture.FormatProvider(currency)
@@ -15,6 +39,12 @@ public sealed partial record Money(decimal Amount, Currency Currency) : IMoneyEx
 
     public TResult Accept<TResult>(IMoneyExpressionVisitor<TResult> visitor)
         => visitor.Visit(this);
+
+    public bool Equals(Money? other)
+        => other is not null && Amount == other.Amount && Currency == other.Currency;
+
+    public override int GetHashCode()
+        => HashCode.Combine(Amount, Currency);
 
     /// <summary>Formats the money the way the culture of its currency does, e.g. "CHF-1’000.00" or "-$1,000.00".</summary>
     public override string ToString()
