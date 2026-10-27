@@ -9,7 +9,7 @@ public sealed partial record Money(decimal Amount, Currency Currency) : IMoneyEx
     public static Option<Money> ParseOrNone(string money, Currency currency)
         => CurrencyCulture.FormatProvider(currency)
             .Match(
-                none: () => money.ParseDecimalOrNone(NumberStyles.Currency, CultureInfo.CurrentCulture),
+                none: () => ParseWithoutFormatProvider(money, currency),
                 some: culture => money.ParseDecimalOrNone(NumberStyles.Currency, CurrencyCulture.NumberFormat(currency, culture)))
             .Select(amount => new Money(amount, currency));
 
@@ -19,6 +19,15 @@ public sealed partial record Money(decimal Amount, Currency Currency) : IMoneyEx
     /// <summary>Formats the money the way the culture of its currency does, e.g. "CHF-1’000.00" or "-$1,000.00".</summary>
     public override string ToString()
         => CurrencyCulture.FormatProvider(Currency).Match(
-            none: () => $"{Amount.ToString($"N{Currency.MinorUnitDigits}", CultureInfo.CurrentCulture)} {Currency.AlphabeticCode}",
+            none: () => FormatWithoutFormatProvider(Amount, Currency),
             some: culture => Amount.ToString("C", CurrencyCulture.NumberFormat(Currency, culture)));
+
+    private static string FormatWithoutFormatProvider(decimal amount, Currency currency)
+        => $"{amount.ToString($"N{currency.MinorUnitDigits}", CultureInfo.CurrentCulture)} {currency.AlphabeticCode}";
+
+    private static Option<decimal> ParseWithoutFormatProvider(string money, Currency currency)
+        => RemoveCurrencyCode(money, currency).ParseDecimalOrNone(NumberStyles.Currency, CultureInfo.CurrentCulture);
+
+    private static string RemoveCurrencyCode(string money, Currency currency)
+        => money.Replace(currency.AlphabeticCode, string.Empty).Trim();
 }
