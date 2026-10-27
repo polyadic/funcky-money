@@ -263,15 +263,15 @@ public sealed class MoneyTest
             => francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
     }
 
-    //[Fact]
-    //public void DefaultRoundingStrategyIsBankersRounding()
-    //{
-    //    var francs = new Money(1m, SwissRounding);
-    //    var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF);
+    [Fact]
+    public void DefaultRoundingStrategyIsBankersRounding()
+    {
+        var francs = new Money(1m, SwissRounding);
+        var evaluationContext = MoneyEvaluationContext.Builder.Default.WithTargetCurrency(Currency.CHF);
 
-    //    Assert.Equal(new BankersRounding(0.05m), francs.RoundingStrategy);
-    //    Assert.Equal(new BankersRounding(0.01m), francs.Evaluate(evaluationContext.Build()).RoundingStrategy);
-    //}
+        Assert.Equal(new BankersRounding(0.05m), francs.RoundingStrategy);
+        Assert.Equal(new BankersRounding(0.01m), francs.Evaluate(evaluationContext.Build()).RoundingStrategy);
+    }
 
     //[Fact]
     //public void WeCanDelegateTheExchangeRatesToABank()
