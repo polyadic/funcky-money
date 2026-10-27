@@ -339,15 +339,15 @@ public sealed class MoneyTest
         Assert.Equal(0.01m, francs.Evaluate(noRounding).Amount);
     }
 
-    //[Fact]
-    //public void AllNecessaryOperatorsAreDefined()
-    //{
-    //    var francs = new Money(0.50m, SwissRounding);
+    [Fact]
+    public void AllNecessaryOperatorsAreDefined()
+    {
+        var francs = new Money(0.50m, SwissRounding);
 
-    //    var allOperators = -((((francs * 2) + francs) / 2) - +(francs * 2));
+        var allOperators = -((((francs * 2) + francs) / 2) - +(francs * 2));
 
-    //    Assert.Equal(0.25m, allOperators.Evaluate().Amount);
-    //}
+        Assert.Equal(0.25m, allOperators.Evaluate().Amount);
+    }
 
     //[Fact]
     //public void WeCanEvaluateComplexExpressions()
