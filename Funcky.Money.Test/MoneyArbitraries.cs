@@ -11,15 +11,15 @@ internal class MoneyArbitraries
     public static Arbitrary<Money> ArbitraryMoney()
         => GenerateMoney().ToArbitrary();
 
-    //public static Arbitrary<SwissMoney> ArbitrarySwissMoney()
-    //    => GenerateSwissFranc().ToArbitrary();
+    public static Arbitrary<SwissMoney> ArbitrarySwissMoney()
+        => GenerateSwissFranc().ToArbitrary();
 
     private static Gen<Money> GenerateMoney()
         => from currency in ArbitraryCurrency().Generator
            from amount in ArbMap.Default.GeneratorFor<int>()
            select new Money(Power.OfATenth(currency.MinorUnitDigits) * amount, currency);
 
-    //private static Gen<SwissMoney> GenerateSwissFranc()
-    //    => from amount in ArbMap.Default.GeneratorFor<int>()
-    //       select new SwissMoney(Money.CHF(SwissMoney.SmallestCoin * amount));
+    private static Gen<SwissMoney> GenerateSwissFranc()
+        => from amount in ArbMap.Default.GeneratorFor<int>()
+           select new SwissMoney(Money.CHF(SwissMoney.SmallestCoin * amount));
 }

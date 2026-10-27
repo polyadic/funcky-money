@@ -61,10 +61,10 @@ public sealed class MoneyTest
         return result.ToProperty();
     }
 
-    //[Property]
-    //public Property DistributeMoneyConservesTheTotal(SwissMoney someMoney, PositiveInt numberOfParts)
-    //    => TheSumOfThePartsIsEqualToTheTotal(someMoney.Get.Amount, Distributed(someMoney, numberOfParts.Get))
-    //        .ToProperty();
+    [Property]
+    public Property DistributeMoneyConservesTheTotal(SwissMoney someMoney, PositiveInt numberOfParts)
+        => TheSumOfThePartsIsEqualToTheTotal(someMoney.Get.Amount, Distributed(someMoney, numberOfParts.Get))
+            .ToProperty();
 
     //[Property]
     //public Property DistributeMoneyHasNumberOfParts(SwissMoney someMoney, PositiveInt numberOfParts)
@@ -452,24 +452,24 @@ public sealed class MoneyTest
     //    Assert.Throws<DivideByZeroException>(() => Money.USD(3).Divide(Money.USD(0)));
     //}
 
-    //private static List<decimal> Distributed(SwissMoney someMoney, int numberOfParts)
-    //    => someMoney
-    //        .Get
-    //        .Distribute(numberOfParts)
-    //        .Select(e => e.Evaluate(SwissRounding).Amount)
-    //        .ToList();
+    private static List<decimal> Distributed(SwissMoney someMoney, int numberOfParts)
+        => someMoney
+            .Get
+            .Distribute(numberOfParts)
+            .Select(e => e.Evaluate(SwissRounding).Amount)
+            .ToList();
 
-    //private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed)
-    //    => distributed.All(AtMostOneDistributionUnitLess(distributed.First()));
+    private static bool TheIndividualPartsAreAtMostOneUnitApart(IEnumerable<decimal> distributed)
+        => distributed.All(AtMostOneDistributionUnitLess(distributed.First()));
 
-    //private static Func<decimal, bool> AtMostOneDistributionUnitLess(decimal reference)
-    //    => amount => Math.Abs(amount - reference) <= SwissMoney.SmallestCoin;
+    private static Func<decimal, bool> AtMostOneDistributionUnitLess(decimal reference)
+        => amount => Math.Abs(amount - reference) <= SwissMoney.SmallestCoin;
 
-    //private static bool TheNumberOfPartsIsCorrect(int numberOfParts, ICollection distributed)
-    //    => distributed.Count == numberOfParts;
+    private static bool TheNumberOfPartsIsCorrect(int numberOfParts, ICollection distributed)
+        => distributed.Count == numberOfParts;
 
-    //private static bool TheSumOfThePartsIsEqualToTheTotal(decimal validAmount, IEnumerable<decimal> distributed)
-    //    => distributed.Sum() == validAmount;
+    private static bool TheSumOfThePartsIsEqualToTheTotal(decimal validAmount, IEnumerable<decimal> distributed)
+        => distributed.Sum() == validAmount;
 
     //private static IMoneyExpression ComplexExpression()
     //{
