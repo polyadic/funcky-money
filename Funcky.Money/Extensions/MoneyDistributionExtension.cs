@@ -6,6 +6,10 @@ public static class MoneyDistributionExtension
     {
         /// <summary>Distributes the money into <paramref name="numberOfParts"/> equal parts.</summary>
         public IEnumerable<IMoneyExpression> Distribute(int numberOfParts)
-            => new MoneyDistribution(expression, [.. Enumerable.Repeat(1, numberOfParts)], Option<decimal>.None);
+            => expression.Distribute([.. Enumerable.Repeat(1, numberOfParts)]);
+
+        /// <summary>Distributes the money proportionally to the given <paramref name="factors"/>.</summary>
+        public IEnumerable<IMoneyExpression> Distribute(IReadOnlyList<int> factors)
+            => new MoneyDistribution(expression, factors, Option<decimal>.None);
     }
 }
