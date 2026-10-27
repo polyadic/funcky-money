@@ -426,12 +426,12 @@ public sealed class MoneyTest
         Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
     }
 
-    //[Fact]
-    //public void WeCanCalculateADimensionlessFactorByDividingAMoneyByAnother()
-    //{
-    //    Assert.Equal(2.5m, Money.CHF(5) / Money.CHF(2));
-    //    Assert.Equal(0.75m, Money.USD(3).Divide(Money.USD(4)));
-    //}
+    [Fact]
+    public void WeCanCalculateADimensionlessFactorByDividingAMoneyByAnother()
+    {
+        Assert.Equal(2.5m, Money.CHF(5) / Money.CHF(2));
+        Assert.Equal(0.75m, Money.USD(3).Divide(Money.USD(4)));
+    }
 
     //[Fact]
     //public void DividingTwoMoneysOnlyWorksIfTheyAreOfTheSameCurrency()
