@@ -254,14 +254,14 @@ public sealed class MoneyTest
         Assert.Equal(precision002.RoundingStrategy, precision002.Distribute(3, 0.002m).First().Evaluate().RoundingStrategy);
     }
 
-    //[Fact]
-    //public void DistributionMustDistributeExactlyTheGivenAmount()
-    //{
-    //    var francs = new Money(0.08m, SwissRounding);
+    [Fact]
+    public void DistributionMustDistributeExactlyTheGivenAmount()
+    {
+        var francs = new Money(0.08m, SwissRounding);
 
-    //    Assert.Throws<ImpossibleDistributionException>(()
-    //        => francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
-    //}
+        Assert.Throws<ImpossibleDistributionException>(()
+            => francs.Distribute(3, 0.05m).Select(e => e.Evaluate()).First());
+    }
 
     //[Fact]
     //public void DefaultRoundingStrategyIsBankersRounding()
