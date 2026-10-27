@@ -9,13 +9,13 @@ namespace Funcky.Test;
 [Properties(Arbitrary = [typeof(MoneyArbitraries)])]
 public sealed class MoneyTest
 {
-    //private static MoneyEvaluationContext SwissRounding
-    //    => MoneyEvaluationContext
-    //        .Builder
-    //        .Default
-    //        .WithTargetCurrency(Currency.CHF)
-    //        .WithSmallestDistributionUnit(SwissMoney.SmallestCoin)
-    //        .Build();
+    private static MoneyEvaluationContext SwissRounding
+        => MoneyEvaluationContext
+            .Builder
+            .Default
+            .WithTargetCurrency(Currency.CHF)
+            .WithSmallestDistributionUnit(SwissMoney.SmallestCoin)
+            .Build();
 
     [Property]
     public Property EvaluatingAMoneyInTheSameCurrencyDoesReturnTheSameAmount(Money money)
@@ -31,17 +31,17 @@ public sealed class MoneyTest
         return (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
     }
 
-    //[Fact]
-    //public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAnEvaluationContextWithDefinedExchangeRates()
-    //{
-    //    var fiveFrancs = new Money(5, Currency.CHF);
-    //    var tenDollars = new Money(10, Currency.USD);
+    [Fact]
+    public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAnEvaluationContextWithDefinedExchangeRates()
+    {
+        var fiveFrancs = new Money(5, Currency.CHF);
+        var tenDollars = new Money(10, Currency.USD);
 
-    //    var sum = fiveFrancs.Add(tenDollars);
+        var sum = fiveFrancs.Add(tenDollars);
 
-    //    Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
-    //    Assert.Throws<MissingExchangeRateException>(() => sum.Evaluate(SwissRounding));
-    //}
+        Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
+        Assert.Throws<MissingExchangeRateException>(() => sum.Evaluate(SwissRounding));
+    }
 
     //[Property]
     //public Property DollarsAreNotFrancs(decimal amount)
