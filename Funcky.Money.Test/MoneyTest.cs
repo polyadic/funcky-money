@@ -71,10 +71,10 @@ public sealed class MoneyTest
         => TheNumberOfPartsIsCorrect(numberOfParts.Get, Distributed(someMoney, numberOfParts.Get))
             .ToProperty();
 
-    //[Property]
-    //public Property DistributeMoneyHasMinimalDifference(SwissMoney someMoney, PositiveInt numberOfParts)
-    //    => TheIndividualPartsAreAtMostOneUnitApart(Distributed(someMoney, numberOfParts.Get))
-    //        .ToProperty();
+    [Property]
+    public Property DistributeMoneyHasMinimalDifference(SwissMoney someMoney, PositiveInt numberOfParts)
+        => TheIndividualPartsAreAtMostOneUnitApart(Distributed(someMoney, numberOfParts.Get))
+            .ToProperty();
 
     //[Theory]
     //[MemberData(nameof(ProportionalDistributionData))]
