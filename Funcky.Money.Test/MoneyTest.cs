@@ -323,21 +323,21 @@ public sealed class MoneyTest
         Assert.Equal(0.15m, sum.Evaluate(normalFrancs.Build()).Amount);
     }
 
-    //[Fact]
-    //public void RoundingIsOnlyDoneAtTheEndOfTheEvaluation()
-    //{
-    //    var francs = new Money(0.01m, SwissRounding);
-    //    var noRounding = MoneyEvaluationContext
-    //        .Builder
-    //        .Default
-    //        .WithTargetCurrency(Currency.CHF)
-    //        .WithRounding(RoundingStrategy.NoRounding())
-    //        .Build();
+    [Fact]
+    public void RoundingIsOnlyDoneAtTheEndOfTheEvaluation()
+    {
+        var francs = new Money(0.01m, SwissRounding);
+        var noRounding = MoneyEvaluationContext
+            .Builder
+            .Default
+            .WithTargetCurrency(Currency.CHF)
+            .WithRounding(RoundingStrategy.NoRounding())
+            .Build();
 
-    //    Assert.Equal(0.01m, francs.Amount);
-    //    Assert.Equal(0m, francs.Evaluate().Amount);
-    //    Assert.Equal(0.01m, francs.Evaluate(noRounding).Amount);
-    //}
+        Assert.Equal(0.01m, francs.Amount);
+        Assert.Equal(0m, francs.Evaluate().Amount);
+        Assert.Equal(0.01m, francs.Evaluate(noRounding).Amount);
+    }
 
     //[Fact]
     //public void AllNecessaryOperatorsAreDefined()
