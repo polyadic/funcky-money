@@ -1,0 +1,119 @@
+using System.Collections.Immutable;
+using System.Globalization;
+using System.Text;
+using System.Xml.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
+
+namespace Funcky.Money.SourceGenerator;
+
+/// <summary>
+/// Generates the well-known currencies (<c>Currency.CHF</c>, <c>Currency.AllCurrencies</c>) and the matching
+/// <c>Money.CHF(decimal)</c> factories from the ISO 4217 list (list_one.xml) which is passed as an additional file.
+/// </summary>
+[Generator]
+public sealed class Iso4217Generator : IIncrementalGenerator
+{
+    private const string Iso4217FileName = "list_one.xml";
+
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        var currencies = context.AdditionalTextsProvider
+            .Where(static file => Path.GetFileName(file.Path).Equals(Iso4217FileName, StringComparison.OrdinalIgnoreCase))
+            .Select(static (file, cancellationToken) => file.GetText(cancellationToken)?.ToString() ?? string.Empty)
+            .Select(static (xml, _) => ParseCurrencies(xml));
+
+        context.RegisterSourceOutput(currencies, static (productionContext, currencies) =>
+        {
+            productionContext.AddSource("Currency.g.cs", SourceText.From(GenerateCurrencies(currencies), Encoding.UTF8));
+            productionContext.AddSource("Money.g.cs", SourceText.From(GenerateMoneyFactories(currencies), Encoding.UTF8));
+        });
+    }
+
+    private static EquatableArray<Iso4217Record> ParseCurrencies(string xml)
+        => xml.Length == 0
+            ? EquatableArray<Iso4217Record>.Empty
+            : XDocument.Parse(xml)
+                .Descendants("CcyNtry")
+                .Select(ToRecord)
+                .OfType<Iso4217Record>()
+                .GroupBy(static record => record.AlphabeticCode)
+                .Select(static group => group.First())
+                .OrderBy(static record => record.AlphabeticCode, StringComparer.Ordinal)
+                .ToImmutableArray()
+                .ToEquatableArray();
+
+    // Entries without a currency code are territories without a universal currency (e.g. Antarctica).
+    private static Iso4217Record? ToRecord(XElement entry)
+        => entry.Element("Ccy")?.Value is { } alphabeticCode
+            ? new Iso4217Record(
+                AlphabeticCode: alphabeticCode,
+                Name: entry.Element("CcyNm")?.Value ?? alphabeticCode,
+                NumericCode: ParseInteger(entry.Element("CcyNbr")?.Value),
+                MinorUnitDigits: ParseInteger(entry.Element("CcyMnrUnts")?.Value))
+            : null;
+
+    // Currencies without minor units ("N.A."), such as gold (XAU), are treated as having no decimal digits.
+    private static int ParseInteger(string? value)
+        => int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var number) ? number : 0;
+
+    private static string GenerateCurrencies(EquatableArray<Iso4217Record> currencies)
+    {
+        var builder = new StringBuilder();
+        AppendHeader(builder);
+        builder.AppendLine("public sealed partial record Currency");
+        builder.AppendLine("{");
+
+        foreach (var currency in currencies)
+        {
+            builder.AppendLine($"    /// <summary>{Escape(currency.Name)} ({currency.AlphabeticCode}).</summary>");
+            builder.AppendLine($"    public static Currency {currency.AlphabeticCode} {{ get; }} = new(\"{currency.AlphabeticCode}\", \"{Escape(currency.Name)}\", {currency.NumericCode}, {currency.MinorUnitDigits});");
+            builder.AppendLine();
+        }
+
+        builder.AppendLine("    /// <summary>All currencies of ISO 4217, ordered by their alphabetic code.</summary>");
+        builder.AppendLine("    public static global::System.Collections.Generic.IReadOnlyList<Currency> AllCurrencies { get; } =");
+        builder.AppendLine("    [");
+
+        foreach (var currency in currencies)
+        {
+            builder.AppendLine($"        {currency.AlphabeticCode},");
+        }
+
+        builder.AppendLine("    ];");
+        builder.AppendLine("}");
+
+        return builder.ToString();
+    }
+
+    private static string GenerateMoneyFactories(EquatableArray<Iso4217Record> currencies)
+    {
+        var builder = new StringBuilder();
+        AppendHeader(builder);
+        builder.AppendLine("public sealed partial record Money");
+        builder.AppendLine("{");
+
+        foreach (var currency in currencies)
+        {
+            builder.AppendLine($"    /// <summary>Creates an amount of {Escape(currency.Name)} ({currency.AlphabeticCode}).</summary>");
+            builder.AppendLine($"    public static Money {currency.AlphabeticCode}(decimal amount) => new(amount, Currency.{currency.AlphabeticCode});");
+            builder.AppendLine();
+        }
+
+        builder.AppendLine("}");
+
+        return builder.ToString();
+    }
+
+    private static void AppendHeader(StringBuilder builder)
+    {
+        builder.AppendLine("// <auto-generated/>");
+        builder.AppendLine("#nullable enable");
+        builder.AppendLine();
+        builder.AppendLine("namespace Funcky;");
+        builder.AppendLine();
+    }
+
+    private static string Escape(string value)
+        => value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+}

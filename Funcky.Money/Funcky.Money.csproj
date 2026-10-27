@@ -11,6 +11,9 @@
         <NoWarn>$(NoWarn);SA1005</NoWarn>
     </PropertyGroup>
     <ItemGroup>
+        <AdditionalFiles Include="Resources\list_one.xml" />
+    </ItemGroup>
+    <ItemGroup>
         <InternalsVisibleTo Include="$(AssemblyName).Test" />
     </ItemGroup>
     <ItemGroup>
