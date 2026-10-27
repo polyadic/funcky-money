@@ -207,11 +207,11 @@ public sealed class MoneyTest
         Assert.Equal(new Money(9585, Currency.XAU), money);
     }
 
-    //[Property]
-    //public Property WeCanParseTheStringsWeGenerate(Money money)
-    //{
-    //    return Money.ParseOrNone(money.ToString(), money.Currency).Match(false, m => m == money).ToProperty();
-    //}
+    [Property]
+    public Property WeCanParseTheStringsWeGenerate(Money money)
+    {
+        return Money.ParseOrNone(money.ToString(), money.Currency).Match(false, m => m == money).ToProperty();
+    }
 
     //[Fact]
     //public void ThePrecisionCanBeSetToSomethingOtherThanAPowerOfTen()
