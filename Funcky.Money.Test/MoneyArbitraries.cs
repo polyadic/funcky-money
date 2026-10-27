@@ -8,7 +8,7 @@ internal class MoneyArbitraries
     // Minimal version of the generator until Currency.AllCurrencies exists:
     //     => Arb.From(Gen.Elements<Currency>(Currency.AllCurrencies));
     public static Arbitrary<Currency> ArbitraryCurrency()
-         => Arb.From(Gen.Elements<Currency>(new Currency("CHF"), new Currency("USD"), new Currency("EUR")));
+         => Arb.From(Gen.Elements<Currency>(Currency.CHF, Currency.USD));
 
     public static Arbitrary<Money> ArbitraryMoney()
         => GenerateMoney().ToArbitrary();

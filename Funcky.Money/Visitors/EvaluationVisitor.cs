@@ -8,6 +8,12 @@ internal sealed class EvaluationVisitor(Option<MoneyEvaluationContext> context) 
     public Money Visit(MoneySum sum)
         => Add(sum.Left.Accept(this), sum.Right.Accept(this));
 
+    public Money Visit(MoneyProduct product)
+        => Multiply(product.Expression.Accept(this), product.Factor);
+
+    private static Money Multiply(Money money, decimal factor)
+        => money with { Amount = money.Amount * factor };
+
     private Money Add(Money left, Money right)
         => left.Currency == right.Currency
             ? left with { Amount = left.Amount + right.Amount }

@@ -1,8 +1,8 @@
 namespace Funcky;
 
-public sealed record Currency(string AlphabeticCode)
+public sealed record Currency(string AlphabeticCode, int MinorUnitDigits)
 {
-    public static Currency CHF { get; } = new("CHF");
+    public static Currency CHF { get; } = new("CHF", 2);
 
-    public static Currency USD { get; } = new("USD");
+    public static Currency USD { get; } = new("USD", 2);
 }

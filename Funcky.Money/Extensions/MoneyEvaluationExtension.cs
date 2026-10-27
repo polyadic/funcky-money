@@ -5,6 +5,9 @@ public static class MoneyEvaluationExtension
     extension(IMoneyExpression expression)
     {
         public Money Evaluate(Option<MoneyEvaluationContext> context = default)
-            => expression.Accept(new EvaluationVisitor(context));
+            => RoundToMinorUnit(expression.Accept(new EvaluationVisitor(context)));
     }
+
+    private static Money RoundToMinorUnit(Money money)
+        => money with { Amount = decimal.Round(money.Amount, money.Currency.MinorUnitDigits, MidpointRounding.ToEven) };
 }
