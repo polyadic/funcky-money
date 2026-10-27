@@ -76,22 +76,22 @@ public sealed class MoneyTest
         => TheIndividualPartsAreAtMostOneUnitApart(Distributed(someMoney, numberOfParts.Get))
             .ToProperty();
 
-    //[Theory]
-    //[MemberData(nameof(ProportionalDistributionData))]
-    //public void DistributeMoneyProportionally(int first, int second, decimal expected1, decimal expected2)
-    //{
-    //    var fiftyCents = Money.EUR(0.5m);
-    //    var sum = fiftyCents.Add(fiftyCents);
-    //    var distribution = sum.Distribute([first, second]);
+    [Theory]
+    [MemberData(nameof(ProportionalDistributionData))]
+    public void DistributeMoneyProportionally(int first, int second, decimal expected1, decimal expected2)
+    {
+        var fiftyCents = Money.EUR(0.5m);
+        var sum = fiftyCents.Add(fiftyCents);
+        var distribution = sum.Distribute([first, second]);
 
-    //    var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
-    //    Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
+        var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
+        Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
 
-    //    Assert.Collection(
-    //        distributed,
-    //        item => Assert.Equal(expected1, item),
-    //        item => Assert.Equal(expected2, item));
-    //}
+        Assert.Collection(
+            distributed,
+            item => Assert.Equal(expected1, item),
+            item => Assert.Equal(expected2, item));
+    }
 
     //[Theory]
     //[MemberData(nameof(ProportionalDistributionData))]
@@ -110,18 +110,18 @@ public sealed class MoneyTest
     //        item => Assert.Equal(expected2 * -1, item));
     //}
 
-    //public static TheoryData<int, int, decimal, decimal> ProportionalDistributionData()
-    //    => new()
-    //    {
-    //        { 1, 1, 0.5m, 0.5m },
-    //        { 200, 200, 0.5m, 0.5m },
-    //        { 5, 1, 0.84m, 0.16m },
-    //        { 1, 5, 0.17m, 0.83m },
-    //        { 7, 2, 0.78m, 0.22m },
-    //        { 2, 7, 0.23m, 0.77m },
-    //        { 98, 1, 0.99m, 0.01m },
-    //        { 1, 98, 0.02m, 0.98m },
-    //    };
+    public static TheoryData<int, int, decimal, decimal> ProportionalDistributionData()
+        => new()
+        {
+            { 1, 1, 0.5m, 0.5m },
+            { 200, 200, 0.5m, 0.5m },
+            { 5, 1, 0.84m, 0.16m },
+            { 1, 5, 0.17m, 0.83m },
+            { 7, 2, 0.78m, 0.22m },
+            { 2, 7, 0.23m, 0.77m },
+            { 98, 1, 0.99m, 0.01m },
+            { 1, 98, 0.02m, 0.98m },
+        };
 
     //[Fact]
     //public void InputValuesGetRoundedDuringEvaluation()
