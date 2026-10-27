@@ -239,20 +239,20 @@ public sealed class MoneyTest
             item => Assert.Equal(0m, item));
     }
 
-    //[Fact]
-    //public void TheRoundingStrategyIsCorrectlyPassedThrough()
-    //{
-    //    var commonContext = MoneyEvaluationContext
-    //        .Builder
-    //        .Default
-    //        .WithTargetCurrency(Currency.CHF);
+    [Fact]
+    public void TheRoundingStrategyIsCorrectlyPassedThrough()
+    {
+        var commonContext = MoneyEvaluationContext
+            .Builder
+            .Default
+            .WithTargetCurrency(Currency.CHF);
 
-    //    var precision05 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SwissMoney.SmallestCoin)).Build());
-    //    var precision002 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
+        var precision05 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(SwissMoney.SmallestCoin)).Build());
+        var precision002 = new Money(1m, commonContext.WithRounding(RoundingStrategy.BankersRounding(0.002m)).Build());
 
-    //    Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3, SwissMoney.SmallestCoin).First().Evaluate().RoundingStrategy);
-    //    Assert.Equal(precision002.RoundingStrategy, precision002.Distribute(3, 0.002m).First().Evaluate().RoundingStrategy);
-    //}
+        Assert.Equal(precision05.RoundingStrategy, precision05.Distribute(3, SwissMoney.SmallestCoin).First().Evaluate().RoundingStrategy);
+        Assert.Equal(precision002.RoundingStrategy, precision002.Distribute(3, 0.002m).First().Evaluate().RoundingStrategy);
+    }
 
     //[Fact]
     //public void DistributionMustDistributeExactlyTheGivenAmount()

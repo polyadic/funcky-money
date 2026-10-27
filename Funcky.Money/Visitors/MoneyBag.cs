@@ -17,7 +17,7 @@ internal sealed class MoneyBag
     public static MoneyBag Of(Money money)
         => new(
             ImmutableDictionary<Currency, decimal>.Empty.Add(money.Currency, money.Amount),
-            [money.RoundingStrategy]);
+            ImmutableHashSet.Create(money.RoundingStrategy));
 
     public MoneyBag Merge(MoneyBag other)
         => new(other._amounts.Aggregate(_amounts, AddAmount), _roundingStrategies.Union(other._roundingStrategies));
