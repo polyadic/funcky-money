@@ -370,26 +370,26 @@ public sealed class MoneyTest
         Assert.Throws<IncompatibleRoundingException>(() => incompatibleRoundingContext.Build());
     }
 
-    //[Theory]
-    //[MemberData(nameof(CulturesWithCurrencies))]
-    //public void IfCurrencyIsOmittedOnConstructionOfAMoneyItGetsDeducedByTheCurrentCulture(string culture, Currency currency)
-    //{
-    //    using var cultureSwitch = new TemporaryCultureSwitch(culture);
+    [Theory]
+    [MemberData(nameof(CulturesWithCurrencies))]
+    public void IfCurrencyIsOmittedOnConstructionOfAMoneyItGetsDeducedByTheCurrentCulture(string culture, Currency currency)
+    {
+        using var cultureSwitch = new TemporaryCultureSwitch(culture);
 
-    //    var money = new Money(5);
+        var money = new Money(5);
 
-    //    Assert.Equal(currency, money.Currency);
-    //}
+        Assert.Equal(currency, money.Currency);
+    }
 
-    //public static TheoryData<string, Currency> CulturesWithCurrencies()
-    //    => new()
-    //    {
-    //        { "jp-JP", Currency.JPY },
-    //        { "de-CH", Currency.CHF },
-    //        { "de-DE", Currency.EUR },
-    //        { "en-GB", Currency.GBP },
-    //        { "en-US", Currency.USD },
-    //    };
+    public static TheoryData<string, Currency> CulturesWithCurrencies()
+        => new()
+        {
+            { "jp-JP", Currency.JPY },
+            { "de-CH", Currency.CHF },
+            { "de-DE", Currency.EUR },
+            { "en-GB", Currency.GBP },
+            { "en-US", Currency.USD },
+        };
 
     //[Fact]
     //public void YouCannotConstructAMoneyWithIllegalCulturesWithoutACorrectCurrencyIsoCode()
