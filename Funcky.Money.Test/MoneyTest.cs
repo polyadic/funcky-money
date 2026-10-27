@@ -349,13 +349,13 @@ public sealed class MoneyTest
         Assert.Equal(0.25m, allOperators.Evaluate().Amount);
     }
 
-    //[Fact]
-    //public void WeCanEvaluateComplexExpressions()
-    //{
-    //    var tree = ComplexExpression();
+    [Fact]
+    public void WeCanEvaluateComplexExpressions()
+    {
+        var tree = ComplexExpression();
 
-    //    Assert.Equal(35m, tree.Evaluate().Amount);
-    //}
+        Assert.Equal(35m, tree.Evaluate().Amount);
+    }
 
     //[Fact]
     //public void BuildContextFailsWhenCreatingItWithARoundingStrategyIncompatibleWithSmallestDistributionUnit()
@@ -471,15 +471,15 @@ public sealed class MoneyTest
     private static bool TheSumOfThePartsIsEqualToTheTotal(decimal validAmount, IEnumerable<decimal> distributed)
         => distributed.Sum() == validAmount;
 
-    //private static IMoneyExpression ComplexExpression()
-    //{
-    //    var v1 = new Money(0.50m, SwissRounding);
-    //    var v2 = new Money(7m, SwissRounding);
-    //    var v3 = new Money(2.50m, SwissRounding);
+    private static IMoneyExpression ComplexExpression()
+    {
+        var v1 = new Money(0.50m, SwissRounding);
+        var v2 = new Money(7m, SwissRounding);
+        var v3 = new Money(2.50m, SwissRounding);
 
-    //    return v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1))
-    //        .Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
-    //}
+        return v3.Add(v2.Multiply(1.5m).Add(v1)).Add(v2.Multiply(2).Add(v1))
+            .Add(v3.Add(v2.Divide(2).Add(v1).Subtract(v2)).Add(v2.Add(v1)));
+    }
 
     private static MoneyEvaluationContext OneToOneContext(Currency targetCurrency)
         => MoneyEvaluationContext
