@@ -23,13 +23,13 @@ public sealed class MoneyTest
         return (money.Amount == money.Evaluate().Amount).ToProperty();
     }
 
-    //[Property]
-    //public Property TheSumOfTwoMoneysIsCommutative(Money money1, Money money2)
-    //{
-    //    money2 = new Money(money2.Amount, money1.Currency);
+    [Property]
+    public Property TheSumOfTwoMoneysIsCommutative(Money money1, Money money2)
+    {
+        money2 = new Money(money2.Amount, money1.Currency);
 
-    //    return (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
-    //}
+        return (money1.Add(money2).Evaluate().Amount == money2.Add(money1).Evaluate().Amount).ToProperty();
+    }
 
     //[Fact]
     //public void WeCanBuildTheSumOfTwoMoneysWithDifferentCurrenciesButOnEvaluationYouNeedAnEvaluationContextWithDefinedExchangeRates()
