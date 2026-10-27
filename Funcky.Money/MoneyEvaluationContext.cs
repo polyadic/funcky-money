@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Funcky;
 
 public sealed record MoneyEvaluationContext
@@ -28,7 +30,7 @@ public sealed record MoneyEvaluationContext
 
         private Option<decimal> SmallestDistributionUnit { get; init; }
 
-        private IReadOnlyDictionary<Currency, decimal> ExchangeRates { get; init; } = new Dictionary<Currency, decimal>();
+        private ImmutableDictionary<Currency, decimal> ExchangeRates { get; init; } = ImmutableDictionary<Currency, decimal>.Empty;
 
         public Builder WithTargetCurrency(Currency currency)
             => this with { TargetCurrency = currency };
@@ -38,7 +40,7 @@ public sealed record MoneyEvaluationContext
 
         /// <summary>Defines the factor to convert an amount of <paramref name="currency"/> into the target currency.</summary>
         public Builder WithExchangeRate(Currency currency, decimal exchangeRate)
-            => this with { ExchangeRates = new Dictionary<Currency, decimal>(ExchangeRates.ToDictionary(entry => entry.Key, entry => entry.Value)) { [currency] = exchangeRate } };
+            => this with { ExchangeRates = ExchangeRates.SetItem(currency, exchangeRate) };
 
         public MoneyEvaluationContext Build()
         {
