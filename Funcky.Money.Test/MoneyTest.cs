@@ -304,24 +304,24 @@ public sealed class MoneyTest
         Assert.Equal(0.02m, sum.Evaluate(francs.Build()).Amount);
     }
 
-    //[Fact]
-    //public void DifferentRoundingStrategiesCannotBeEvaluatedWithoutAnEvaluationContext()
-    //{
-    //    var francs = MoneyEvaluationContext
-    //        .Builder
-    //        .Default
-    //        .WithTargetCurrency(Currency.CHF);
+    [Fact]
+    public void DifferentRoundingStrategiesCannotBeEvaluatedWithoutAnEvaluationContext()
+    {
+        var francs = MoneyEvaluationContext
+            .Builder
+            .Default
+            .WithTargetCurrency(Currency.CHF);
 
-    //    var normalFrancs = francs.WithRounding(RoundingStrategy.RoundWithAwayFromZero(0.05m));
-    //    var preciseFrancs = francs.WithRounding(RoundingStrategy.BankersRounding(0.001m));
+        var normalFrancs = francs.WithRounding(RoundingStrategy.RoundWithAwayFromZero(0.05m));
+        var preciseFrancs = francs.WithRounding(RoundingStrategy.BankersRounding(0.001m));
 
-    //    var two = new Money(2, normalFrancs.Build());
-    //    var oneHalf = new Money(0.5m, preciseFrancs.Build());
-    //    var sum = (two + oneHalf) * 0.05m;
+        var two = new Money(2, normalFrancs.Build());
+        var oneHalf = new Money(0.5m, preciseFrancs.Build());
+        var sum = (two + oneHalf) * 0.05m;
 
-    //    Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
-    //    Assert.Equal(0.15m, sum.Evaluate(normalFrancs.Build()).Amount);
-    //}
+        Assert.Throws<MissingEvaluationContextException>(() => sum.Evaluate());
+        Assert.Equal(0.15m, sum.Evaluate(normalFrancs.Build()).Amount);
+    }
 
     //[Fact]
     //public void RoundingIsOnlyDoneAtTheEndOfTheEvaluation()
