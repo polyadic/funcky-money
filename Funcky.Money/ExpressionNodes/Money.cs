@@ -9,6 +9,13 @@ namespace Funcky;
 /// </summary>
 public sealed partial record Money : IMoneyExpression
 {
+    /// <summary>Creates a money in the currency of the current culture.</summary>
+    /// <exception cref="NotSupportedException">The current culture has no known currency.</exception>
+    public Money(decimal amount)
+        : this(amount, CurrencyCulture.CurrentCurrency().GetOrElse(() => throw new NotSupportedException("The current culture has no known currency, specify it explicitly.")))
+    {
+    }
+
     public Money(decimal amount, Currency currency)
         : this(amount, currency, Funcky.RoundingStrategy.Default(currency))
     {

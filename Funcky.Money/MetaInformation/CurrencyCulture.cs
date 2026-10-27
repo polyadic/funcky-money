@@ -10,6 +10,10 @@ internal static class CurrencyCulture
 {
     private static readonly Lazy<IReadOnlyDictionary<string, CultureInfo>> CultureByCurrencyCode = new(CollectCulturesByCurrencyCode);
 
+    /// <summary>The currency of the region of the current culture, None for cultures without a known currency.</summary>
+    public static Option<Currency> CurrentCurrency()
+        => Currency.ParseOrNone(new RegionInfo(CultureInfo.CurrentCulture.Name).ISOCurrencySymbol);
+
     public static Option<CultureInfo> FormatProvider(Currency currency)
         => CultureByCurrencyCode.Value.TryGetValue(currency.AlphabeticCode, out var culture)
             ? culture
