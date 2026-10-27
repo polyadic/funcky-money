@@ -433,24 +433,24 @@ public sealed class MoneyTest
         Assert.Equal(0.75m, Money.USD(3).Divide(Money.USD(4)));
     }
 
-    //[Fact]
-    //public void DividingTwoMoneysOnlyWorksIfTheyAreOfTheSameCurrency()
-    //{
-    //    Assert.ThrowsAny<MissingExchangeRateException>(() => Money.CHF(5) / Money.USD(2));
-    //}
+    [Fact]
+    public void DividingTwoMoneysOnlyWorksIfTheyAreOfTheSameCurrency()
+    {
+        Assert.ThrowsAny<MissingExchangeRateException>(() => Money.CHF(5) / Money.USD(2));
+    }
 
-    //[Fact]
-    //public void DividingTwoMoneysWithDifferentCurrenciesNeedAnEvaluationContext()
-    //{
-    //    Assert.Equal(0.8m, Money.CHF(4).Divide(Money.USD(5), OneToOneContext(Currency.USD)));
-    //}
+    [Fact]
+    public void DividingTwoMoneysWithDifferentCurrenciesNeedAnEvaluationContext()
+    {
+        Assert.Equal(0.8m, Money.CHF(4).Divide(Money.USD(5), OneToOneContext(Currency.USD)));
+    }
 
-    //[Fact]
-    //public void DividingTwoMoneysOnlyWorksIfTheDivisorIsNonZero()
-    //{
-    //    Assert.Throws<DivideByZeroException>(() => Money.CHF(5) / Money.CHF(0.0m));
-    //    Assert.Throws<DivideByZeroException>(() => Money.USD(3).Divide(Money.USD(0)));
-    //}
+    [Fact]
+    public void DividingTwoMoneysOnlyWorksIfTheDivisorIsNonZero()
+    {
+        Assert.Throws<DivideByZeroException>(() => Money.CHF(5) / Money.CHF(0.0m));
+        Assert.Throws<DivideByZeroException>(() => Money.USD(3).Divide(Money.USD(0)));
+    }
 
     private static List<decimal> Distributed(SwissMoney someMoney, int numberOfParts)
         => someMoney
