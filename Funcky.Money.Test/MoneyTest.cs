@@ -52,14 +52,14 @@ public sealed class MoneyTest
         return (francs != dollars).ToProperty();
     }
 
-    //[Property]
-    //public Property MoneyCanBeMultipliedByConstantsFactors(Money someMoney, decimal multiplier)
-    //{
-    //    var result = decimal.Round(someMoney.Amount * multiplier, someMoney.Currency.MinorUnitDigits)
-    //                 == someMoney.Multiply(multiplier).Evaluate().Amount;
+    [Property]
+    public Property MoneyCanBeMultipliedByConstantsFactors(Money someMoney, decimal multiplier)
+    {
+        var result = decimal.Round(someMoney.Amount * multiplier, someMoney.Currency.MinorUnitDigits)
+                     == someMoney.Multiply(multiplier).Evaluate().Amount;
 
-    //    return result.ToProperty();
-    //}
+        return result.ToProperty();
+    }
 
     //[Property]
     //public Property DistributeMoneyConservesTheTotal(SwissMoney someMoney, PositiveInt numberOfParts)
