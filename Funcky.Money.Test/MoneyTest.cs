@@ -418,13 +418,13 @@ public sealed class MoneyTest
         Assert.Equal("(500.00CHF / 2)", quotient.ToHumanReadable());
     }
 
-    //[Fact]
-    //public void RoundingStrategiesMustBeInitializedWithAValidPrecision()
-    //{
-    //    Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.Default(0.0m));
-    //    Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.BankersRounding(0.0m));
-    //    Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
-    //}
+    [Fact]
+    public void RoundingStrategiesMustBeInitializedWithAValidPrecision()
+    {
+        Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.Default(0.0m));
+        Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.BankersRounding(0.0m));
+        Assert.Throws<InvalidPrecisionException>(() => _ = RoundingStrategy.RoundWithAwayFromZero(0.0m));
+    }
 
     //[Fact]
     //public void WeCanCalculateADimensionlessFactorByDividingAMoneyByAnother()
