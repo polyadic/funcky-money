@@ -37,6 +37,8 @@ public sealed record MoneyEvaluationContext
 
         private ImmutableDictionary<Currency, decimal> ExchangeRates { get; init; } = ImmutableDictionary<Currency, decimal>.Empty;
 
+        private Option<IBank> Bank { get; init; }
+
         public Builder WithTargetCurrency(Currency currency)
             => this with { TargetCurrency = currency };
 
@@ -50,6 +52,10 @@ public sealed record MoneyEvaluationContext
         public Builder WithExchangeRate(Currency currency, decimal exchangeRate)
             => this with { ExchangeRates = ExchangeRates.SetItem(currency, exchangeRate) };
 
+        /// <summary>Delegates all exchange rates to the given bank; explicitly configured exchange rates are ignored.</summary>
+        public Builder WithBank(IBank bank)
+            => this with { Bank = Option.Some(bank) };
+
         public MoneyEvaluationContext Build()
         {
             var targetCurrency = TargetCurrency.GetOrElse(() => throw new InvalidMoneyEvaluationContextBuilderException("Target currency must be set."));
@@ -58,7 +64,7 @@ public sealed record MoneyEvaluationContext
                 targetCurrency,
                 SmallestDistributionUnit,
                 RoundingStrategy.GetOrElse(() => DefaultRounding(targetCurrency)),
-                new DefaultBank(targetCurrency, ExchangeRates));
+                Bank.GetOrElse(() => new DefaultBank(targetCurrency, ExchangeRates)));
         }
 
         private IRoundingStrategy DefaultRounding(Currency targetCurrency)
