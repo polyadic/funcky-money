@@ -391,13 +391,13 @@ public sealed class MoneyTest
             { "en-US", Currency.USD },
         };
 
-    //[Fact]
-    //public void YouCannotConstructAMoneyWithIllegalCulturesWithoutACorrectCurrencyIsoCode()
-    //{
-    //    using var cultureSwitch = new TemporaryCultureSwitch("en-UK");
+    [Fact]
+    public void YouCannotConstructAMoneyWithIllegalCulturesWithoutACorrectCurrencyIsoCode()
+    {
+        using var cultureSwitch = new TemporaryCultureSwitch("en-UK");
 
-    //    Assert.Throws<NotSupportedException>(() => new Money(5));
-    //}
+        Assert.Throws<NotSupportedException>(() => new Money(5));
+    }
 
     //[Fact]
     //public void ToHumanReadableExtensionTransformsExpressionsCorrectly()
