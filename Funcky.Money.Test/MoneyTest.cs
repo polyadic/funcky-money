@@ -399,24 +399,24 @@ public sealed class MoneyTest
         Assert.Throws<NotSupportedException>(() => new Money(5));
     }
 
-    //[Fact]
-    //public void ToHumanReadableExtensionTransformsExpressionsCorrectly()
-    //{
-    //    var distribution = ((Money.CHF(1.5m) + Money.EUR(2.5m)) * 3).Distribute([3, 1, 3, 2]);
-    //    var expression = (distribution.Skip(2).First() + (Money.USD(2.99m) * 2)) / 2;
-    //    var sum = Money.CHF(30) + Money.JPY(500);
-    //    var product = Money.CHF(100) * 2.5m;
-    //    var difference = Money.CHF(200) - Money.JPY(500);
-    //    var quotient = Money.CHF(500) / 2;
+    [Fact]
+    public void ToHumanReadableExtensionTransformsExpressionsCorrectly()
+    {
+        var distribution = ((Money.CHF(1.5m) + Money.EUR(2.5m)) * 3).Distribute([3, 1, 3, 2]);
+        var expression = (distribution.Skip(2).First() + (Money.USD(2.99m) * 2)) / 2;
+        var sum = Money.CHF(30) + Money.JPY(500);
+        var product = Money.CHF(100) * 2.5m;
+        var difference = Money.CHF(200) - Money.JPY(500);
+        var quotient = Money.CHF(500) / 2;
 
-    //    Assert.Equal("(((2.50CHF + ((1.5 * 7.00CHF) + 0.50CHF)) + ((2 * 7.00CHF) + 0.50CHF)) + ((2.50CHF + (((7.00CHF / 2) + 0.50CHF) - 7.00CHF)) + (7.00CHF + 0.50CHF)))", ComplexExpression().ToHumanReadable());
-    //    Assert.Equal("(((3 * (1.50CHF + 2.50EUR)).Distribute(3, 1, 3, 2)[2] + (2 * 2.99USD)) / 2)", expression.ToHumanReadable());
+        Assert.Equal("(((2.50CHF + ((1.5 * 7.00CHF) + 0.50CHF)) + ((2 * 7.00CHF) + 0.50CHF)) + ((2.50CHF + (((7.00CHF / 2) + 0.50CHF) - 7.00CHF)) + (7.00CHF + 0.50CHF)))", ComplexExpression().ToHumanReadable());
+        Assert.Equal("(((3 * (1.50CHF + 2.50EUR)).Distribute(3, 1, 3, 2)[2] + (2 * 2.99USD)) / 2)", expression.ToHumanReadable());
 
-    //    Assert.Equal("(30.00CHF + 500JPY)", sum.ToHumanReadable());
-    //    Assert.Equal("(2.5 * 100.00CHF)", product.ToHumanReadable());
-    //    Assert.Equal("(200.00CHF - 500JPY)", difference.ToHumanReadable());
-    //    Assert.Equal("(500.00CHF / 2)", quotient.ToHumanReadable());
-    //}
+        Assert.Equal("(30.00CHF + 500JPY)", sum.ToHumanReadable());
+        Assert.Equal("(2.5 * 100.00CHF)", product.ToHumanReadable());
+        Assert.Equal("(200.00CHF - 500JPY)", difference.ToHumanReadable());
+        Assert.Equal("(500.00CHF / 2)", quotient.ToHumanReadable());
+    }
 
     //[Fact]
     //public void RoundingStrategiesMustBeInitializedWithAValidPrecision()
