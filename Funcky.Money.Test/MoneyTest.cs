@@ -170,15 +170,15 @@ public sealed class MoneyTest
         Assert.Equal(Money.USD(30), product.Evaluate());
     }
 
-    //[Fact]
-    //public void MoneyFormatsCorrectlyAccordingToTheCurrency()
-    //{
-    //    var thousandFrancs = Money.CHF(-1000);
-    //    var thousandDollars = Money.USD(-1000);
+    [Fact]
+    public void MoneyFormatsCorrectlyAccordingToTheCurrency()
+    {
+        var thousandFrancs = Money.CHF(-1000);
+        var thousandDollars = Money.USD(-1000);
 
-    //    Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
-    //    Assert.Equal("-$1,000.00", thousandDollars.ToString());
-    //}
+        Assert.Equal("CHF-1’000.00", thousandFrancs.ToString());
+        Assert.Equal("-$1,000.00", thousandDollars.ToString());
+    }
 
     //[Fact]
     //public void MoneyParsesCorrectlyFromString()
