@@ -3,6 +3,8 @@
     <PropertyGroup>
         <TargetFrameworks>net10.0;</TargetFrameworks>
         <RootNamespace>Funcky.Test</RootNamespace>
+        <!-- Temporary while the specification is still commented out: SA1005/SA1512/SA1515 (comment spacing) and IDE0005 (unused usings). -->
+        <NoWarn>$(NoWarn);SA1005;SA1512;SA1515;IDE0005</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
