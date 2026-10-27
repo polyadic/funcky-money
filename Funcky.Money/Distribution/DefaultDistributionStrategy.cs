@@ -11,7 +11,7 @@ internal static class DefaultDistributionStrategy
 
     public static IEnumerable<decimal> Parts(decimal total, IReadOnlyList<int> factors, decimal precision)
     {
-        var totalUnits = total / precision;
+        var totalUnits = WholeUnits(total, precision);
         var totalFactor = factors.Sum();
         var truncatedUnits = factors.Select(factor => decimal.Truncate(totalUnits * factor / totalFactor)).ToList();
         var remainingUnits = totalUnits - truncatedUnits.Sum();
@@ -20,4 +20,9 @@ internal static class DefaultDistributionStrategy
             .Select((units, index) => index < Math.Abs(remainingUnits) ? units + Math.Sign(remainingUnits) : units)
             .Select(units => units * precision);
     }
+
+    private static decimal WholeUnits(decimal total, decimal precision)
+        => total / precision is var units && units == decimal.Truncate(units)
+            ? units
+            : throw new ImpossibleDistributionException(total, precision);
 }
