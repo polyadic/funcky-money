@@ -93,22 +93,22 @@ public sealed class MoneyTest
             item => Assert.Equal(expected2, item));
     }
 
-    //[Theory]
-    //[MemberData(nameof(ProportionalDistributionData))]
-    //public void DistributeNegativeMoneyProportionally(int first, int second, decimal expected1, decimal expected2)
-    //{
-    //    var fiftyCents = Money.EUR(-0.5m);
-    //    var sum = fiftyCents.Add(fiftyCents);
-    //    var distribution = sum.Distribute([first, second]);
+    [Theory]
+    [MemberData(nameof(ProportionalDistributionData))]
+    public void DistributeNegativeMoneyProportionally(int first, int second, decimal expected1, decimal expected2)
+    {
+        var fiftyCents = Money.EUR(-0.5m);
+        var sum = fiftyCents.Add(fiftyCents);
+        var distribution = sum.Distribute([first, second]);
 
-    //    var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
-    //    Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
+        var distributed = distribution.Select(e => e.Evaluate().Amount).ToList();
+        Assert.Equal(sum.Evaluate().Amount, distributed.Sum());
 
-    //    Assert.Collection(
-    //        distributed,
-    //        item => Assert.Equal(expected1 * -1, item),
-    //        item => Assert.Equal(expected2 * -1, item));
-    //}
+        Assert.Collection(
+            distributed,
+            item => Assert.Equal(expected1 * -1, item),
+            item => Assert.Equal(expected2 * -1, item));
+    }
 
     public static TheoryData<int, int, decimal, decimal> ProportionalDistributionData()
         => new()
