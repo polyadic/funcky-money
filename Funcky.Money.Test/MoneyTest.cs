@@ -357,18 +357,18 @@ public sealed class MoneyTest
         Assert.Equal(35m, tree.Evaluate().Amount);
     }
 
-    //[Fact]
-    //public void BuildContextFailsWhenCreatingItWithARoundingStrategyIncompatibleWithSmallestDistributionUnit()
-    //{
-    //    var incompatibleRoundingContext = MoneyEvaluationContext
-    //        .Builder
-    //        .Default
-    //        .WithTargetCurrency(Currency.CHF)
-    //        .WithSmallestDistributionUnit(0.01m)
-    //        .WithRounding(RoundingStrategy.Default(0.05m));
+    [Fact]
+    public void BuildContextFailsWhenCreatingItWithARoundingStrategyIncompatibleWithSmallestDistributionUnit()
+    {
+        var incompatibleRoundingContext = MoneyEvaluationContext
+            .Builder
+            .Default
+            .WithTargetCurrency(Currency.CHF)
+            .WithSmallestDistributionUnit(0.01m)
+            .WithRounding(RoundingStrategy.Default(0.05m));
 
-    //    Assert.Throws<IncompatibleRoundingException>(() => incompatibleRoundingContext.Build());
-    //}
+        Assert.Throws<IncompatibleRoundingException>(() => incompatibleRoundingContext.Build());
+    }
 
     //[Theory]
     //[MemberData(nameof(CulturesWithCurrencies))]
