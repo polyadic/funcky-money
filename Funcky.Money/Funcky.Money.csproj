@@ -8,7 +8,6 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <IsPackable>true</IsPackable>
         <Version>1.4.0</Version>
-        <NoWarn>$(NoWarn);SA1005</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <AdditionalFiles Include="Resources\list_one.xml" />
