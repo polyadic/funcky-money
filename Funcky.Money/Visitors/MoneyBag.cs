@@ -25,6 +25,10 @@ internal sealed class MoneyBag
     public MoneyBag Multiply(decimal factor)
         => new(_amounts.ToImmutableDictionary(entry => entry.Key, entry => entry.Value * factor), _roundingStrategies);
 
+    // A true division is more exact than multiplying with the inverse of the divisor.
+    public MoneyBag Divide(decimal divisor)
+        => new(_amounts.ToImmutableDictionary(entry => entry.Key, entry => entry.Value / divisor), _roundingStrategies);
+
     /// <summary>Converts the bag into a single, unrounded money.</summary>
     public Money ToMoney(Option<MoneyEvaluationContext> context)
         => context.Match(
