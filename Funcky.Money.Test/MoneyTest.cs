@@ -137,25 +137,25 @@ public sealed class MoneyTest
         Assert.Equal(3.14m, pi.Evaluate().Amount);
     }
 
-    //[Fact]
-    //public void WeCanEvaluateASumOfDifferentCurrenciesWithAContextWhichDefinesExchangeRates()
-    //{
-    //    var fiveFrancs = new Money(5, Currency.CHF);
-    //    var tenDollars = new Money(10, Currency.USD);
-    //    var fiveEuros = new Money(5, Currency.EUR);
+    [Fact]
+    public void WeCanEvaluateASumOfDifferentCurrenciesWithAContextWhichDefinesExchangeRates()
+    {
+        var fiveFrancs = new Money(5, Currency.CHF);
+        var tenDollars = new Money(10, Currency.USD);
+        var fiveEuros = new Money(5, Currency.EUR);
 
-    //    var sum = fiveFrancs.Add(tenDollars).Add(fiveEuros).Multiply(2);
+        var sum = fiveFrancs.Add(tenDollars).Add(fiveEuros).Multiply(2);
 
-    //    var context = MoneyEvaluationContext
-    //        .Builder
-    //        .Default
-    //        .WithTargetCurrency(Currency.CHF)
-    //        .WithExchangeRate(Currency.USD, 0.9004m)
-    //        .WithExchangeRate(Currency.EUR, 1.0715m)
-    //        .Build();
+        var context = MoneyEvaluationContext
+            .Builder
+            .Default
+            .WithTargetCurrency(Currency.CHF)
+            .WithExchangeRate(Currency.USD, 0.9004m)
+            .WithExchangeRate(Currency.EUR, 1.0715m)
+            .Build();
 
-    //    Assert.Equal(38.72m, sum.Evaluate(context).Amount);
-    //}
+        Assert.Equal(38.72m, sum.Evaluate(context).Amount);
+    }
 
     //[Fact]
     //public void WeCanDefineMoneyExpressionsWithOperators()
