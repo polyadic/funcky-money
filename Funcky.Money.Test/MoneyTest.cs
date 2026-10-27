@@ -180,18 +180,18 @@ public sealed class MoneyTest
         Assert.Equal("-$1,000.00", thousandDollars.ToString());
     }
 
-    //[Fact]
-    //public void MoneyParsesCorrectlyFromString()
-    //{
-    //    var r1 = FunctionalAssert.Some(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
-    //    Assert.Equal(new Money(-1000, Currency.CHF), r1);
+    [Fact]
+    public void MoneyParsesCorrectlyFromString()
+    {
+        var r1 = FunctionalAssert.Some(Money.ParseOrNone("CHF-1’000.00", Currency.CHF));
+        Assert.Equal(new Money(-1000, Currency.CHF), r1);
 
-    //    var r2 = FunctionalAssert.Some(Money.ParseOrNone("-$1,000.00", Currency.USD));
-    //    Assert.Equal(new Money(-1000, Currency.USD), r2);
+        var r2 = FunctionalAssert.Some(Money.ParseOrNone("-$1,000.00", Currency.USD));
+        Assert.Equal(new Money(-1000, Currency.USD), r2);
 
-    //    var r3 = FunctionalAssert.Some(Money.ParseOrNone("1000", Currency.CHF));
-    //    Assert.Equal(new Money(1000, Currency.CHF), r3);
-    //}
+        var r3 = FunctionalAssert.Some(Money.ParseOrNone("1000", Currency.CHF));
+        Assert.Equal(new Money(1000, Currency.CHF), r3);
+    }
 
     //[Fact]
     //public void CurrenciesWithoutFormatProviders()
